@@ -246,6 +246,22 @@ final class Entitlement {
   }
 
   /**
+   * Whether this is the Free build (Themeasy Lite, the wordpress.org zip).
+   *
+   * Reads the build, not the license: the strip flips the SDK's is_premium flag
+   * to false in the Free build, so a premium build with no license answers false.
+   * The Lite cannot take a license key (the SDK adds no activation to a free
+   * build), so a buyer has to swap it for the premium build (backlog #268).
+   *
+   * @return bool
+   */
+  public static function is_lite_build(): bool {
+    $fs = self::fs();
+
+    return $fs && !$fs->is_premium();
+  }
+
+  /**
    * Whether the plugin holds its OWN Freemius license on this install.
    *
    * A buyer of a plugin plan (Widgets, Pro, Agency) — as opposed to M2, where the

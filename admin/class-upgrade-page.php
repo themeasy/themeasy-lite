@@ -1,9 +1,12 @@
 <?php
 /**
- * Free admin (the Upgrade/Welcome page) — the Freemius funnel.
+ * Free admin (the Getting Started / Upgrade page) — the Freemius funnel.
  *
- * Registers a branded `themeasy` top-level menu and an Upgrade/Welcome page that
- * showcases the template library, for the Free (widgets-only) build. The full
+ * Registers a branded `themeasy` top-level menu and its page. For the Free
+ * (widgets-only) build the page is a Getting Started guide first (the free
+ * widgets, how to reach them in Elementor, help), with the upgrade after it
+ * (backlog #267), and the Lite build tells a buyer how to swap it for the
+ * Themeasy plugin (backlog #268); it also showcases the template library. The full
  * settings panel is premium (Settings_Loader); to avoid registering the menu
  * twice, this loader stands down on the full offer with a Themeasy theme
  * active — the Pro admin then owns the menu. On any other theme that admin
@@ -26,6 +29,7 @@
 namespace Themeasy\Admin;
 
 use Themeasy\Core\Entitlement;
+use Themeasy\Elementor\Widget_Categories;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -48,6 +52,12 @@ class Upgrade_Page {
   /** The Themeasy themes, for a full-offer site on another theme. */
   private const THEMES_URL = 'https://themeasy.co';
 
+  /** The Themeasy Help Center (the widgets' own help links point here too). */
+  private const HELP_URL = 'https://themeasy.co/help-center';
+
+  /** Where a plugin-plan buyer downloads the premium build (the Freemius customer portal). */
+  private const CUSTOMER_PORTAL_URL = 'https://users.freemius.com';
+
   /**
    * Initialize the minimal Free admin.
    *
@@ -68,11 +78,14 @@ class Upgrade_Page {
   }
 
   /**
-   * Register the branded top-level menu + the Upgrade page.
+   * Register the branded top-level menu + the page (Getting Started on Free,
+   * Upgrade on a paid plan).
    *
    * @return void
    */
   public static function register_menu(): void {
+    $is_free = !Entitlement::can_use_widgets();
+
     add_menu_page(
       esc_html__( 'Themeasy', 'themeasy-lite' ),
       esc_html__( 'Themeasy', 'themeasy-lite' ),
@@ -86,8 +99,8 @@ class Upgrade_Page {
     // Rename the auto-generated first submenu to match the page intent.
     add_submenu_page(
       self::PAGE_SLUG,
-      esc_html__( 'Upgrade Themeasy', 'themeasy-lite' ),
-      esc_html__( 'Upgrade', 'themeasy-lite' ),
+      $is_free ? esc_html__( 'Getting Started', 'themeasy-lite' ) : esc_html__( 'Upgrade Themeasy', 'themeasy-lite' ),
+      $is_free ? esc_html__( 'Getting Started', 'themeasy-lite' ) : esc_html__( 'Upgrade', 'themeasy-lite' ),
       'manage_options',
       self::PAGE_SLUG,
       [__CLASS__, 'render_page']
@@ -117,8 +130,9 @@ class Upgrade_Page {
   }
 
   /**
-   * Render the Upgrade / Welcome page — the Free build's conversion hook, and
-   * the Widgets plan's home (license status + upgrade to the full offer).
+   * Render the page — the Free build's Getting Started guide and conversion
+   * hook, and the Widgets plan's home (license status + upgrade to the full
+   * offer).
    *
    * @return void
    */
@@ -156,6 +170,9 @@ class Upgrade_Page {
     // Pro's site features (theme builder, global sections, settings panel) need
     // a Themeasy theme; its widgets work anywhere. Say so where it matters.
     $needs_themeasy_theme = !current_theme_supports( 'themeasy-compatible' );
+
+    // Free: the page opens on how to use the free widgets; the upgrade follows.
+    $is_free = !$is_full_offer && !$is_widgets_plan;
     ?>
     <div class="themeasy-admin themeasy-admin--dark-mode">
 
@@ -164,7 +181,7 @@ class Upgrade_Page {
 
           <div class="themeasy-admin__hero">
             <div class="themeasy-admin__brand">
-              <?php echo self::logo_svg(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted bundled SVG.?>
+              <?php echo self::logo_svg(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted bundled SVG.?>
             </div>
             <?php if ( $is_full_offer ) : ?>
               <h1 class="themeasy-admin__title">
@@ -185,13 +202,17 @@ class Upgrade_Page {
                 <?php esc_html_e( 'Welcome to Themeasy', 'themeasy-lite' ); ?>
               </h1>
               <p class="themeasy-admin__lead">
-                <?php esc_html_e( 'You are running the free Elementor content widgets. Themeasy Widgets adds the Pro content widgets and Themeasy Motion, in any theme. Themeasy Pro adds the complete site toolkit on top.', 'themeasy-lite' ); ?>
+                <?php esc_html_e( 'Free Elementor widgets that work in any theme, with no license to activate. Here is how to start building with them.', 'themeasy-lite' ); ?>
               </p>
             <?php endif; ?>
             <div class="themeasy-admin__actions">
               <?php if ( $is_full_offer ) : ?>
                 <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( self::THEMES_URL ); ?>" target="_blank" rel="noopener">
                   <?php esc_html_e( 'View Themeasy Themes', 'themeasy-lite' ); ?>
+                </a>
+              <?php elseif ( $is_free ) : ?>
+                <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( self::new_page_url() ); ?>">
+                  <?php esc_html_e( 'Create a Page', 'themeasy-lite' ); ?>
                 </a>
               <?php else : ?>
                 <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $upgrade_url ); ?>">
@@ -208,6 +229,13 @@ class Upgrade_Page {
               </a>
             </div>
           </div>
+
+          <?php if ( $is_free ) : ?>
+            <?php self::render_getting_started(); ?>
+            <?php if ( Entitlement::is_lite_build() ) : ?>
+              <?php self::render_already_purchased(); ?>
+            <?php endif; ?>
+          <?php endif; ?>
 
           <div class="themeasy-admin__library" aria-labelledby="themeasy-admin-library-title">
             <h2 id="themeasy-admin-library-title" class="themeasy-admin__section-title">
@@ -335,6 +363,178 @@ class Upgrade_Page {
   }
 
   /**
+   * Print the Free build's Getting Started section: three steps from a blank
+   * page to a finished section, the free widgets by name, and where to get help.
+   *
+   * @return void
+   */
+  private static function render_getting_started(): void {
+    $titles = self::free_widget_titles();
+    $category = class_exists( Widget_Categories::class, false )
+      ? Widget_Categories::free_editor_label()
+      : __( 'Themeasy', 'themeasy-lite' );
+    ?>
+    <div class="themeasy-admin__start" aria-labelledby="themeasy-admin-start-title">
+      <h2 id="themeasy-admin-start-title" class="themeasy-admin__section-title">
+        <?php esc_html_e( 'Getting Started', 'themeasy-lite' ); ?>
+      </h2>
+
+      <ol class="themeasy-admin__feature-list">
+        <li class="themeasy-admin__feature">
+          <span class="themeasy-admin__feature-icon themeasy-admin__step" aria-hidden="true">1</span>
+          <span class="themeasy-admin__feature-text">
+            <?php
+            printf(
+              /* translators: %s: link to create a new page with Elementor. */
+              esc_html__( 'Open a page with Elementor: %s, or choose "Edit with Elementor" on a page you already have.', 'themeasy-lite' ),
+              '<a href="' . esc_url( self::new_page_url() ) . '">' . esc_html__( 'create a new one', 'themeasy-lite' ) . '</a>'
+            );
+            ?>
+          </span>
+        </li>
+        <li class="themeasy-admin__feature">
+          <span class="themeasy-admin__feature-icon themeasy-admin__step" aria-hidden="true">2</span>
+          <span class="themeasy-admin__feature-text">
+            <?php
+            printf(
+              /* translators: %s: the Elementor panel category that holds the free widgets. */
+              esc_html__( 'In the Elements panel, open the %s category, or search for a widget by name, and drag it onto the page.', 'themeasy-lite' ),
+              '<strong>' . esc_html( $category ) . '</strong>'
+            );
+            ?>
+          </span>
+        </li>
+        <li class="themeasy-admin__feature">
+          <span class="themeasy-admin__feature-icon themeasy-admin__step" aria-hidden="true">3</span>
+          <span class="themeasy-admin__feature-text">
+            <?php esc_html_e( 'For a ready-made section, click the Themeasy button in the editor\'s "Drag widget here" area. The Themeasy Library opens, and its Free templates insert in one click.', 'themeasy-lite' ); ?>
+          </span>
+        </li>
+      </ol>
+
+      <?php if ( !empty( $titles ) ) : ?>
+        <h3 class="themeasy-admin__subsection-title">
+          <?php
+          printf(
+            /* translators: %s: number of free widgets. */
+            esc_html( _n( 'The %s free widget', 'The %s free widgets', count( $titles ), 'themeasy-lite' ) ),
+            esc_html( number_format_i18n( count( $titles ) ) )
+          );
+          ?>
+        </h3>
+        <ul class="themeasy-admin__widget-list">
+          <?php foreach ( $titles as $title ) : ?>
+            <li class="themeasy-admin__widget"><?php echo esc_html( $title ); ?></li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
+
+      <p class="themeasy-admin__section-lead">
+        <?php
+        printf(
+          /* translators: %s: link to the Themeasy Help Center. */
+          esc_html__( 'Need a hand? Every widget has a guide in the %s.', 'themeasy-lite' ),
+          '<a href="' . esc_url( self::HELP_URL ) . '" target="_blank" rel="noopener">' . esc_html__( 'Themeasy Help Center', 'themeasy-lite' ) . '</a>'
+        );
+        ?>
+      </p>
+    </div>
+    <?php
+  }
+
+  /**
+   * Print the Lite's "Already purchased?" steps (backlog #268). The Lite cannot
+   * take a license key: a buyer downloads the Themeasy plugin, which deactivates
+   * the Lite when it is activated and takes the key.
+   *
+   * @return void
+   */
+  private static function render_already_purchased(): void {
+    ?>
+    <div class="themeasy-admin__start" aria-labelledby="themeasy-admin-purchased-title">
+      <h2 id="themeasy-admin-purchased-title" class="themeasy-admin__section-title">
+        <?php esc_html_e( 'Already purchased?', 'themeasy-lite' ); ?>
+      </h2>
+      <p class="themeasy-admin__section-lead">
+        <?php esc_html_e( 'Your plan comes with the Themeasy plugin, a separate download that takes the place of Themeasy Lite.', 'themeasy-lite' ); ?>
+      </p>
+
+      <ol class="themeasy-admin__feature-list">
+        <li class="themeasy-admin__feature">
+          <span class="themeasy-admin__feature-icon themeasy-admin__step" aria-hidden="true">1</span>
+          <span class="themeasy-admin__feature-text">
+            <?php
+            printf(
+              /* translators: %s: link to the customer portal. */
+              esc_html__( 'Download Themeasy from the link in your purchase email, or from the %s.', 'themeasy-lite' ),
+              '<a href="' . esc_url( self::CUSTOMER_PORTAL_URL ) . '" target="_blank" rel="noopener">' . esc_html__( 'customer portal', 'themeasy-lite' ) . '</a>'
+            );
+            ?>
+          </span>
+        </li>
+        <li class="themeasy-admin__feature">
+          <span class="themeasy-admin__feature-icon themeasy-admin__step" aria-hidden="true">2</span>
+          <span class="themeasy-admin__feature-text">
+            <?php
+            printf(
+              /* translators: %s: link to the Upload Plugin screen. */
+              esc_html__( 'Open %s in Plugins and install the zip file.', 'themeasy-lite' ),
+              '<a href="' . esc_url( admin_url( 'plugin-install.php?tab=upload' ) ) . '">' . esc_html__( 'Upload Plugin', 'themeasy-lite' ) . '</a>'
+            );
+            ?>
+          </span>
+        </li>
+        <li class="themeasy-admin__feature">
+          <span class="themeasy-admin__feature-icon themeasy-admin__step" aria-hidden="true">3</span>
+          <span class="themeasy-admin__feature-text">
+            <?php esc_html_e( 'Activate Themeasy: it deactivates Themeasy Lite for you. Then click Activate License on its row in Plugins and enter your license key.', 'themeasy-lite' ); ?>
+          </span>
+        </li>
+      </ol>
+    </div>
+    <?php
+  }
+
+  /**
+   * The titles of the free widgets, in the order the editor panel lists them.
+   *
+   * Read from Elementor's widget registry and filtered to the Free category, so
+   * the page names exactly what the editor offers, never a second copy of the
+   * tier list (Widget_Tiers). Empty when Elementor is not running.
+   *
+   * @return string[]
+   */
+  private static function free_widget_titles(): array {
+    if ( !did_action( 'elementor/loaded' ) || !class_exists( Widget_Categories::class, false ) ) {
+      return [];
+    }
+
+    $titles = [];
+
+    foreach ( \Elementor\Plugin::$instance->widgets_manager->get_widget_types() as $widget ) {
+      if ( in_array( Widget_Categories::FREE_CATEGORY_SLUG, $widget->get_categories(), true ) ) {
+        $titles[] = $widget->get_title();
+      }
+    }
+
+    return $titles;
+  }
+
+  /**
+   * Where "Create a Page" goes: Elementor's own new-page action (it opens the
+   * editor on a fresh draft), else the core new-page screen.
+   *
+   * @return string
+   */
+  private static function new_page_url(): string {
+    if ( class_exists( '\Elementor\Core\Documents_Manager' ) ) {
+      return \Elementor\Core\Documents_Manager::get_create_new_post_url( 'page' );
+    }
+
+    return admin_url( 'post-new.php?post_type=page' );
+  }
+
+  /**
    * Print a feature list: each entry pairs an admin SVG (admin/assets/svg/,
    * shipped in the Free build) with its label. Swap an icon by overwriting the
    * slot file.
@@ -348,7 +548,7 @@ class Upgrade_Page {
       <?php foreach ( $features as $feature ) : ?>
         <li class="themeasy-admin__feature">
           <span class="themeasy-admin__feature-icon" aria-hidden="true">
-            <?php echo self::read_svg( $feature['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted bundled SVG.?>
+            <?php echo self::read_svg( $feature['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted bundled SVG.?>
           </span>
           <span class="themeasy-admin__feature-text"><?php echo esc_html( $feature['text'] ); ?></span>
         </li>

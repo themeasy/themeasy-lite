@@ -80,6 +80,13 @@ if ( !function_exists( 'themeasy_fs' ) ) {
       // Hub — the SDK's own admin notices duplicate or contradict it. Hide all.
       $themeasy_fs->add_filter( 'show_admin_notice', '__return_false' );
 
+      // On an install that never opted in, the deactivation feedback form starts
+      // with "Anonymous feedback" ticked. The SDK default leaves it unticked, and
+      // an answer then opts the whole site in when the plugin is deleted (name,
+      // email, site URL, plugin list). Now only a user who unticks it opts in
+      // (backlog #267; readme-lite.txt → External services).
+      $themeasy_fs->add_filter( 'default_to_anonymous_feedback', '__return_true' );
+
       // License/account management lives on the Themeasy site + the Hub, never the
       // SDK's in-WP screens (owner decision). Hide the SDK Pricing submenu item
       // (mirrors the theme's theme_fs() config) and the Account one, with a single

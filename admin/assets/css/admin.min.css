@@ -23,6 +23,7 @@
  * 06. Hero
  * 07. Library
  * 08. Features
+ * 09. Getting Started
  *
  * ------------------------------------------------------------------------ */
 
@@ -407,3 +408,52 @@ body #wpfooter {
 }
 
 /* #endregion Features */
+
+/* ------------------------------------------------------------------------
+ * 09. Getting Started
+ * ------------------------------------------------------------------------ */
+
+/* #region Getting Started */
+
+/* The steps are an <ol>: drop wp-admin's 2em list indent. */
+.themeasy-admin__start .themeasy-admin__feature-list {
+  margin-left: 0;
+}
+
+.themeasy-admin__step {
+  font-weight: 600;
+}
+
+.themeasy-admin__subsection-title {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--themeasy-heading-color);
+}
+
+.themeasy-admin__widget-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.themeasy-admin__widget {
+  margin: 0;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--themeasy-border-color);
+  font-size: 0.875rem;
+  color: var(--themeasy-heading-color);
+}
+
+.themeasy-admin__start a {
+  color: var(--themeasy-heading-color);
+  text-decoration-color: var(--themeasy-primary-color);
+  text-underline-offset: 0.2em;
+}
+
+/* #endregion Getting Started */

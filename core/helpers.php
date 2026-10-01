@@ -540,9 +540,9 @@ function themeasy_register_motion_upsell_section( \Elementor\Controls_Stack $ele
       'type' => \Elementor\Controls_Manager::RAW_HTML,
       'raw' => sprintf(
         '%1$s <a href="%2$s" target="_blank" rel="noopener">%3$s</a>',
-        esc_html__( 'Animations and hover effects for this widget are part of Themeasy Pro.', 'themeasy-lite' ),
+        esc_html__( 'Animations and hover effects for this widget come with the paid plans, starting with Themeasy Widgets.', 'themeasy-lite' ),
         esc_url( admin_url( 'admin.php?page=themeasy' ) ),
-        esc_html__( 'Upgrade to Pro', 'themeasy-lite' )
+        esc_html__( 'Compare Plans', 'themeasy-lite' )
       ),
       'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
     ]
@@ -1050,14 +1050,14 @@ function themeasy_render_image_tag( string $src, string $alt = '', string $class
     return;
   }
 
-  $class_attr = $class ? sprintf( ' class="%s"', esc_attr( $class ) ) : '';
   $extra_attr = themeasy_html_attributes( $attributes );
 
   printf(
     '<img src="%s" alt="%s"%s loading="lazy" decoding="async"%s />',
     esc_url( $src ),
     esc_attr( $alt ),
-    $class_attr,
+    $class ? ' class="' . esc_attr( $class ) . '"' : '',
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- values escaped by themeasy_html_attributes().
     $extra_attr ? ' ' . $extra_attr : ''
   );
 }
@@ -1094,20 +1094,19 @@ function themeasy_render_attachment_image( int $image_id = 0, string $size = 'fu
     return;
   }
 
-  $class_attr = $class ? sprintf( ' class="%s"', esc_attr( $class ) ) : '';
   $extra_attr = themeasy_html_attributes( $attributes );
-  $loading = $loading_priority === 'high' ? ' fetchpriority="high"' : ' loading="lazy"';
 
   printf(
     '<img src="%s" alt="%s"%s%s%s%s%s%s%s decoding="async" />',
     esc_url( $src ),
     esc_attr( $alt ),
-    $class_attr,
-    $width  ? sprintf( ' width="%d"', $width ) : '',
-    $height ? sprintf( ' height="%d"', $height ) : '',
+    $class ? ' class="' . esc_attr( $class ) . '"' : '',
+    $width  ? sprintf( ' width="%d"', (int) $width ) : '',
+    $height ? sprintf( ' height="%d"', (int) $height ) : '',
     $srcset ? sprintf( ' srcset="%s"', esc_attr( $srcset ) ) : '',
     $sizes  ? sprintf( ' sizes="%s"', esc_attr( $sizes ) ) : '',
-    $loading,
+    $loading_priority === 'high' ? ' fetchpriority="high"' : ' loading="lazy"',
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- values escaped by themeasy_html_attributes().
     $extra_attr ? ' ' . $extra_attr : ''
   );
 }
@@ -1173,12 +1172,12 @@ function themeasy_get_unique_image_categories(): array {
   global $wpdb;
 
   $meta_key = '_tms_category';
-  $query = $wpdb->prepare(
-    "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value != ''",
-    $meta_key
+  $raw_results = $wpdb->get_col(
+    $wpdb->prepare(
+      "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value != ''",
+      $meta_key
+    )
   );
-
-  $raw_results = $wpdb->get_col( $query );
   if ( empty( $raw_results ) ) {
     return [];
   }
