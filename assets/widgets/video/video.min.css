@@ -1,0 +1,321 @@
+/*!
+ * Themeasy — Video Widget Styles
+ *
+ * Video facade: an aspect-ratio frame holding the poster (image, auto
+ * YouTube thumbnail, or token gradient placeholder), a bottom scrim, a glass
+ * play button with an optional pulse ring, and a micro-label badge. The
+ * on-demand player (iframe or native video) is layered above the facade and
+ * cross-fades in once loaded; the ambient skin autoplays a muted native
+ * video with no facade at all. Structure is pure CSS — with no JS the facade
+ * is a plain link to the video and everything above still renders.
+ *
+ * Public tokens (--tms-*) are consumed — never private (--themeasy-*).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Wrapper & frame
+ * 02. Facade, poster & scrim
+ * 03. Play button, icon & pulse ring
+ * 04. Badge
+ * 05. Player (iframe / native video / ambient)
+ * 06. Accessibility (focus, static, reduced motion) & responsive
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & frame
+ * ------------------------------------------------------------------------ */
+
+/* #region Frame */
+
+.tms-video {
+  --tms-video-frame-bg: #05070c;
+  --tms-video-duration: 0.35s;
+  --tms-video-play-size: 1.5rem;
+  --tms-video-play-box: 2.6em;
+  --tms-video-play-blur: 10px;
+  --tms-video-scrim-color: var(--tms-video-frame-bg);
+  --tms-video-scrim-opacity: 0.5;
+  --tms-video-zoom-scale: 1.04;
+  --tms-video-play-ring-color: rgba(255, 255, 255, 0.55);
+  --tms-video-badge-offset: 0.875rem;
+
+  position: relative;
+}
+
+.tms-video .tms-video__frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--tms-radius-md, 0.5rem);
+  background-color: var(--tms-video-frame-bg);
+  isolation: isolate;
+}
+
+/* #endregion Frame */
+
+/* ------------------------------------------------------------------------
+ * 02. Facade, poster & scrim
+ * ------------------------------------------------------------------------ */
+
+/* #region Facade */
+
+.tms-video .tms-video__facade {
+  position: absolute;
+  inset: 0;
+  display: block;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    opacity var(--tms-video-duration) ease,
+    visibility var(--tms-video-duration) ease;
+}
+
+/* Poster-first facade with no source yet: rendered as a <span>, so it must not
+   advertise a click it cannot perform. */
+
+.tms-video .tms-video__facade[aria-disabled="true"] {
+  cursor: default;
+}
+
+.tms-video .tms-video__poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--tms-video-duration) ease;
+}
+
+/* Branded gradient stand-in when no poster resolves (Vimeo / self-hosted). */
+
+.tms-video .tms-video__poster--placeholder {
+  background:
+    radial-gradient(120% 100% at 85% 0%, color-mix(in srgb, var(--tms-primary-color, #2563eb) 26%, transparent), transparent 60%),
+    linear-gradient(135deg, #171b24, var(--tms-video-frame-bg) 72%);
+}
+
+.tms-video--hover-zoom .tms-video__facade:hover .tms-video__poster,
+.tms-video--hover-zoom .tms-video__facade:focus-visible .tms-video__poster {
+  transform: scale(var(--tms-video-zoom-scale));
+}
+
+.tms-video .tms-video__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--tms-video-scrim-color), transparent 62%);
+  opacity: var(--tms-video-scrim-opacity);
+  pointer-events: none;
+}
+
+/* #endregion Facade */
+
+/* ------------------------------------------------------------------------
+ * 03. Play button, icon & pulse ring
+ * ------------------------------------------------------------------------ */
+
+/* #region Play */
+
+/* The node is sized in em against its own font-size, so the default button
+   scales with the icon; a px/rem Button Size pins the circle instead. */
+
+.tms-video .tms-video__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tms-video-play-box, 2.6em);
+  height: var(--tms-video-play-box, 2.6em);
+  font-size: var(--tms-video-play-size, 1.5rem);
+  line-height: 1;
+  color: var(--tms-white-color, #fff);
+  background-color: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--tms-radius-pill, 999px);
+  backdrop-filter: blur(var(--tms-video-play-blur, 10px));
+  -webkit-backdrop-filter: blur(var(--tms-video-play-blur, 10px));
+  transition:
+    color var(--tms-video-duration) ease,
+    background-color var(--tms-video-duration) ease,
+    border-color var(--tms-video-duration) ease,
+    scale var(--tms-video-duration) ease;
+}
+
+.tms-video .tms-video__facade:hover .tms-video__play,
+.tms-video .tms-video__facade:focus-visible .tms-video__play {
+  scale: 1.08;
+  background-color: rgba(255, 255, 255, 0.24);
+}
+
+/* Icon contract: the wrapper owns color/size; the glyph is a 1em element.
+ * The tiny inline nudge optically centers triangle glyphs in the circle. */
+
+.tms-video .tms-video__play-icon {
+  display: inline-flex;
+  line-height: 1;
+  translate: 0.05em 0;
+}
+
+.tms-video .tms-video__play-icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-video .tms-video__play-icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-video .tms-video__play-icon img {
+  width: 1em;
+  height: 1em;
+}
+
+/* Pulse ring: radiates from the button edge, inviting the click. */
+
+.tms-video .tms-video__play-ring {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--tms-video-play-ring-color);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tms-video--pulse .tms-video__play-ring {
+  animation: tms-video-pulse 2.6s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+}
+
+@keyframes tms-video-pulse {
+  0% {
+    scale: 1;
+    opacity: 0.7;
+  }
+
+  70%,
+  100% {
+    scale: 1.6;
+    opacity: 0;
+  }
+}
+
+/* #endregion Play */
+
+/* ------------------------------------------------------------------------
+ * 04. Badge
+ * ------------------------------------------------------------------------ */
+
+/* #region Badge */
+
+/* Anatomy from the shared .tms-tag--micro (components.min.css); the player
+   owns the corner placement and the frosted scrim over the poster. */
+.tms-video .tms-video__badge {
+  position: absolute;
+  bottom: var(--tms-video-badge-offset);
+  inset-inline-start: var(--tms-video-badge-offset);
+  color: var(--tms-white-color, #fff);
+  background-color: rgba(5, 7, 12, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* #endregion Badge */
+
+/* ------------------------------------------------------------------------
+ * 05. Player (iframe / native video / ambient)
+ * ------------------------------------------------------------------------ */
+
+/* #region Player */
+
+.tms-video .tms-video__player {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  opacity: 0;
+  transition: opacity var(--tms-video-duration) ease;
+}
+
+.tms-video--playing .tms-video__player {
+  opacity: 1;
+}
+
+/* The on-demand player sits above the facade; the facade fades away. */
+
+.tms-video--playing .tms-video__facade {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.tms-video .tms-video__player--ambient {
+  opacity: 1;
+  object-fit: cover;
+}
+
+/* #endregion Player */
+
+/* ------------------------------------------------------------------------
+ * 06. Accessibility (focus, static, reduced motion) & responsive
+ * ------------------------------------------------------------------------ */
+
+/* #region Accessibility */
+
+.tms-video .tms-video__facade:focus-visible {
+  outline: 2px solid var(--tms-primary-color, #2563eb);
+  outline-offset: -2px;
+  border-radius: inherit;
+}
+
+/* Editor preview: everything holds still. */
+
+.tms-video--static .tms-video__facade {
+  cursor: default;
+}
+
+.tms-video--static .tms-video__play-ring {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-video .tms-video__facade,
+  .tms-video .tms-video__poster,
+  .tms-video .tms-video__play,
+  .tms-video .tms-video__player {
+    transition-duration: 0.01ms !important;
+  }
+
+  .tms-video--pulse .tms-video__play-ring {
+    animation: none;
+  }
+
+  .tms-video--hover-zoom .tms-video__facade:hover .tms-video__poster,
+  .tms-video--hover-zoom .tms-video__facade:focus-visible .tms-video__poster {
+    transform: none;
+  }
+
+  .tms-video .tms-video__facade:hover .tms-video__play,
+  .tms-video .tms-video__facade:focus-visible .tms-video__play {
+    scale: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .tms-video {
+    --tms-video-badge-offset: 0.625rem;
+  }
+}
+
+/* #endregion Accessibility */

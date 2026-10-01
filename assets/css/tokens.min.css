@@ -1,0 +1,350 @@
+/*!
+ * Themeasy — Design Tokens CSS
+ *
+ * Zero-specificity defaults for the public --tms-* design tokens, so the
+ * widgets keep their colors, radii, shadows and type scale on any theme
+ * (backlog #256). A Themeasy theme declares the same tokens on :root in its
+ * style.css, and the Themeasy Settings override them in settings.css: both
+ * outrank :where(:root) whichever sheet loads first, so on a Themeasy theme
+ * this file changes nothing.
+ *
+ * The values mirror themeasy-base/style.css (sections 1-14), guarded by
+ * tests/token-layer-drift.php: change a token in both files. The font
+ * families are left out on purpose. Undefined, a font-family: var()
+ * inherits, so the widgets keep the host theme's font.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Brand Colors
+ * 02. Text Colors
+ * 03. Background Colors
+ * 04. Neutral Colors
+ * 05. Border Colors
+ * 06. Button Colors
+ * 07. Feedback & States
+ * 08. Dark Mode
+ * 09. Typography
+ * 10. Spacing
+ * 11. Border Radius
+ * 12. Shadow
+ * 13. Transition
+ * 14. Responsive Tokens
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Brand Colors
+ * ------------------------------------------------------------------------ */
+
+/* #region Brand Colors */
+
+:where(:root) {
+
+  /* Primary */
+  --tms-primary-color: #3772FF;
+  --tms-primary-color-10: color-mix(in srgb, var(--tms-primary-color) 10%, transparent);
+  --tms-primary-color-15: color-mix(in srgb, var(--tms-primary-color) 15%, transparent);
+  --tms-primary-color-25: color-mix(in srgb, var(--tms-primary-color) 25%, transparent);
+  --tms-primary-color-50: color-mix(in srgb, var(--tms-primary-color) 50%, transparent);
+  --tms-primary-color-75: color-mix(in srgb, var(--tms-primary-color) 75%, transparent);
+
+  /* Secondary */
+  --tms-secondary-color: #FF006E;
+  --tms-secondary-color-10: color-mix(in srgb, var(--tms-secondary-color) 10%, transparent);
+  --tms-secondary-color-15: color-mix(in srgb, var(--tms-secondary-color) 15%, transparent);
+  --tms-secondary-color-25: color-mix(in srgb, var(--tms-secondary-color) 25%, transparent);
+  --tms-secondary-color-50: color-mix(in srgb, var(--tms-secondary-color) 50%, transparent);
+  --tms-secondary-color-75: color-mix(in srgb, var(--tms-secondary-color) 75%, transparent);
+
+  /* Accent */
+  --tms-accent-color: #AAF683;
+}
+
+/* #endregion Brand Colors */
+
+/* ------------------------------------------------------------------------
+ * 02. Text Colors
+ * ------------------------------------------------------------------------ */
+
+/* #region Text Colors */
+
+:where(:root) {
+  --tms-body-color: #495057;
+  --tms-heading-color: #1D2023;
+  --tms-muted-color: #6C757D;
+  --tms-link-color: var(--tms-primary-color);
+}
+
+/* #endregion Text Colors */
+
+/* ------------------------------------------------------------------------
+ * 03. Background Colors
+ * ------------------------------------------------------------------------ */
+
+/* #region Background Colors */
+
+:where(:root) {
+  --tms-bg-color: #FFFFFF;
+  --tms-surface-color: #F8F9FA;
+}
+
+/* #endregion Background Colors */
+
+/* ------------------------------------------------------------------------
+ * 04. Neutral Colors
+ * ------------------------------------------------------------------------ */
+
+/* #region Neutral Colors */
+
+:where(:root) {
+  --tms-black-color: #151515;
+  --tms-white-color: #FFFFFF;
+}
+
+/* #endregion Neutral Colors */
+
+/* ------------------------------------------------------------------------
+ * 05. Border Colors
+ * ------------------------------------------------------------------------ */
+
+/* #region Border Colors */
+
+:where(:root) {
+  --tms-border-color: #E5E7EB;
+  --tms-border-strong-color: #1D2023;
+}
+
+/* #endregion Border Colors */
+
+/* ------------------------------------------------------------------------
+ * 06. Button Colors
+ * ------------------------------------------------------------------------ */
+
+/* #region Button Colors */
+
+:where(:root) {
+  --tms-button-bg-color: #1D2023;
+  --tms-button-text-color: #FFFFFF;
+}
+
+/* #endregion Button Colors */
+
+/* ------------------------------------------------------------------------
+ * 07. Feedback & States
+ * ------------------------------------------------------------------------ */
+
+/* #region Feedback & States */
+
+:where(:root) {
+  --tms-info-color: #0077B6;
+  --tms-success-color: #38A3A5;
+  --tms-warning-color: #FCA311;
+  --tms-danger-color: #E63946;
+}
+
+/* #endregion Feedback & States */
+
+/* ------------------------------------------------------------------------
+ * 08. Dark Mode
+ *
+ * Tokens only. The theme also paints .tms-dark-mode itself (background and
+ * text color); that styling rule stays in the theme.
+ * ------------------------------------------------------------------------ */
+
+/* #region Dark Mode */
+
+:where(:root .tms-dark-mode) {
+
+  /* Text Colors */
+  --tms-body-color: #A9AEC3;
+  --tms-heading-color: #FFFFFF;
+  --tms-muted-color: #6B7280;
+  --tms-link-color: #6B9BFF;
+
+  /* Background Colors */
+  --tms-bg-color: var(--tms-black-color);
+  --tms-surface-color: #2C2E33;
+
+  /* Border Colors */
+  --tms-border-color: #2C2E33;
+  --tms-border-strong-color: #FFFFFF;
+
+  /* Button Colors */
+  --tms-button-bg-color: #FFFFFF;
+  --tms-button-text-color: var(--tms-black-color);
+
+  /* Shadow */
+  --tms-shadow-sm: rgba(99, 99, 99, 0.1) 0px 2px 8px 0px;
+  --tms-shadow-md: rgba(149, 157, 165, 0.1) 0px 8px 24px;
+  --tms-shadow-lg: rgba(17, 12, 46, 0.1) 0px 48px 100px 0px;
+}
+
+/* #endregion Dark Mode */
+
+/* ------------------------------------------------------------------------
+ * 09. Typography
+ *
+ * No font families here (see the file header): --tms-body-font,
+ * --tms-heading-font and --tms-accent-font come from a Themeasy theme only.
+ * ------------------------------------------------------------------------ */
+
+/* #region Typography */
+
+:where(:root) {
+
+  /* Body */
+  --tms-font-size-xs:  0.75rem;
+  --tms-font-size-sm:  0.875rem;
+  --tms-font-size-md:  1rem;
+  --tms-font-size-lg:  1.125rem;
+  --tms-font-size-xl:  1.25rem;
+  --tms-body-font-weight: 400;
+  --tms-body-line-height: 1.5;
+  --tms-body-letter-spacing: 0;
+
+  /* Headings */
+  --tms-h1-font-size: 2rem;
+  --tms-h2-font-size: 1.75rem;
+  --tms-h3-font-size: 1.5rem;
+  --tms-h4-font-size: 1.25rem;
+  --tms-h5-font-size: 1.125rem;
+  --tms-h6-font-size: 1rem;
+  --tms-heading-font-weight: 600;
+  --tms-heading-line-height: 1.3;
+  --tms-heading-letter-spacing: 0;
+
+  /* Accent */
+  --tms-accent-font-weight: 600;
+  --tms-accent-line-height: 1.3;
+  --tms-accent-letter-spacing: 0;
+
+  /* Font Weights */
+  --tms-semibold-font-weight: 600;
+  --tms-bold-font-weight: 700;
+
+  /* Button */
+  --tms-button-font-weight: var(--tms-semibold-font-weight);
+}
+
+/* #endregion Typography */
+
+/* ------------------------------------------------------------------------
+ * 10. Spacing
+ * ------------------------------------------------------------------------ */
+
+/* #region Spacing */
+
+:where(:root) {
+  --tms-spacing-xs: 0.5rem;
+  --tms-spacing-sm: 1rem;
+  --tms-spacing-md: 1.5rem;
+  --tms-spacing-lg: 2rem;
+  --tms-spacing-xl: 2.5rem;
+  --tms-spacing-xxl: 3rem;
+  --tms-container-width: 1240px;
+  --tms-container-gutter: 1rem;
+}
+
+/* #endregion Spacing */
+
+/* ------------------------------------------------------------------------
+ * 11. Border Radius
+ * ------------------------------------------------------------------------ */
+
+/* #region Border Radius */
+
+:where(:root) {
+  --tms-radius-sm: 0.5rem;
+  --tms-radius-md: 0.75rem;
+  --tms-radius-lg: 1rem;
+  --tms-radius-pill: 999px;
+}
+
+/* #endregion Border Radius */
+
+/* ------------------------------------------------------------------------
+ * 12. Shadow
+ * ------------------------------------------------------------------------ */
+
+/* #region Shadow */
+
+:where(:root) {
+  --tms-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --tms-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --tms-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* #endregion Shadow */
+
+/* ------------------------------------------------------------------------
+ * 13. Transition
+ * ------------------------------------------------------------------------ */
+
+/* #region Transition */
+
+:where(:root) {
+  --tms-transition-fast: 200ms ease;
+  --tms-transition-base: 300ms ease;
+  --tms-transition-medium: 400ms ease;
+  --tms-transition-slow: 600ms ease;
+}
+
+/* #endregion Transition */
+
+/* ------------------------------------------------------------------------
+ * 14. Responsive Tokens
+ * ------------------------------------------------------------------------ */
+
+/* #region Responsive Tokens */
+
+@media (min-width: 768px) {
+  :where(:root) {
+
+    /* Typography — Headings */
+    --tms-h1-font-size: 2.5rem;
+    --tms-h2-font-size: 2rem;
+    --tms-h3-font-size: 1.75rem;
+    --tms-h4-font-size: 1.5rem;
+    --tms-h5-font-size: 1.25rem;
+    --tms-h6-font-size: 1.125rem;
+
+    /* Spacing */
+    --tms-spacing-lg:  2.5rem;
+    --tms-spacing-xl:  3rem;
+    --tms-spacing-xxl: 4rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :where(:root) {
+
+    /* Typography — Body */
+    --tms-font-size-xs:  0.875rem;
+    --tms-font-size-sm:  1rem;
+    --tms-font-size-md:  1.125rem;
+    --tms-font-size-lg:  1.25rem;
+    --tms-font-size-xl:  1.375rem;
+
+    /* Typography — Headings */
+    --tms-h1-font-size: 3rem;
+    --tms-h2-font-size: 2.5rem;
+    --tms-h3-font-size: 2rem;
+    --tms-h4-font-size: 1.75rem;
+    --tms-h5-font-size: 1.5rem;
+    --tms-h6-font-size: 1.25rem;
+
+    /* Spacing */
+    --tms-spacing-lg:  3rem;
+    --tms-spacing-xl:  4rem;
+    --tms-spacing-xxl: 6rem;
+  }
+}
+
+/* #endregion Responsive Tokens */

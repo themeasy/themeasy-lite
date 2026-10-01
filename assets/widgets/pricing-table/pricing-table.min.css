@@ -1,0 +1,313 @@
+/*!
+ * Themeasy — Pricing Table
+ *
+ * Repeater-driven pricing plans rendered as Bootstrap-grid cards with feature
+ * checklists, featured-badge variants (top / vertical / diagonal labels), a
+ * monthly/yearly price toggle, and themeable buttons. Cards and badges are pure
+ * CSS; the price toggle animates values via the widget JS and degrades to a
+ * static table without it. All colors flow through --tms-* tokens so light/dark
+ * both work.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+.tms-pricing-table {
+  /* Card corner radius fan-out. The Border Radius control (DIMENSIONS) writes
+   * these four variables so the card AND the featured label variants resolve
+   * their corners from the same source — the label mirrors the card's top
+   * corners instead of drifting out of sync with a hardcoded value. */
+  --tms-pt-radius-tl: 0px;
+  --tms-pt-radius-tr: 0px;
+  --tms-pt-radius-br: 0px;
+  --tms-pt-radius-bl: 0px;
+}
+
+/* Equal-height columns. The shared grid sets align-items: flex-start on every
+   [class*="row-cols"] (core.min.css), so a pricing column only ever gets its
+   own content height and a plan with fewer features ends short — CTAs included.
+   Stretch is restored here, scoped to this widget, and the card then fills the
+   column (height: 100%, same as .tms-steps__content .tms-card). The wrapper and
+   the body grow so the button group is pushed to the bottom by layout, without
+   touching its margins — those are owned by the shared grid-border sheet. */
+.tms-pricing-table [class*="row-cols"] {
+  align-items: stretch;
+}
+
+.tms-pricing-table .tms-pricing-table__card {
+  height: 100%;
+}
+
+.tms-pricing-table .tms-pricing-table__card .tms-card__wrapper,
+.tms-pricing-table .tms-pricing-table__card .tms-card__body {
+  flex: 1 1 auto;
+}
+
+.tms-pricing-table .tms-price-toggle__field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: fit-content;
+  margin: 0 auto 3.5rem;
+  gap: 1rem;
+}
+
+/* Room for the top label bar, which sits ABOVE the card in the card layout.
+   The grid layout draws it inside the cell instead (see Vertical Label). */
+.tms-pricing-table:not(.tms-grid-border):has(.tms-vertical-label.tms-vertical-label--top-filled) .tms-price-toggle__field {
+  margin-bottom: calc(3rem + 45px);
+}
+
+.tms-pricing-table .tms-price-toggle__field .form-label {
+  margin: 0;
+  font-size: 110%;
+  font-weight: var(--tms-semibold-font-weight);
+  color: var(--tms-heading-color, #11181c);
+}
+
+.tms-pricing-table .tms-price-toggle__field .tms-price-toggle__button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* The toggle badge is the shared .tms-tag (components.min.css): anatomy and
+ * colors both come from there. */
+
+.tms-pricing-table .tms-pricing-table__card {
+  width: 100%;
+  padding: 30px;
+  border-radius: var(--tms-pt-radius-tl) var(--tms-pt-radius-tr) var(--tms-pt-radius-br) var(--tms-pt-radius-bl);
+  border: 1px solid var(--tms-border-strong-color, #d0d7de);
+}
+
+.tms-pricing-table .tms-pricing-table__plan-name {
+  margin: 0 0 1.5rem 0;
+  font-family: var(--tms-accent-font);
+  font-size: var(--tms-font-size-xs);
+  font-weight: var(--tms-accent-font-weight);
+  line-height: var(--tms-accent-line-height);
+  letter-spacing: var(--tms-accent-letter-spacing);
+  text-transform: uppercase;
+  color: var(--tms-heading-color, #11181c);
+}
+
+.tms-pricing-table .tms-pricing-table__price-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.5rem;
+  line-height: 1;
+}
+
+/* No width floor here: the price reserves exactly the widest value its own two
+   periods can render (locked by the widget JS), so a "0" plan stays as narrow
+   as a "0". The nowrap is the safety net for that reserve: a price is a single
+   figure, so if the lock ever falls short (a webfont swapping in after the
+   measurement) it must overflow, never stack its digits onto a second line. */
+.tms-pricing-table .tms-pricing-table__price-wrapper .tms-pricing-table__price {
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--tms-heading-font);
+  font-size: 4rem;
+  font-weight: var(--tms-semibold-font-weight);
+  line-height: 1;
+  color: var(--tms-heading-color, #11181c);
+}
+
+/* Figures follow the heading family (see .tms-pricing-table__price above): the
+   currency and billing affixes sit inside the same price, so they must share
+   its family instead of falling back to the inherited body font. */
+.tms-pricing-table .tms-pricing-table__price-wrapper .tms-pricing-table__currency,
+.tms-pricing-table .tms-pricing-table__price-wrapper .tms-pricing-table__billing {
+  font-family: var(--tms-heading-font);
+  font-size: 135%;
+  font-weight: var(--tms-semibold-font-weight);
+  color: var(--tms-heading-color, #11181c);
+}
+
+/* Vertical Label */
+.tms-pricing-table .tms-vertical-label {
+  position: absolute;
+  top: 0;
+  left: -20px;
+}
+
+.tms-pricing-table.tms-grid-border .tms-vertical-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.tms-pricing-table .tms-vertical-label.tms-vertical-label--top-filled {
+  position: absolute;
+  top: initial;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  height: 45px;
+  writing-mode: initial;
+  transform: initial;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  /* The bar owns the block's top corners; the card squares its own under it
+   * (rule below), so bar + card fuse into one continuous rounded shape. */
+  border-radius: var(--tms-pt-radius-tl) var(--tms-pt-radius-tr) 0 0;
+  background-color: var(--tms-heading-color, #11181c);
+}
+
+.tms-pricing-table .tms-pricing-table__card:has(.tms-vertical-label--top-filled) {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* Grid layout: the frame clips everything outside it, so the bar cannot sit
+   above the card here. It becomes a strip across the top of the featured cell,
+   and EVERY header in the grid reserves its height, so plan names and prices
+   stay aligned across columns wherever the featured plan lands. */
+.tms-pricing-table.tms-grid-border .tms-vertical-label.tms-vertical-label--top-filled {
+  top: 0;
+  bottom: auto;
+  left: 0;
+  border-radius: 0;
+}
+
+.tms-pricing-table.tms-grid-border:has(.tms-vertical-label--top-filled) .tms-grid-border__element .tms-card__header {
+  padding-top: calc(var(--tms-grid-border-cell-pt, 2rem) + 45px);
+}
+
+.tms-pricing-table .tms-vertical-label.tms-vertical-label--filled .tms-vertical-label__text,
+.tms-pricing-table .tms-vertical-label.tms-vertical-label--top-filled .tms-vertical-label__text {
+  color: var(--tms-bg-color, #fff);
+}
+
+.tms-pricing-table .tms-vertical-label.tms-vertical-label--filled .tms-vertical-label__line,
+.tms-pricing-table .tms-vertical-label.tms-vertical-label--top-filled .tms-vertical-label__line {
+  background-color: var(--tms-bg-color, #fff);
+}
+
+.tms-pricing-table .tms-vertical-label.tms-vertical-label--filled {
+  position: absolute;
+  top: 1rem;
+  right: 100%;
+  z-index: 5;
+  padding: 25px 6px;
+  /* Ribbon poking out of the card's left edge — round its outer corners. */
+  border-radius: 8px 0 0 8px;
+  background-color: var(--tms-heading-color, #11181c);
+}
+
+.tms-pricing-table.tms-grid-border .tms-vertical-label.tms-vertical-label--filled {
+  top: 0;
+  left: 0;
+  /* Inside the card's top-left corner here — track the card radius instead
+   * of the outer-ribbon rounding. */
+  border-radius: var(--tms-pt-radius-tl) 0 0 0;
+}
+
+/* Diagonal — classic corner ribbon. The label root is an invisible clipping
+ * box pinned to the card's top-left corner (its radius tracks the card via
+ * the corner var, so the band never paints outside a rounded corner); the
+ * text span is the -45deg band itself, wide enough that its clipped ends
+ * always bleed past the box. */
+.tms-pricing-table .tms-vertical-label.tms-diagonal-label--filled {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  width: 150px;
+  height: 150px;
+  padding: 0;
+  overflow: hidden;
+  border-top-left-radius: var(--tms-pt-radius-tl);
+  background: none;
+  transform: none;
+  -webkit-writing-mode: initial;
+  writing-mode: initial;
+  pointer-events: none;
+}
+
+.tms-pricing-table .tms-vertical-label.tms-diagonal-label--filled .tms-vertical-label__text {
+  position: absolute;
+  top: 38px;
+  left: -60px;
+  display: block;
+  width: 225px;
+  padding: 8px 0;
+  transform: rotate(-45deg);
+  text-align: center;
+  background-color: var(--tms-heading-color, #11181c);
+  color: var(--tms-bg-color, #fff);
+}
+
+/* Checklist */
+.tms-pricing-table .tms-pricing-table__checklist {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tms-pricing-table .tms-pricing-table__checklist .tms-pricing-table__checklist-item {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+}
+
+.tms-pricing-table .tms-pricing-table__checklist .tms-pricing-table__checklist-item:first-child,
+.tms-pricing-table .tms-pricing-table__checklist .tms-pricing-table__checklist-item:last-child {
+  margin: 0;
+}
+
+.tms-pricing-table .tms-pricing-table__checklist svg {
+  flex-shrink: 0;
+  margin-left: 25px;
+  display: block;
+  width: 1em;
+  height: 1em;
+  font-size: 1.5rem;
+  color: var(--tms-heading-color, #11181c);
+  fill: currentColor;
+}
+
+.tms-pricing-table .tms-pricing-table__checklist svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* Button icon sizing parity with font icons */
+.tms-pricing-table .tms-button .tms-button__icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-pricing-table .tms-button .tms-button__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* Responsive collapse */
+@media (max-width: 991px) {
+  .tms-pricing-table .tms-vertical-label.tms-vertical-label--filled {
+    top: 0;
+    left: 0;
+    border-radius: var(--tms-pt-radius-tl) 0 0 0;
+  }
+}
+
+/* Reduced motion: disable the animated price count-up flourish */
+@media (prefers-reduced-motion: reduce) {
+  .tms-pricing-table .tms-pricing-table__price-wrapper .tms-pricing-table__price {
+    transition: none;
+  }
+}

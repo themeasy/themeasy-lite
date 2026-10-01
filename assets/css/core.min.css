@@ -1,0 +1,633 @@
+/*!
+ * Themeasy — Core CSS
+ *
+ * Foundation layer: preloader, grid system, text styles,
+ * underline styles, helper classes, inline color utilities, and the
+ * layout of Themeasy widgets inside Elementor Containers.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Preloader
+ * 02. Smooth Scroll
+ * 03. Grid
+ * 04. Text Styles
+ * 05. Underline Styles
+ * 06. Helper Classes
+ * 07. Widget Layout
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Preloader
+ * ------------------------------------------------------------------------ */
+
+/* #region Preloader */
+
+.tms-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tms-black-color);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateZ(0);
+}
+
+.tms-preloader__spinner {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 4px solid var(--tms-primary-color-25);
+  border-top-color: var(--tms-primary-color);
+  animation: tms-preloader-spin 0.9s linear infinite;
+}
+
+@keyframes tms-preloader-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* #endregion Preloader */
+
+/* ------------------------------------------------------------------------
+ * 02. Smooth Scroll
+ * ------------------------------------------------------------------------ */
+
+/* #region Smooth Scroll */
+
+/*
+ * Lenis smooths the real window scroll — no wrapper, no transform — so
+ * `position: sticky` and `position: fixed` keep working (backlog #42/#53).
+ * The `lenis*` classes are the vendor's own contract, set on <html> by the
+ * library; these rules are the vendor stylesheet, inlined here to save a
+ * request. Everything Themeasy owns stays under `.tms-*`.
+ */
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+/* Opt-out hooks: keep nested scrollers (offcanvas panels, code blocks) native. */
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-horizontal] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.lenis.lenis-autoToggle {
+  transition-property: overflow;
+  transition-duration: 1ms;
+  transition-behavior: allow-discrete;
+}
+
+/*
+ * Page scroll lock — shared contract.
+ *
+ * Any component that opens a full-screen layer (offcanvas panel, modal,
+ * mini-cart) sets `tms-scroll-locked` on <body>; this rule locks the document
+ * and the Smooth Scroll module stops Lenis on the same signal (a JS scroller
+ * ignores `overflow: hidden`, so the CSS alone would leave the page gliding
+ * behind the layer). Nested scrollers inside the layer keep working: Lenis
+ * evaluates its `prevent` callback before its stopped state.
+ *
+ * `scrollbar-gutter` holds the space the scrollbar leaves behind so locking
+ * does not shift the layout sideways. Whoever sets the class only sets it when
+ * the document actually scrolls, so a short page never gains a gutter it never
+ * had. The lock lives on <html> because that is the scrolling element —
+ * `overflow: hidden` on <body> alone would do nothing.
+ */
+html:has(> body.tms-scroll-locked) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
+/* #endregion Smooth Scroll */
+
+/* ------------------------------------------------------------------------
+ * 03. Grid
+ * ------------------------------------------------------------------------ */
+
+/* #region Grid */
+
+:root [class*="row-cols"] {
+  --tms-gutter-x: 1.5rem;
+  --tms-gutter-y: 1.5rem;
+}
+
+/* Bootstrap spaces a .row by bleeding it outside its parent — negative side
+ * margins of half the gutter, cancelled by matching padding on each column.
+ * That model assumes the parent carries at least half a gutter of padding to
+ * bleed into, and nothing here guarantees it: with the parent flush to the
+ * container edge the row simply grows the document by the whole gutter. These
+ * grids use `gap` instead, so the track spacing never leaves the parent's box;
+ * the column widths subtract the gaps (see .row-cols-* below). */
+[class*="row-cols"] {
+  --bs-gutter-x: var(--tms-gutter-x);
+  --bs-gutter-y: var(--tms-gutter-y);
+  gap: var(--bs-gutter-y) var(--bs-gutter-x);
+  margin-top: 0;
+  margin-right: 0;
+  margin-left: 0;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+[class*="row-cols"] > * {
+  padding-right: 0;
+  padding-left: 0;
+  margin-top: 0;
+}
+
+[class="row-cols"] > * {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.row-cols-1 > * { width: 100%; }
+.row-cols-2 > * { width: calc((100% - 1 * var(--bs-gutter-x)) / 2); }
+.row-cols-3 > * { width: calc((100% - 2 * var(--bs-gutter-x)) / 3); }
+.row-cols-4 > * { width: calc((100% - 3 * var(--bs-gutter-x)) / 4); }
+.row-cols-5 > * { width: calc((100% - 4 * var(--bs-gutter-x)) / 5); }
+.row-cols-6 > * { width: calc((100% - 5 * var(--bs-gutter-x)) / 6); }
+.row-cols-7 > * { width: calc((100% - 6 * var(--bs-gutter-x)) / 7); }
+.row-cols-8 > * { width: calc((100% - 7 * var(--bs-gutter-x)) / 8); }
+.row-cols-9 > * { width: calc((100% - 8 * var(--bs-gutter-x)) / 9); }
+.row-cols-10 > * { width: calc((100% - 9 * var(--bs-gutter-x)) / 10); }
+.row-cols-11 > * { width: calc((100% - 10 * var(--bs-gutter-x)) / 11); }
+.row-cols-12 > * { width: calc((100% - 11 * var(--bs-gutter-x)) / 12); }
+
+@media (min-width: 400px) {
+  .row-cols-xs-1 > * { width: 100%; }
+  .row-cols-xs-2 > * { width: calc((100% - 1 * var(--bs-gutter-x)) / 2); }
+  .row-cols-xs-3 > * { width: calc((100% - 2 * var(--bs-gutter-x)) / 3); }
+  .row-cols-xs-4 > * { width: calc((100% - 3 * var(--bs-gutter-x)) / 4); }
+  .row-cols-xs-5 > * { width: calc((100% - 4 * var(--bs-gutter-x)) / 5); }
+  .row-cols-xs-6 > * { width: calc((100% - 5 * var(--bs-gutter-x)) / 6); }
+  .row-cols-xs-7 > * { width: calc((100% - 6 * var(--bs-gutter-x)) / 7); }
+  .row-cols-xs-8 > * { width: calc((100% - 7 * var(--bs-gutter-x)) / 8); }
+  .row-cols-xs-9 > * { width: calc((100% - 8 * var(--bs-gutter-x)) / 9); }
+  .row-cols-xs-10 > * { width: calc((100% - 9 * var(--bs-gutter-x)) / 10); }
+  .row-cols-xs-11 > * { width: calc((100% - 10 * var(--bs-gutter-x)) / 11); }
+  .row-cols-xs-12 > * { width: calc((100% - 11 * var(--bs-gutter-x)) / 12); }
+}
+
+@media (min-width: 576px) {
+  .row-cols-sm-1 > * { width: 100%; }
+  .row-cols-sm-2 > * { width: calc((100% - 1 * var(--bs-gutter-x)) / 2); }
+  .row-cols-sm-3 > * { width: calc((100% - 2 * var(--bs-gutter-x)) / 3); }
+  .row-cols-sm-4 > * { width: calc((100% - 3 * var(--bs-gutter-x)) / 4); }
+  .row-cols-sm-5 > * { width: calc((100% - 4 * var(--bs-gutter-x)) / 5); }
+  .row-cols-sm-6 > * { width: calc((100% - 5 * var(--bs-gutter-x)) / 6); }
+  .row-cols-sm-7 > * { width: calc((100% - 6 * var(--bs-gutter-x)) / 7); }
+  .row-cols-sm-8 > * { width: calc((100% - 7 * var(--bs-gutter-x)) / 8); }
+  .row-cols-sm-9 > * { width: calc((100% - 8 * var(--bs-gutter-x)) / 9); }
+  .row-cols-sm-10 > * { width: calc((100% - 9 * var(--bs-gutter-x)) / 10); }
+  .row-cols-sm-11 > * { width: calc((100% - 10 * var(--bs-gutter-x)) / 11); }
+  .row-cols-sm-12 > * { width: calc((100% - 11 * var(--bs-gutter-x)) / 12); }
+}
+
+@media (min-width: 768px) {
+  .row-cols-md-1 > * { width: 100%; }
+  .row-cols-md-2 > * { width: calc((100% - 1 * var(--bs-gutter-x)) / 2); }
+  .row-cols-md-3 > * { width: calc((100% - 2 * var(--bs-gutter-x)) / 3); }
+  .row-cols-md-4 > * { width: calc((100% - 3 * var(--bs-gutter-x)) / 4); }
+  .row-cols-md-5 > * { width: calc((100% - 4 * var(--bs-gutter-x)) / 5); }
+  .row-cols-md-6 > * { width: calc((100% - 5 * var(--bs-gutter-x)) / 6); }
+  .row-cols-md-7 > * { width: calc((100% - 6 * var(--bs-gutter-x)) / 7); }
+  .row-cols-md-8 > * { width: calc((100% - 7 * var(--bs-gutter-x)) / 8); }
+  .row-cols-md-9 > * { width: calc((100% - 8 * var(--bs-gutter-x)) / 9); }
+  .row-cols-md-10 > * { width: calc((100% - 9 * var(--bs-gutter-x)) / 10); }
+  .row-cols-md-11 > * { width: calc((100% - 10 * var(--bs-gutter-x)) / 11); }
+  .row-cols-md-12 > * { width: calc((100% - 11 * var(--bs-gutter-x)) / 12); }
+}
+
+@media (min-width: 992px) {
+  .row-cols-lg-1 > * { width: 100%; }
+  .row-cols-lg-2 > * { width: calc((100% - 1 * var(--bs-gutter-x)) / 2); }
+  .row-cols-lg-3 > * { width: calc((100% - 2 * var(--bs-gutter-x)) / 3); }
+  .row-cols-lg-4 > * { width: calc((100% - 3 * var(--bs-gutter-x)) / 4); }
+  .row-cols-lg-5 > * { width: calc((100% - 4 * var(--bs-gutter-x)) / 5); }
+  .row-cols-lg-6 > * { width: calc((100% - 5 * var(--bs-gutter-x)) / 6); }
+  .row-cols-lg-7 > * { width: calc((100% - 6 * var(--bs-gutter-x)) / 7); }
+  .row-cols-lg-8 > * { width: calc((100% - 7 * var(--bs-gutter-x)) / 8); }
+  .row-cols-lg-9 > * { width: calc((100% - 8 * var(--bs-gutter-x)) / 9); }
+  .row-cols-lg-10 > * { width: calc((100% - 9 * var(--bs-gutter-x)) / 10); }
+  .row-cols-lg-11 > * { width: calc((100% - 10 * var(--bs-gutter-x)) / 11); }
+  .row-cols-lg-12 > * { width: calc((100% - 11 * var(--bs-gutter-x)) / 12); }
+}
+
+@media (min-width: 1200px) {
+  .row-cols-xl-1 > * { width: 100%; }
+  .row-cols-xl-2 > * { width: calc((100% - 1 * var(--bs-gutter-x)) / 2); }
+  .row-cols-xl-3 > * { width: calc((100% - 2 * var(--bs-gutter-x)) / 3); }
+  .row-cols-xl-4 > * { width: calc((100% - 3 * var(--bs-gutter-x)) / 4); }
+  .row-cols-xl-5 > * { width: calc((100% - 4 * var(--bs-gutter-x)) / 5); }
+  .row-cols-xl-6 > * { width: calc((100% - 5 * var(--bs-gutter-x)) / 6); }
+  .row-cols-xl-7 > * { width: calc((100% - 6 * var(--bs-gutter-x)) / 7); }
+  .row-cols-xl-8 > * { width: calc((100% - 7 * var(--bs-gutter-x)) / 8); }
+  .row-cols-xl-9 > * { width: calc((100% - 8 * var(--bs-gutter-x)) / 9); }
+  .row-cols-xl-10 > * { width: calc((100% - 9 * var(--bs-gutter-x)) / 10); }
+  .row-cols-xl-11 > * { width: calc((100% - 10 * var(--bs-gutter-x)) / 11); }
+  .row-cols-xl-12 > * { width: calc((100% - 11 * var(--bs-gutter-x)) / 12); }
+}
+
+@media (min-width: 1400px) {
+  .row-cols-xxl-1 > * { width: 100%; }
+  .row-cols-xxl-2 > * { width: calc((100% - 1 * var(--bs-gutter-x)) / 2); }
+  .row-cols-xxl-3 > * { width: calc((100% - 2 * var(--bs-gutter-x)) / 3); }
+  .row-cols-xxl-4 > * { width: calc((100% - 3 * var(--bs-gutter-x)) / 4); }
+  .row-cols-xxl-5 > * { width: calc((100% - 4 * var(--bs-gutter-x)) / 5); }
+  .row-cols-xxl-6 > * { width: calc((100% - 5 * var(--bs-gutter-x)) / 6); }
+  .row-cols-xxl-7 > * { width: calc((100% - 6 * var(--bs-gutter-x)) / 7); }
+  .row-cols-xxl-8 > * { width: calc((100% - 7 * var(--bs-gutter-x)) / 8); }
+  .row-cols-xxl-9 > * { width: calc((100% - 8 * var(--bs-gutter-x)) / 9); }
+  .row-cols-xxl-10 > * { width: calc((100% - 9 * var(--bs-gutter-x)) / 10); }
+  .row-cols-xxl-11 > * { width: calc((100% - 10 * var(--bs-gutter-x)) / 11); }
+  .row-cols-xxl-12 > * { width: calc((100% - 11 * var(--bs-gutter-x)) / 12); }
+}
+
+/* #endregion Grid */
+
+/* ------------------------------------------------------------------------
+ * 04. Text Styles
+ * ------------------------------------------------------------------------ */
+
+/* #region Base */
+
+.tms-text-style {
+  margin: 0;
+  color: var(--tms-heading-color);
+}
+
+/* #endregion Base */
+
+/* #region Text Outline */
+
+.tms-text-style--outline {
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke-width: 1.5px;
+  -webkit-text-stroke-color: currentColor;
+  paint-order: stroke fill;
+}
+
+/* #endregion Text Outline */
+
+/* #region Text Gradient */
+
+.tms-text-style--gradient,
+.tms-text-style--gradient * {
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  background-image: linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 75%);
+  background-repeat: no-repeat;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+/* #endregion Text Gradient */
+
+/* #region Text Gradient Outline */
+
+.tms-text-style--gradient-outline,
+.tms-text-style--gradient-outline * {
+  -webkit-text-fill-color: inherit;
+  color: var(--tms-bg-color);
+  -webkit-text-stroke-width: 4px;
+  -webkit-text-stroke-color: transparent;
+  paint-order: stroke fill;
+  background-image: linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 75%);
+  background-repeat: no-repeat;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+/* #endregion Text Gradient Outline */
+
+/* #region Masked Image */
+
+/* The picture arrives as --tms-masked-image, an inline style each widget writes
+   on the element carrying this class (see themeasy_media_css_url()). It is NOT
+   an Elementor `selectors` binding: a MEDIA control's {{URL}} reaches the
+   generated stylesheet unescaped whenever the attachment id is empty, which lets
+   anyone who can edit the page break out of the declaration and inject CSS.
+   The token is read here, on the shared primitive, so all six consumers
+   (headline, slider, scrolling-text, text-marquee, text-scramble, typed-text)
+   share one definition — and it inherits to the `*` descendants for free.
+   Without a picture the fallback keeps the fill transparent-but-inert rather
+   than clipping the glyphs out of nothing. */
+.tms-text-style--masked-image,
+.tms-text-style--masked-image * {
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  background-image: var(--tms-masked-image, none);
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+/* #endregion Masked Image */
+
+/* #region Fallback */
+
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .tms-text-style--gradient,
+  .tms-text-style--gradient * {
+    -webkit-text-fill-color: initial;
+    background: none;
+    color: currentColor;
+  }
+
+  .tms-text-style--gradient-outline,
+  .tms-text-style--gradient-outline * {
+    background: none;
+    color: currentColor;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke-width: 4px;
+    -webkit-text-stroke-color: currentColor;
+  }
+
+  .tms-text-style--masked-image,
+  .tms-text-style--masked-image * {
+    -webkit-text-fill-color: initial;
+    background: none;
+    color: currentColor;
+  }
+}
+
+/* #endregion Fallback */
+
+/* ------------------------------------------------------------------------
+ * 05. Underline Styles
+ * ------------------------------------------------------------------------ */
+
+/* #region Base */
+
+.tms-u {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  padding: 0;
+  background: none;
+  text-decoration: none;
+  color: inherit;
+
+  /* Tuning variables (per-element override friendly). */
+  --tms-u-top: 90%;
+  --tms-u-height: 2px;
+  --tms-u-color: var(--tms-primary-color);
+  --tms-u-opacity: 0;
+  --tms-u-duration: 0.9s;
+  --tms-u-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Mask variables (optional) */
+  --tms-u-mask: none;
+  --tms-u-mask-size: 100% 40px;
+}
+
+.tms-u::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: var(--tms-u-top);
+  width: 100%;
+  height: var(--tms-u-height);
+
+  /* Start hidden (animated via transform) */
+  opacity: var(--tms-u-opacity);
+  transform: scaleX(0);
+  transform-origin: left center;
+
+  /* Background can be solid or gradient */
+  background: var(--tms-u-color);
+  background-color: var(--tms-u-color);
+
+  /* Optional SVG mask styles */
+  -webkit-mask-image: var(--tms-u-mask);
+  mask-image: var(--tms-u-mask);
+  -webkit-mask-size: var(--tms-u-mask-size);
+  mask-size: var(--tms-u-mask-size);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  transition:
+    opacity 0.25s ease,
+    transform var(--tms-u-duration) var(--tms-u-ease);
+}
+
+.tms-u.is-active::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* #endregion Base */
+
+/* #region Color */
+
+.tms-u--bg-color-cycle::before {
+  transform: scaleX(1); /* Always full width for this style */
+  animation: tms-bg-color-cycle 4s infinite alternate ease-in-out;
+}
+
+.tms-u--gradient::before {
+  background-image: linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 75%);
+}
+
+.tms-u--gradient-shift::before {
+  transform: scaleX(1); /* Always full width for this style */
+  background-image: linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 75%);
+  background-size: 200% 200%;
+  animation: tms-gradient-shift 3s infinite linear;
+}
+
+/* #endregion Color */
+
+/* #region Mask styles */
+
+.tms-u--sketchy {
+  --tms-u-top: 75%;
+  --tms-u-height: 40px;
+  --tms-u-mask-size: 100% 40px;
+  --tms-u-mask: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNDE4IDEyNSIgZmlsbD0iY3VycmVudENvbG9yIj48cGF0aCBkPSJNMTQxMi4yOSA3Mi4xN2MtMTEuMDQtNS43OC0yMC4wNy0xNC4zMy04NS40Ni0yNS4yNC0yMi4zNy0zLjYzLTQ0LjY5LTcuNTYtNjcuMDctMTEuMDQtMTY3LjExLTIyLjA2LTE4MS42NS0yMS4yNC0zMDQuOTQtMzAuNTZDODg4Ljc4IDEuMzkgODIyLjU3IDEuMSA3NTYuNDQgMGMtNDYuNjMtLjExLTkzLjI3IDEuNTYtMTM5Ljg5IDIuNUMzNjUuNSAxMy41NSA0NTIuODYgNy42OCAyNzcuOTQgMjMuMTUgMjAyLjU3IDMzLjMyIDEyNy4zOCA0NS4wMSA1Mi4wNyA1NS42OWMtMTEuMjMgMi40MS0yMi42MyA0LjE3LTMzLjcxIDcuMjJDNi4xIDY2LjMzIDUuNjQgNjYuMTkgMy44OSA2Ny43OWMtNy45OSA1Ljc4LTIuOTggMjAuMTQgOC43MiAxNy41IDMzLjk5LTkuNDcgMzIuMjgtOC41NyAxNzguMDYtMjkuNjYgNC4yNiA0LjQ4IDcuMjkgMy4zOCAxOC40MiAzLjExIDEzLjE5LS4zMiAyNi4zOC0uNTMgMzkuNTYtMS4xMiA1My41MS0zLjgxIDEwNi44OC05LjYyIDE2MC4zNi0xMy45NSAxOC40MS0xLjMgMzYuOC0zLjEyIDU1LjIxLTQuNyAyMy4yMS0xLjE2IDQ2LjQzLTIuMjkgNjkuNjUtMy40IDEyMC4yOC0yLjE2IDg1LjQ2LTMuMTMgMjM0LjY1LTEuNTIgMjMuNDIuOTkgMS41Ny0uMTggMTI1LjcyIDYuOSA5Ni42MSA4Ljg4IDIwMC45MiAyNy45NCAyOTUuNDIgNDYuMTIgNDAuODcgNy45MSAxMTYuNjcgMjMuMiAxNTYuMzEgMzYuNzggMy44MSAxLjA1IDguMjgtLjI3IDEwLjUxLTMuNTggMy4xNy0zLjcyIDIuNjYtOS43LS43OC0xMy4xMy0zLjI1LTMuMTItOC4xNC0zLjQ0LTEyLjE4LTUuMDgtMTcuODktNS44NS00NC4xOS0xMi4wOS02My42Ny0xNi41NmwyNi4xNiAzLjI4YzIzLjAyIDMuMTMgNDYuMjggMy45MiA2OS4zNCA2Ljc1IDEwLjguOTYgMjUuNDMgMS44MSAzNC4zNC00LjM5IDIuMjYtMS41NCA0Ljg2LTIuNzUgNi4yMS01LjI3IDIuNzYtNC41OSAxLjEzLTExLjA2LTMuNTktMTMuNjhaTTkyNS40IDIzLjc3YzM3LjY0IDEuNCAxNTMuOTkgMTAuODUgMTk2LjY0IDE0Ljk0IDQ1Ljk1IDUuNTEgOTEuODkgMTEuMDMgMTM3Ljc2IDE3LjE5IDI0LjI1IDQuNzcgNzQuMTMgMTEuMjEgMTAxLjcyIDE4LjE0LTExLjg3LTEuMTUtMjMuNzctMS45Ny0zNS42NS0zLjA2LTEzMy40Ni0xNS45LTI2Ni44LTMzLjAyLTQwMC40Ny00Ny4yMVoiPjwvcGF0aD48L3N2Zz4=");
+  --tms-u-color: var(--tms-primary-color);
+}
+
+.tms-u--double {
+  --tms-u-top: 75%;
+  --tms-u-height: 50px;
+  --tms-u-mask-size: 100% 50px;
+  --tms-u-mask: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjgzIDEzMiIgZmlsbD0iY3VycmVudENvbG9yIiB2ZXJzaW9uPSIxLjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB0cmFuc2Zvcm09Im1hdHJpeCgtMSwwLDAsLTEsMCwwKSI+PHBhdGggZD0iTTEyODIuNDYgNS43OWMtLjkxLTMuODgtNS4xOC02LjY1LTkuMDQtNS41NC0xMDQuMzcgMjkuMDItMTkzLjc4IDU2Ljg3LTM2MS42IDc0LjUzLTI2OC40MSAyOC4xNi01MzkuNiAxNC42LTgwMy4wOC0yNi4zOEM5NC45IDQ3Ljk3LS4zNCAyNi4yNC4wOCA0MS4zOGMtMS41NiAxNC4yMSAxOS40NyAxMi45MSAyOS42IDE3LjI0IDMyLjgyIDguNiA2Ni4xIDE1LjMzIDk5LjQgMjEuODEgMjM4Ljk5IDQ0LjQzIDQ4Mi45OCA1NS4yOSA3MjUuNjMgNDkuMDEgOTIuMzctNC4xMSAxODUuNjgtOS45NiAyNzUuNTEtMzMuMDkgMTguNjgtNi4zMSA0Mi43OS05LjIxIDU1LjE4LTI1Ljg5IDYuNzYtMTMuMjgtMTIuNDEtMjEuMTYtMTMuODMtNi4xMi0xNy42OSAxMS42Ny0zOS4zMSAxNS42MS01OS40NSAyMS4zNC0xMTQuNTYgMjUuMTgtMjQ1LjMxIDMwLjQ2LTM2MS45OSAzMC4zNi0xOTEuMzkuNDUtMzgzLjEzLTEwLjEzLTU3Mi00Mi4yMSAyNzcuMzEgMzYuNDIgNTYwLjc3IDQ0Ljk2IDgzNy44MiAyLjIzIDEwNC4yMS0xNS40IDE5NS4xMS00Mi43NCAyNjAuOTctNjEuMjJhNy41NyA3LjU3IDAgMCAwIDUuNTQtOS4wNSI+PC9wYXRoPjwvc3ZnPg==");
+  --tms-u-color: var(--tms-primary-color);
+}
+
+.tms-u--dual {
+  --tms-u-top: 75%;
+  --tms-u-height: 40px;
+  --tms-u-mask-size: 100% 40px;
+  --tms-u-mask: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjEzIDczIiBmaWxsPSJjdXJyZW50Q29sb3IiIHZlcnNpb249IjEuMSIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHRyYW5zZm9ybT0ibWF0cml4KC0xLDAsMCwtMSwwLDApIj48cGF0aCBkPSJNMTIxMi40MSA1LjUxYzMuMDUgMTIuODctMjIuMzYgMTEuOTMtMzAuMjYgMTUuNjgtOTQuMzIgMjAuNTEtMjY5LjA5IDMyLjQyLTM2NS40OCAzNy41MS03Ny45MSAzLjgyLTE1NS42NiA5LjkzLTIzMy42NyAxMS42Ny01Ny40OSAyLjU2LTExNS4wNS0uMTktMTcyLjU3IDEuNTgtMTIxLjI4LjkxLTI0My4xNyAxLjg4LTM2My42OS0xMy4zMy0xMi41MS0yLjY0LTI1LjgtMi45Mi0zNy43Ny03LjQ1LTMwLjY2LTIxLjQyIDI2LjAyLTIxLjUzIDM4LjUyLTE5LjI2IDM1OS45NSAyOS4wNSAzNjQuNjggMjcuMzYgNjM4LjI0IDE3Ljg1IDEyMS0zLjc4IDI0MS4yMi0xOS4yMSA0MjYuNzYtNDEuNDYgNC43Mi0uNjUgOS4xOCAzLjU2IDguNDUgOC4zNmE5NDIgOTQyIDAgMCAwIDU0LjI5LTkuMjFjOS4zMy0yLjMzIDE4LjctNC41NiAyNy45NS03LjE5YTcuNTkgNy41OSAwIDAgMSA5LjIzIDUuMjRaIj48L3BhdGg+PC9zdmc+");
+  --tms-u-color: var(--tms-primary-color);
+}
+
+.tms-u--cross {
+  --tms-u-top: 75%;
+  --tms-u-height: 40px;
+  --tms-u-mask-size: 100% 40px;
+  --tms-u-mask: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNzI5IDE0OSIgZmlsbD0iY3VycmVudENvbG9yIj48cGF0aCBkPSJNMTY4OS44OSAyNi41OWE0NDc5IDQ0NzkgMCAwIDAtODkuNjQtNy40MUMxMzU0LjEuNDUgMTEwNi41Ni01Ljc2IDg1OS45MiA1LjkzYy0yMjcuMzEtNC4yNS00NTQuNzkgOC45Ni02ODEuMzYgMjcuOTVDMTIxLjk0IDM4LjkgNjUuMSA0MC4yIDguMzggNDIuMTJjLTE2LjU3IDIuODYtNS4yMyAyNi4zOSA1LjYgMTQuNDYgMTYwLjc2LTEuMjcgMzMxLjgyLTI3LjM4IDYyMC41NC0zNC44QTQ1NzUgNDU3NSAwIDAgMCA0OTguOSAzNi41N0MzNzYuNDMgNTIuMjQgMjUzLjAxIDY1LjIxIDEzMi44OCA5NC41MWMtMzYuMTYgOC45NC03MS42NyAyMC4zMS0xMDYuNjkgMzIuOTUtNy4xNCA0LjQtMjcuNzQgMy42My0yNC45OCAxNS42MiAxLjk5IDcuMTkgMTMuNjMgNy4wNSAxOC4wNCAyLjU5IDE0My42Ny01NC41OCAyOTcuNDktNzAuNjQgNDQ4Ljg4LTkwLjI0IDEyOS4wMS0xNi44MiAyNTguNjEtMjguMDEgMzg4LjQ2LTM0LjI3IDI4NS4wMiA2LjA3IDU3MC4xMyAzOC4xNSA4NDguMjIgMTAwLjY1IDMuODQgMS4wOSA4LjI0LTEuMzIgOS4yMy01LjI0IDEuOTgtNy4zMS01LjY2LTkuOTYtMTEuNDItMTAuNi00OC4wNS0xMC43Ni05Ni4xOC0yMS4yNi0xNDQuNTYtMzAuNDMtMTYwLjY4LTI4LjItMzIyLjg2LTQ2Ljc4LTQ4NS40LTYwLjE5bC0yLjM0LS4xNmMxNjEuNTUtMS4zMyAzMjMuMjEgNC4zNSA0ODQuMzEgMTUuNzEgMzcuMTEgMi42NSAxMjUuMDYgOC44NSAxNjQuOTcgMTMuOTZhNy41OCA3LjU4IDAgMCAwIDguNDUtNi40MWMuOTQtMTMuMTgtMjMuNDgtOC43Ny0zOC4xNC0xMS44NloiLz48L3N2Zz4=");
+  --tms-u-color: var(--tms-primary-color);
+}
+
+.tms-u--brush {
+  --tms-u-top: 75%;
+  --tms-u-height: 23px;
+  --tms-u-mask-size: 85% 23px;
+  --tms-u-mask: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNjAgMTYiIGZpbGw9ImN1cnJlbnRDb2xvciI+PHBhdGggZD0ibTIwNi44IDcuMy0uMS4zYy4xLS4yLjItLjMuMS0uM20yNy45IDIuN2gtLjFjLS4yLjQtLjEuMy4xIDBNNTQuOCA0LjJsLS42LS40Yy4yLjQuNC41LjYuNE0zNC41IDkuNmwuMS4zYzAtLjIgMC0uMy0uMS0uM20tMTIuMSAxLjJjLS4zLS4xLS43LS4xLTEtLjEuMi4xLjcuMSAxIC4xTTE3LjUgNWMtLjEuMS0uMi4xLS40LjIuMi0uMS4zLS4yLjQtLjJtMzUuMiA0LjguNS45Yy0uMS0uMy0uMy0uNi0uNS0uOW0tMzMuMiAxLjhjLS4yLS4yLS40LS4yLS42LS4zIDAgLjIuMy4zLjYuM20xMDEuNC0uMmMtLjEuMS0uMi4yLS4yLjMuMy0uMS4zLS4yLjItLjNtLTQwLTFoLS4xcy4xLjEuMi4xem0xMS43IDAtLjIuMmMuMi0uMS4yLS4xLjItLjJtLTIwLjUuOWMtLjEuMS0uMy4yLS40LjN6Ii8+PHBhdGggZD0iTTI2MCA2Yy0xLS42LTQuNy0xLjItNS44LjMtLjItLjEuMS0uMy4yLS40LS45LjItMi4yLjEtMy42IDBzLTIuOS0uMi00LjIgMGMtMSAxLjUtMy45LS42LTQuOCAxLjRsLjUtLjRjLjkuNS0xLjIgMS40LTEuNSAxLjktLjgtMS4yLS4xLTEtMS0ybDEuMS40LS4zLTFjLTMuMSAyLjgtNi4yLS45LTguMiAxLjEuMS0uMS4xLS4zLjItLjQtMS40LS41LTIuMy44LTMuMyAxLjItLjEtLjUuNi0uOSAxLjEtMS4zLTIuNC0uMy02LjQgMS4yLTkgLjQtLjkuNy40LjktLjYgMS41LS44LS4yLTEuNC0uNy0uNC0xLjEtMi4zLTEuMi03LjYgMS0xMS4xLS4yLTEuOC44LS43IDEuMS0zLjUgMS42LjctLjUtLjctMS43IDEtMS43bC4yLS41Yy0yLjgtLjEtNi42LS4zLTguMSAxLjItLjEtMS4xLS41LS4yLTEuNi0uOC0uNC4xIDAgLjIuMi4yLTEgLjktMS42LS4xLTIuMy4xbC4zLS4yLTIgLjdjLS4zLS4yLS44LS40LS45LS43di44Yy0xLjEgMC0uNS0xLTEuOS0uOGwuMy42Yy0uOS0uNC0yLjIuNC0yLjQtLjUgMC0uMi4xLS4xLjQtLjEtMS4zLTEuMi0zLjUuMy01LjEtLjNsLjQgMS4zYy0xLjYuNC0xLS4zLS45LS43LTEuMSAwLTEuMy0uNC0yLjctLjYtLjcuMy0uNC41LS42LjhsLTEuNS0uNCAxLS43Yy0yLjMgMS44LTUuNi0uNC03LjIgMS4yLS44LS40LjgtLjcuMy0xLTIuNi0uOS02IDEtOC4yIDAtMy42LTEtNy44LS40LTExLjgtMS4xbC4xLjMtMi45LS40Yy0uOC43LTIuNy4zLTQgMS4xLjEtLjMtLjEtLjcuMi0uOS0xLjIuMS0yLjYuNC0zLjMtLjFsLjQtLjNjLTIuNy0uMy02LjQtLjUtNy45LjEtLjkgMC0uOS0uNi0xLjEtMS0xLjYtLjEtMi42LjItMy45LjctLjMtLjItLjctLjMtMS0uNmwtLjYuOGMtLjYtLjEtLjEtLjctLjYtLjktMi41LjktNS4zLS4xLTctLjFsLjIuNGMtLjcuMy0yLjEtLjMtMS4yLS43LTMuNC0uNi01LjEgMS4yLTkuNi44LS42LTEuNS00LjEuMy00LjgtMS40LTEuOS40LTMuMi0uMy00LjUuNiAwLS4yLS4yLS4yLjEtLjMtLjgtLjYtMy4zLS4yLTUuMy4ybC0uMS0uNWMtLjkgMS4yLTQuMi45LTQuOSAyLS4yLS4yLjQtLjUuNy0uNy0xLTEuMS0xLjguNS0zLjEuMi4xLS4zLS4zLS42IDAtLjgtNC40LTEuMi0xMC42LjctMTYuMy0uMS0xLjYgMCAuNiAxLjItMS41IDEuMS0uNi0uNiAxLTEuMS0uMy0xLjQtLjkuNy0xLjMuNS0yLjYuNS4yLS40IDAtLjYuOS0uOS0uNy0uNS0zLjEuOS00LjUgMCAuMS4zLS4yLjUtLjUuNy0yLjEgMS00LjktLjktNS4xLS40IDAgMC0uNy4yLS4xLjMtLjggMC0xLjktLjItMS43LS43LS40LjMtLjguOC0xLjQuOGwuMy0uNmMtLjQuMS0uOC41LTEuMS42bC42LjRjLS45LS41LTIuNi44LTIuNi0uNGguM2wtMS43LS41Yy0uNy41LTEuMyAxLTIuNS45LS41LTEuMy0yLjktLjItNC4zLS4zbC4xLS40Yy0xLjEuNi00IC40LTMuNS42LTEuMSAwLTIuNi0uMi0yLS42LS44LjEtMi43LjEtMy4yLjlsLTEuOC0xYy0xIDEuNi0zLjYtLjUtMy42IDEuMi0xLS4yLS44LS42LTEuNS0uOS0xLjQuOS0yLjguOC00LjIuN3YtLjJjLTEuNC0uMS0zLjEuOC01LjEgMWwtLjUtMS4yYy0xIC4yLTEuMyAxLjItMi4zIDEtLjItLjIgMC0uMy4yLS4zLTEgLjMtMi4zLjEtMy4xLS4yLTEuNSAxLTIuNy43LTMuOSAxLjgtMS4zLTEgMS43LS42LjYtMS42LTIuMi0uNC00LjQuNC02LjcgMS4xLS4yLS4yIDAtLjQuMS0uNyAwIDAtMS4yLjktMi4yIDEuOEMuOSA4LjMgMCA5LjQuNSAxMGMtLjUuOS0xLjIgMS40LjkgMiAuNi0uNSAyLjUtMS4zIDIuOS0uNGwuMS0uOWMyLjYtLjYuNCAxLjggMy42IDEuNmwtLjctLjNjLjYtLjEgMS4xLS43IDEuOC0uNS4yLjItLjIuNC0uNS42LjktLjUgMS43LS45IDIuNi0xLjQuMS41LjEuOC0uNCAxLjIgMi41LS4yLS42LTEuNiAyLjQtMS40LjYuNC0uMi42LS41LjkgMS40LjcgMi4zLS4xIDMuOC0uNi4xLjgtLjkuNy4zIDEuMi0uMy0uNC0uNS0xLjEuNS0xLjItLjQuOC43LjQgMS42LjUtLjItLjMtLjEtLjYuMi0uOC40LS4xLjguMSAxLjQuMWwtMS4xLS43YzEuNS0uOCAyLjQuMyAzLjYuNi0uMS4xLS4zLjMtLjUuMyAxLjIuMyAyLjUuOSA0LjEuMWwtLjMuMWMyLjktLjktMS0xLjMgMi40LTIuMiAxLjEuMS0uNCAyLjYgMi4xIDEuNi0xLjMtLjYgMS42LTEuNyAzLjEtMkwzMi40IDEwYy42IDAgMS42LS41IDItLjNsLS4xLS4zYy0uMi0xLjMgMS45LjEgMy0uNy0xLjMgMS44LTEuNCAxLjUtMS42IDMuMiAxLTEgMi4yLTEuOSA0LjEtMS44bC0xLjUgMS40YzIuNS4yIDUuNS0xLjkgNy42LTMtLjUgMSAuMyAxLjQtLjYgMi4ybDIuNC0uMy0uNyAxLjFjMS0xLjIgMi4xLS40IDEuOS0xLjktLjMuMi0uMi40LS43LjMuMS0uNC41LTEuNCAxLjctMS4zLjkuMy0uNS42LS4yIDEgLjgtLjYuOS4zIDEuNy0uMWwtLjgtLjZjLjYtLjkgMS40LS4xIDIuMi0uNS0xIC40LS43LjktLjMgMS40bC0uMS0uMWMuOC0uMSAxLjYtLjcgMi0uMmwtLjUgMS4yLjktLjljLjMuMS42LjYgMCAuOCAyLjguNy0uMS0yLjUgMy42LTEuNSAwIC41LS40LjgtMS40LjUtLjIuNy4xIDEuMSAxLjEgMS40di4xYzEuOSAwIDQuNCAwIDUuNi0uOC40LjMgMCAuNi0uNC45IDIuMS40IDIuOC0uNyA1IC4xbC0xLS40YzEuNC0uNiA0LS44IDUuMy4xbC0uNC4zYzEuMy0uNyAzLjUuNiA0IDAtLjYtLjQgMC0uNi0uOC0xbDMuNC0uNy4yIDEuMiAxLjgtLjRjLS40LS41IDIuNC40IDIuNS0uNyAxIC40LS40LjktLjggMS40IDEtLjMgMS4xLjIgMi4xLS41bDEgMS4xIDIuNi0uN2MtLjEuMSAwIC4yLS4xLjMgMS4yLS45IDMuMS42IDQuNi0uOS0uMS4xLS4xLjEtLjEuMi45LS44IDIuOS0uMiAzLjcgMCAxLjQtLjIuNi0xIC42LTEuNCAzLjkuNCAyLjcuMyA2LS45IDIgMS40LTIuNCAyLjEuMSAzIC40LS42IDIuMS0xLjEgNC4xLTEuMyAxLjguNSA0LjguOSA2LjUgMS45bC0uMi0uOSAyLjYtLjQtMS41IDEuMmMuNC0uMyAxLjctLjggMi42LTEuMiAyLjctLjcgMS40IDEuOSAzLjUuNy4xLjEuMS4yLjIuMy43LS42IDIuNC0uMyA0LjQtLjVsLS43IDEuMS0xLjMtLjNjLjcgMS4xIDIuMS0uMSAzLjQgMCAxLjMtLjMuNy0xLjMgMS40LTEuNi41LjEgMS4yLS4yIDEuNi4xIDEuMS40LjEgMS4zLS4zIDEuOCAxLTEuMSAxLjQtLjkgMy42LTEuMy4xLjUtLjEuOC0uNC45LjUtLjEuOS0uMyAxLjItLjhsLjcuN2MyLjUgMSAyLjYtMiA1LjYtMS41LS44LjYgMi42IDAgMy41LjctMS4xLjEuNCAxLjYtLjIgMi4zIDIuNC41IDEtMS4zIDMtMS40bC0uOSAxLjNjMS45LS41LjUtLjcgMi40LTEuMS0uNS40LjguNC0uMy44IDIuNS4yIDEuOS4xIDQuMS4zbC4yLTEuM2MuNy0uMSAxIC41IDEuMi43LS4zIDAtLjgtLjEtLjcuMS44IDEuMiAxLjQtLjYgMi40LjUtLjItLjQtLjUtMSAuNC0xLjEtLjMuOCAxLjQuOCAxLjQgMS4yLS42LS42IDItLjIgMi4xLTEgMSAuNy0uNC42LS40IDEuMS45LTEgMy43IDAgNC42LS42IDAgLjEuMS4xLjEuMiAxLjItLjYgMy0uNyA1LjMtMS41bC0uOC43YzIuMi40IDEuNC0xLjUgMy4zLTEuNS0uNCAxLjEgMy4xIDAgMi4yIDEuMiAxLjEtLjYgMi4zLS44IDMuMS0xLjcgMSAuNi0yLjEgMS40LS42IDEuOGwxLjYtLjUuMy42Yy4xLS40IDEuNS0uNCAxLjQtLjguMi43LjkgMS4yLjggMS44IDEtLjIgMi40LjUgMy4zLS4xbC4xLjNjMS0xLjMgMy4xLS4yIDMuNi0xLjVsLjYuN2MxLjUtLjEgMS4zLTEuNSAyLTEuOC42IDAgMS40LS4yIDIgMC0yIC44IDEgMS4xIDEuNCAxLjYuOCAwIDMuMSAwIDMuNy0uNy0xIC43LS40IDEuMi0yLjEgMS4zLjkgMS4zIDIuNi0uMiA0LjUtLjF2LjZjMi43LS40IDIuOC0xLjUgNC0yLjUuMy44LjEgMS0uNyAxLjcgMS44LjUgNC43LS4xIDYuNyAwIC42LjUuMi45LS41IDEuMSAyLjEtLjYgNC43LjEgNi0xLjItLjUuNS45LjMgMS42LjYgMC0uMy4xLS42LjItLjYgMS4zLS42IDQuMS0xLjEgNS42LS43bC0uNS40YzEuNy4xIDMtLjUgNC4zLS45czIuNi0uOCA0LjUtLjRjLjcuMy0uNyAxLjEuNyAxIC43LS41LjQtMS41IDIuMi0xLjNsLS4xLjkgMS4yLS45Yy0uNy0uNy0yLjYtLjQtMS4zLTEuMiAxLjYuOCAxLjMtLjkgMy4zIDAtLjQuMS0xIC44LTEuMyAxLjIgMiAuNCAzLjQuMSA0LjgtLjEgMS40LS4zIDIuOC0uNiA0LjktLjIgMi0uOCA0LjYtMS4yIDUuOS0xLjkgMCAuOSAwIDEuNy0uOCAyLjQgMS44IDAgMi40LTIuMSAzLjctLjkuNy0xLjMgNC43LTEuMiA1LTN6Ii8+PHBhdGggZD0iTTU4LjEgMTEuMWMtMSAwLTEuOSAwLTIuMy4yLjIuMiAyLjMuNiAyLjMtLjJtMTUwLjEgMi4yYy0uMSAwLS4zLjEtLjQuMS4xIDAgLjMgMCAuNC0uMW04LjEtLjRjLS4xLS4xLS4yLS4yLS40LS4zIDAgLjMuMS41LjQuM20tMzcuOC44Yy43LS40IDEtLjcgMS0xLS40LjEtLjcuMy0xIDFNMTYzIDEyLjZjLS4xLjEtLjIuMS0uMy4yLjMtLjEuMy0uMi4zLS4ybS0zMi44LS42Yy43LS40IDEuNi0uMyAyLjQtLjUtLjcuMi0xLjktLjMtMi40LjVtOTUuOS0uNi0uNy42LjgtLjR6bS03LjUuNmMtLjMtLjEtMS43LjMtMS4zLjYuNC0uMy45LS41IDEuMy0uNm0tMjktLjYtLjMuNi43LS41eiIvPjwvc3ZnPg==");
+  --tms-u-color: var(--tms-primary-color);
+}
+
+/* #endregion Mask styles */
+
+/* ------------------------------------------------------------------------
+ * 06. Helper Classes
+ * ------------------------------------------------------------------------ */
+
+/* #region Helper Classes */
+
+.tms-cover-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 1;
+}
+
+/* #endregion Helper Classes */
+
+/* #region Inline Text Color */
+
+/*
+ * Inline color utilities — the token-driven way to paint a segment of authored
+ * text.
+ *
+ * Every inline control in the plugin runs through
+ * wp_kses( $text, themeasy_get_kses_allowed_tags() ), whose baseline allows
+ * `class` on every tag it keeps, so `<span class="tms-text-accent">*</span>`
+ * survives untouched. These rules are the missing half of that contract
+ * (backlog #124) and cover all of its call sites at once — kickers, title
+ * segments, descriptions, list items.
+ *
+ * A hand-written `style` reaches the front too (the same baseline allows it,
+ * filtered by safecss_filter_attr() — backlog #124 addendum), so an author can
+ * paint any color they like. Prefer these classes anyway: they resolve to the
+ * theme tokens, so a palette change carries and a theme swap does not strand
+ * a hard-coded hex.
+ *
+ * They are utilities, not a preset family: `.tms-text-style*` above composes a
+ * whole heading treatment (outline, gradient, masked image), while each class
+ * here sets exactly one property. Declared last on purpose, so an element
+ * carrying both (`class="tms-text-style tms-text-accent"`) resolves to the
+ * token — the two selectors tie on specificity and source order decides.
+ *
+ * The editor preview needs no mirror: the JS sanitizer allows the same `class`
+ * attribute and this stylesheet loads inside the preview iframe.
+ */
+
+.tms-text-accent    { color: var(--tms-accent-color); }
+.tms-text-primary   { color: var(--tms-primary-color); }
+.tms-text-secondary { color: var(--tms-secondary-color); }
+.tms-text-heading   { color: var(--tms-heading-color); }
+.tms-text-body      { color: var(--tms-body-color); }
+.tms-text-muted     { color: var(--tms-muted-color); }
+.tms-text-success   { color: var(--tms-success-color); }
+.tms-text-warning   { color: var(--tms-warning-color); }
+.tms-text-danger    { color: var(--tms-danger-color); }
+.tms-text-info      { color: var(--tms-info-color); }
+.tms-text-white     { color: var(--tms-white-color); }
+.tms-text-black     { color: var(--tms-black-color); }
+
+/* #endregion Inline Text Color */
+
+/* ------------------------------------------------------------------------
+ * 07. Widget Layout
+ * ------------------------------------------------------------------------ */
+
+/* #region Widget Layout */
+
+/**
+ * Layout: make layout-based Themeasy widgets fill the container width.
+ * These widgets behave as structural blocks inside Elementor Containers.
+ *
+ * Widget layout, not container tooling: it lives in this Free, global sheet so
+ * every build and every plan gets it — the Free build and the Widgets plan load
+ * no container bundle (backlog #262).
+ */
+.elementor-widget-themeasy-accordion,
+.elementor-widget-themeasy-archive-results,
+.elementor-widget-themeasy-copyright-bar,
+.elementor-widget-themeasy-form,
+.elementor-widget-themeasy-gallery,
+.elementor-widget-themeasy-icon-list,
+.elementor-widget-themeasy-image-carousel,
+.elementor-widget-themeasy-image-distortion,
+.elementor-widget-themeasy-image-marquee,
+.elementor-widget-themeasy-line-progress-bar,
+.elementor-widget-themeasy-maps,
+.elementor-widget-themeasy-mini-cart,
+.elementor-widget-themeasy-post-grid,
+.elementor-widget-themeasy-pricing-table,
+.elementor-widget-themeasy-scrolling-text,
+.elementor-widget-themeasy-site-search,
+.elementor-widget-themeasy-slider,
+.elementor-widget-themeasy-tabs,
+.elementor-widget-themeasy-testimonial-carousel,
+.elementor-widget-themeasy-text-marquee,
+.elementor-widget-themeasy-timeline,
+.elementor-widget-themeasy-wc-product-carousel,
+.elementor-widget-themeasy-wc-product-categories-carousel {
+  width: 100%;
+  max-width: 100%;
+  flex: 0 0 100%;
+}
+
+/**
+ * Layout: give ratio-box widgets a definite width so their aspect-ratio frame
+ * can resolve.
+ *
+ * Below 767px Elementor switches every Container to `flex-wrap: wrap`
+ * (`--flex-wrap: var(--flex-wrap-mobile)`), and a wrapping flex container only
+ * resolves an item's cross size after laying out its lines. A widget whose box
+ * comes from `aspect-ratio` over absolutely positioned children has no
+ * intrinsic size of its own, so it measures zero against that indefinite width
+ * and the next section renders on top of it. An explicit width breaks the
+ * circularity — but not `flex: 0 0 100%`, which would also force the widget
+ * onto a line of its own and kill side-by-side layouts in row Containers. A
+ * per-widget Width set in Elementor still wins (higher specificity).
+ */
+.elementor-widget-themeasy-before-after,
+.elementor-widget-themeasy-lottie,
+.elementor-widget-themeasy-video {
+  width: 100%;
+}
+
+/* #endregion Widget Layout */

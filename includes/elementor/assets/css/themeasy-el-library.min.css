@@ -1,0 +1,680 @@
+/*!
+ * Themeasy — Elementor Library Panel
+ *
+ * Styles the in-editor Themeasy Library: the floating launcher (fallback to the
+ * native add-section button) and the full-screen modal that browses the backstage
+ * catalog (sidebar of categories, tag filter bar, search, card grid, pagination)
+ * and inserts a template into the open document. Colors flow through Elementor's
+ * own --e-a-* editor tokens so the modal blends into both the light and dark
+ * editor UI; the brand accent and private state live on scoped --themeasy-*
+ * variables.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ * 01. Launcher
+ * ------------------------------------------------------------------------ */
+
+/* #region Launcher */
+
+.themeasy-library-launch--floating,
+.themeasy-library-overlay {
+  --themeasy-primary-color: #5b60d8;
+  --themeasy-secondary-color: #b5179e;
+  --themeasy-color-contrast: #ffffff;
+  --themeasy-mark: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjQ5LjgxMSAxMjcxLjU0NyI+PHBhdGggZD0iTTEyMjQuNTQ3LDEwODQuODQ5YzAsODIuNS02Ny41LDE1MC0xNTAsMTUwSDE3NC41NDdjLTgyLjUsMC0xNTAtNjcuNS0xNTAtMTUwVjE4NC44NDljMC04Mi41LDY3LjUtMTUwLDE1MC0xNTBoOTAwYzgyLjUsMCwxNTAsNjcuNSwxNTAsMTUwdjkwMFpNNzUyLjA0Nyw1MDcuMzQ5YzAtMTQwLjgzMi0xMTQuMTY3LTI1NS0yNTUtMjU1aC0xMDVjLTgyLjUsMC0xNTAsMC0xNTAsMGgwYzAsMTQwLjgzMiwxMTQuMTY3LDI1NSwyNTUsMjU1aDEwNWM4Mi41LDAsMTUwLDAsMTUwLDBoMFpNNDk3LjA0NywxMDE3LjM0OWMxNDAuODMyLDAsMjU1LTExNC4xNjcsMjU1LTI1NXYtMTA1YzAtODIuNSwwLTE1MCwwLTE1MGgwYy0xNDAuODMyLDAtMjU1LDExNC4xNjctMjU1LDI1NXYxMDVjMCw4Mi41LDAsMTUwLDAsMTUwaDBaTTg3OS41NDcsMjUyLjM0OWMtNzAuNDE2LDAtMTI3LjUsNTcuMDg0LTEyNy41LDEyNy41czU3LjA4NCwxMjcuNSwxMjcuNSwxMjcuNSwxMjcuNS01Ny4wODQsMTI3LjUtMTI3LjUtNTcuMDg0LTEyNy41LTEyNy41LTEyNy41WiIvPjwvc3ZnPg==);
+}
+
+/* Floating launcher button, pinned to the editor chrome. */
+.themeasy-library-launch--floating {
+  position: fixed;
+  inset-block-end: 11px;
+  inset-inline-end: 25px;
+  z-index: 99990;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 999px;
+  background-color: var(--themeasy-primary-color);
+  color: var(--themeasy-color-contrast);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.themeasy-library-launch--floating:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, .32);
+}
+
+.themeasy-library-launch--floating .themeasy-library-launch__icon {
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  -webkit-mask: var(--themeasy-mark) center / contain no-repeat;
+  mask: var(--themeasy-mark) center / contain no-repeat;
+}
+
+/* #endregion Launcher */
+
+/* ------------------------------------------------------------------------
+ * 02. Overlay + Modal Shell
+ * ------------------------------------------------------------------------ */
+
+/* #region Overlay */
+
+.themeasy-library-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3vh 3vw;
+  background-color: rgba(0, 0, 0, .55);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .2s ease, visibility .2s ease;
+}
+
+.themeasy-library-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.themeasy-library-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1180px;
+  height: 100%;
+  max-height: 860px;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: var(--e-a-bg-default, #fff);
+  color: var(--e-a-color-txt, #515962);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .4);
+  transform: translateY(8px) scale(.99);
+  transition: transform .2s ease;
+}
+
+.themeasy-library-overlay.is-open .themeasy-library-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* #endregion Overlay */
+
+/* ------------------------------------------------------------------------
+ * 03. Header
+ * ------------------------------------------------------------------------ */
+
+/* #region Header */
+
+.themeasy-library__header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  border-block-end: var(--e-a-border, 1px solid #d5d8dc);
+}
+
+.themeasy-library__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.themeasy-library__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--e-a-color-txt-accent, #1a1c1f);
+}
+
+.themeasy-library__search {
+  position: relative;
+  flex: 1 1 auto;
+  max-width: 360px;
+  margin-inline-start: auto;
+}
+
+.themeasy-library__search input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 34px;
+  border: var(--e-a-border-bold, 1px solid #c2cbd2);
+  border-radius: var(--e-a-border-radius, 3px);
+  background-color: var(--e-a-bg-default, #fff);
+  color: var(--e-a-color-txt, #515962);
+  font-size: 13px;
+}
+
+.themeasy-library__search input:focus {
+  outline: none;
+  border-color: var(--themeasy-primary-color);
+}
+
+.themeasy-library__search::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 12px;
+  width: 14px;
+  height: 14px;
+  transform: translateY(-50%);
+  background-color: var(--e-a-color-txt-muted, #818a96);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") center / contain no-repeat;
+  pointer-events: none;
+}
+
+.themeasy-library__close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: var(--e-a-border-radius, 3px);
+  background-color: transparent;
+  color: var(--e-a-color-txt-muted, #818a96);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.themeasy-library__close:hover {
+  background-color: var(--e-a-bg-hover, #f1f2f3);
+  color: var(--e-a-color-txt-accent, #1a1c1f);
+}
+
+/* Group tab bar (Pages / Blocks) — data-driven from top-level parent
+ * categories; the whole bar is absent on a flat catalog. */
+.themeasy-library__groups {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 0 20px;
+  border-block-end: var(--e-a-border, 1px solid #d5d8dc);
+}
+
+.themeasy-library__group {
+  position: relative;
+  padding: 12px 14px;
+  border: none;
+  background-color: transparent;
+  color: var(--e-a-color-txt-muted, #818a96);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color .15s ease;
+}
+
+.themeasy-library__group:hover,
+.themeasy-library__group.is-active {
+  color: var(--e-a-color-txt-accent, #1a1c1f);
+}
+
+/* Active underline sits on the bar's own border line. */
+.themeasy-library__group.is-active::after {
+  content: "";
+  position: absolute;
+  inset-inline: 14px;
+  inset-block-end: -1px;
+  height: 2px;
+  background-color: var(--themeasy-primary-color);
+}
+
+/* #endregion Header */
+
+/* ------------------------------------------------------------------------
+ * 04. Body — Sidebar + Main
+ * ------------------------------------------------------------------------ */
+
+/* #region Body */
+
+.themeasy-library__body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.themeasy-library__sidebar {
+  flex: 0 0 200px;
+  overflow-y: auto;
+  padding: 14px 10px;
+  border-inline-end: var(--e-a-border, 1px solid #d5d8dc);
+}
+
+.themeasy-library__cat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--e-a-border-radius, 3px);
+  background-color: transparent;
+  color: var(--e-a-color-txt, #515962);
+  font-size: 13px;
+  text-align: start;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.themeasy-library__cat:hover {
+  background-color: var(--e-a-bg-hover, #f1f2f3);
+}
+
+.themeasy-library__cat.is-active {
+  background-color: var(--themeasy-primary-color);
+  color: var(--themeasy-color-contrast);
+}
+
+.themeasy-library__cat-count {
+  flex: 0 0 auto;
+  font-size: 11px;
+  opacity: .7;
+}
+
+.themeasy-library__main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Tag filter bar. */
+.themeasy-library__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 18px;
+  border-block-end: var(--e-a-border, 1px solid #d5d8dc);
+}
+
+.themeasy-library__tag {
+  padding: 5px 12px;
+  border: var(--e-a-border-bold, 1px solid #c2cbd2);
+  border-radius: 999px;
+  background-color: transparent;
+  color: var(--e-a-color-txt-muted, #818a96);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.themeasy-library__tag:hover {
+  color: var(--e-a-color-txt-accent, #1a1c1f);
+}
+
+.themeasy-library__tag.is-active {
+  border-color: var(--themeasy-primary-color);
+  background-color: var(--themeasy-primary-color);
+  color: var(--themeasy-color-contrast);
+}
+
+/* #endregion Body */
+
+/* ------------------------------------------------------------------------
+ * 05. Grid + Cards
+ * ------------------------------------------------------------------------ */
+
+/* #region Grid */
+
+.themeasy-library__scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 18px;
+}
+
+.themeasy-library__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.themeasy-library__card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: var(--e-a-border, 1px solid #d5d8dc);
+  border-radius: 6px;
+  background-color: var(--e-a-bg-default, #fff);
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+.themeasy-library__card:hover {
+  border-color: var(--themeasy-primary-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+  transform: translateY(-2px);
+}
+
+.themeasy-library__cover {
+  position: relative;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  background-color: var(--e-a-bg-hover, #f1f2f3);
+}
+
+.themeasy-library__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.themeasy-library__cover-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.themeasy-library__cover-fallback::after {
+  content: "";
+  width: 38px;
+  height: 38px;
+  background-color: var(--e-a-color-txt-muted, #818a96);
+  opacity: .35;
+  -webkit-mask: var(--themeasy-mark) center / contain no-repeat;
+  mask: var(--themeasy-mark) center / contain no-repeat;
+}
+
+/* Tier badge. */
+.themeasy-library__badge {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-start: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  background-color: rgba(0, 0, 0, .6);
+  color: #fff;
+}
+
+.themeasy-library__badge--pro {
+  background-color: var(--themeasy-secondary-color);
+}
+
+/* Theme-bundled template badge: carries the Themeasy mark so it reads as
+ * "ships with your theme" next to the cloud Free/Pro badges. */
+.themeasy-library__badge--theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--themeasy-primary-color);
+}
+
+/* Lock overlay on a gated card. */
+.themeasy-library__lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: rgba(20, 21, 26, .62);
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+
+.themeasy-library__card--locked:hover .themeasy-library__lock {
+  opacity: 1;
+}
+
+.themeasy-library__lock-icon {
+  width: 26px;
+  height: 26px;
+  background-color: #fff;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.themeasy-library__lock-cta {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background-color: var(--themeasy-primary-color);
+  color: var(--themeasy-color-contrast);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.themeasy-library__lock-cta:hover {
+  color: var(--themeasy-color-contrast);
+  filter: brightness(1.08);
+}
+
+.themeasy-library__card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px 14px;
+}
+
+.themeasy-library__card-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--e-a-color-txt-accent, #1a1c1f);
+}
+
+.themeasy-library__card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-block-start: auto;
+}
+
+/* Card tags render as quiet pills (no "#" prefix), matching the badge and tag
+ * filter chips of the design system. */
+.themeasy-library__card-tag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background-color: var(--e-a-bg-hover, #f1f2f3);
+  color: var(--e-a-color-txt-muted, #818a96);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.themeasy-library__card-actions {
+  display: flex;
+  gap: 8px;
+  margin-block-start: 4px;
+}
+
+.themeasy-library__btn {
+  flex: 0 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 12px;
+  border: var(--e-a-border-bold, 1px solid #c2cbd2);
+  border-radius: var(--e-a-border-radius, 3px);
+  background-color: transparent;
+  color: var(--e-a-color-txt, #515962);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.themeasy-library__btn:hover {
+  background-color: var(--e-a-bg-hover, #f1f2f3);
+  color: var(--e-a-color-txt-accent, #1a1c1f);
+}
+
+.themeasy-library__btn--primary {
+  border-color: var(--themeasy-primary-color);
+  background-color: var(--themeasy-primary-color);
+  color: var(--themeasy-color-contrast);
+}
+
+.themeasy-library__btn--primary:hover {
+  background-color: var(--themeasy-primary-color);
+  color: var(--themeasy-color-contrast);
+  filter: brightness(1.08);
+}
+
+.themeasy-library__btn[disabled] {
+  opacity: .55;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Inside a card the two actions share the row equally; the base button stays
+ * content-sized so it never grows on the main axis of the column-flex states
+ * (e.g. the centered Retry button in the error state). */
+.themeasy-library__card-actions .themeasy-library__btn {
+  flex: 1 1 auto;
+}
+
+/* #endregion Grid */
+
+/* ------------------------------------------------------------------------
+ * 06. Footer (pagination) + States
+ * ------------------------------------------------------------------------ */
+
+/* #region Footer + States */
+
+.themeasy-library__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  border-block-start: var(--e-a-border, 1px solid #d5d8dc);
+}
+
+.themeasy-library__count {
+  font-size: 12px;
+  color: var(--e-a-color-txt-muted, #818a96);
+}
+
+.themeasy-library__pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.themeasy-library__page-info {
+  font-size: 12px;
+  color: var(--e-a-color-txt-muted, #818a96);
+}
+
+.themeasy-library__page-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 14px;
+  border: var(--e-a-border-bold, 1px solid #c2cbd2);
+  border-radius: var(--e-a-border-radius, 3px);
+  background-color: transparent;
+  color: var(--e-a-color-txt, #515962);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color .15s ease;
+}
+
+.themeasy-library__page-btn:hover:not([disabled]) {
+  background-color: var(--e-a-bg-hover, #f1f2f3);
+}
+
+.themeasy-library__page-btn[disabled] {
+  opacity: .45;
+  cursor: default;
+}
+
+/* Loading / empty / error states share one centered block. */
+.themeasy-library__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 280px;
+  padding: 40px;
+  text-align: center;
+  color: var(--e-a-color-txt-muted, #818a96);
+  font-size: 13px;
+}
+
+.themeasy-library__spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--e-a-border-color, #d5d8dc);
+  border-block-start-color: var(--themeasy-primary-color);
+  border-radius: 50%;
+  animation: themeasy-library-spin .8s linear infinite;
+}
+
+@keyframes themeasy-library-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.themeasy-library__hidden {
+  display: none !important;
+}
+
+/* #endregion Footer + States */
+
+/* ------------------------------------------------------------------------
+ * 07. Responsive + Reduced Motion
+ * ------------------------------------------------------------------------ */
+
+@media (max-width: 1100px) {
+  .themeasy-library__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .themeasy-library__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .themeasy-library__sidebar {
+    flex-basis: 160px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .themeasy-library-overlay,
+  .themeasy-library-modal,
+  .themeasy-library__card,
+  .themeasy-library-launch--floating {
+    transition: none;
+  }
+
+  .themeasy-library__spinner {
+    animation-duration: 2s;
+  }
+}

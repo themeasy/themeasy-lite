@@ -1,0 +1,9 @@
+=== Themeasy Changelog ===
+
+== 1.0.1 — 2026-06-16 ==
+
+* Enhanced overall stability and plugin efficiency following a comprehensive code audit.
+
+== 1.0.0 — 2026-05-01 ==
+
+* Initial release.

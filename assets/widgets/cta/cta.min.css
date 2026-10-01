@@ -1,0 +1,438 @@
+/*!
+ * Themeasy — Call to Action Widget Styles
+ *
+ * Conversion block with three layout skins:
+ *   - banner: inline horizontal band with content + buttons
+ *   - cover:  full-bleed background image + overlay + centered content
+ *   - split:  50/50 media panel + content panel (media left or right)
+ *
+ * Public tokens (--tms-*) are consumed — never private (--themeasy-*).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Wrapper & base structure
+ * 02. Panels & body
+ * 03. Ribbon / badge
+ * 04. Media (icon / image / background)
+ * 05. Typography elements (pre-title, title, description)
+ * 06. Buttons (actions row + button-level tweaks)
+ * 07. Skin: Banner
+ * 08. Skin: Cover
+ * 09. Skin: Split
+ * 10. Responsive overrides
+ * 11. Accessibility (focus, reduced motion)
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & base structure
+ * ------------------------------------------------------------------------ */
+
+/* #region Wrapper */
+
+.tms-cta {
+  --tms-cta-media-size: 50%;
+  --tms-cta-ribbon-offset: 1rem;
+  --tms-cta-overlay-color: #111;
+
+  position: relative;
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  color: var(--tms-body-color, #4a4f5a);
+  background-color: var(--tms-surface-color, #fff);
+}
+
+.tms-cta__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tms-cta__panel--body {
+  flex: 1 1 auto;
+}
+
+/* #endregion Wrapper */
+
+/* ------------------------------------------------------------------------
+ * 02. Panels & body
+ * ------------------------------------------------------------------------ */
+
+/* #region Body */
+
+.tms-cta .tms-cta__body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 1rem;
+  padding: 3rem;
+}
+
+.tms-cta .tms-cta__body > * {
+  max-width: 100%;
+}
+
+/* #endregion Body */
+
+/* ------------------------------------------------------------------------
+ * 03. Ribbon / badge
+ * ------------------------------------------------------------------------ */
+
+/* #region Ribbon */
+
+.tms-cta .tms-cta__ribbon {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35em 0.9em;
+  color: var(--tms-white-color, #fff);
+  background-color: var(--tms-primary-color, #2563eb);
+  font-family: var(--tms-accent-font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Positional ribbon (top-left / top-right) is pinned to the wrapper. */
+
+.tms-cta--ribbon-top-left > .tms-cta__ribbon,
+.tms-cta--ribbon-top-right > .tms-cta__ribbon {
+  position: absolute;
+  top: var(--tms-cta-ribbon-offset);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.tms-cta--ribbon-top-left > .tms-cta__ribbon {
+  left: var(--tms-cta-ribbon-offset);
+}
+
+.tms-cta--ribbon-top-right > .tms-cta__ribbon {
+  right: var(--tms-cta-ribbon-offset);
+}
+
+/* Inline ribbon flows with the content. */
+
+.tms-cta--ribbon-inline .tms-cta__ribbon {
+  align-self: flex-start;
+}
+
+/* #endregion Ribbon */
+
+/* ------------------------------------------------------------------------
+ * 04. Media (icon / image / background)
+ * ------------------------------------------------------------------------ */
+
+/* #region Media */
+
+.tms-cta .tms-cta__media {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.tms-cta .tms-cta__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  color: var(--tms-primary-color, #2563eb);
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.tms-cta svg.tms-cta__icon {
+  fill: currentColor;
+}
+
+.tms-cta svg.tms-cta__icon[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-cta .tms-cta__icon::before {
+  font-size: inherit;
+  line-height: 1;
+}
+
+.tms-cta .tms-cta__image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Background (cover skin). */
+
+.tms-cta .tms-cta__background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.tms-cta .tms-cta__background-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.tms-cta .tms-cta__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-color: var(--tms-cta-overlay-color, #111);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* #endregion Media */
+
+/* ------------------------------------------------------------------------
+ * 05. Typography elements
+ * ------------------------------------------------------------------------ */
+
+/* #region Typography */
+
+.tms-cta .tms-cta__pre-title {
+  display: inline-block;
+  color: var(--tms-primary-color, #2563eb);
+  font-family: var(--tms-accent-font);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.tms-cta .tms-cta__title {
+  margin: 0;
+  color: var(--tms-heading-color, #11131a);
+}
+
+/* Default font metrics for the title — Elementor typography CSS overrides
+ * these at higher specificity when the user picks a global or custom
+ * typography. */
+.tms-cta .tms-cta__title {
+  font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2.25rem);
+  line-height: 1.2;
+}
+
+.tms-cta .tms-cta__description {
+  margin: 0;
+  color: var(--tms-body-color, #4a4f5a);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+/* #endregion Typography */
+
+/* ------------------------------------------------------------------------
+ * 06. Buttons (actions row)
+ * ------------------------------------------------------------------------ */
+
+/* #region Buttons */
+
+.tms-cta .tms-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.tms-cta .tms-cta__button {
+  position: relative;
+  z-index: 2;
+}
+
+/* #endregion Buttons */
+
+/* ------------------------------------------------------------------------
+ * 07. Skin: Banner (inline band)
+ * ------------------------------------------------------------------------ */
+
+/* #region Banner */
+
+/* Like Cover, the banner keeps the inherited flex wrapper so the body panel
+ * stretches to any height set on the block — a block wrapper would collapse
+ * the panel to content height and make Vertical Alignment inert. */
+.tms-cta.tms-cta--skin-banner {
+  align-items: stretch;
+}
+
+/* #endregion Banner */
+
+/* ------------------------------------------------------------------------
+ * 08. Skin: Cover (background image + overlay)
+ * ------------------------------------------------------------------------ */
+
+/* #region Cover */
+
+/* Stays a flex container (inherited from .tms-cta) so the body panel stretches
+ * to the wrapper height — a block wrapper leaves the panel at content height,
+ * which resolves the body's `height: 100%` to auto and makes the Vertical
+ * Alignment control (justify-content) inert. */
+.tms-cta.tms-cta--skin-cover {
+  align-items: stretch;
+  min-height: 360px;
+}
+
+/* The light text below is keyed to --has-cover-image, not to the skin: it is
+ * only legible because a dark image and its overlay sit behind it. A Cover
+ * whose image was cleared keeps the wrapper's surface background and the
+ * regular token colors instead of rendering white on white.
+ *
+ * The single class also preserves the (0,3,0) specificity the skin selector
+ * had -- adding a class on top of it would tie with Elementor's own
+ * {{WRAPPER}} .tms-cta__title (0,4,0) and make the Text Color controls
+ * lose on source order. */
+.tms-cta.tms-cta--has-cover-image .tms-cta__body {
+  color: var(--tms-white-color, #fff);
+}
+
+.tms-cta.tms-cta--has-cover-image .tms-cta__title {
+  color: var(--tms-white-color, #fff);
+}
+
+.tms-cta.tms-cta--has-cover-image .tms-cta__description {
+  color: var(--tms-white-color, #fff);
+}
+
+.tms-cta.tms-cta--has-cover-image .tms-cta__pre-title {
+  color: var(--tms-white-color, #fff);
+  opacity: 0.85;
+}
+
+/* #endregion Cover */
+
+/* ------------------------------------------------------------------------
+ * 09. Skin: Split (media + body side-by-side)
+ * ------------------------------------------------------------------------ */
+
+/* #region Split */
+
+.tms-cta.tms-cta--skin-split {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 320px;
+}
+
+.tms-cta.tms-cta--skin-split.tms-cta--media-right {
+  flex-direction: row-reverse;
+}
+
+.tms-cta.tms-cta--skin-split .tms-cta__panel--media {
+  flex: 0 0 var(--tms-cta-media-size);
+  max-width: var(--tms-cta-media-size);
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.tms-cta.tms-cta--skin-split .tms-cta__panel--media .tms-cta__icon {
+  font-size: 5rem;
+}
+
+.tms-cta.tms-cta--skin-split .tms-cta__panel--media .tms-cta__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tms-cta.tms-cta--skin-split .tms-cta__panel--body {
+  flex: 1 1 auto;
+}
+
+/* #endregion Split */
+
+/* ------------------------------------------------------------------------
+ * 10. Responsive overrides
+ * ------------------------------------------------------------------------ */
+
+/* #region Responsive */
+
+@media (max-width: 1024px) {
+  .tms-cta .tms-cta__body {
+    padding: 2.25rem;
+  }
+
+  .tms-cta.tms-cta--skin-split .tms-cta__panel--media .tms-cta__icon {
+    font-size: 4rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .tms-cta.tms-cta--skin-split {
+    flex-direction: column;
+  }
+
+  .tms-cta.tms-cta--skin-split.tms-cta--media-right {
+    flex-direction: column;
+  }
+
+  .tms-cta.tms-cta--skin-split .tms-cta__panel--media {
+    flex: 0 0 auto;
+    max-width: 100%;
+    min-height: 220px;
+  }
+
+  .tms-cta .tms-cta__body {
+    padding: 1.75rem;
+  }
+
+  .tms-cta .tms-cta__actions {
+    width: 100%;
+  }
+
+  .tms-cta .tms-cta__actions .tms-cta__button {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+/* #endregion Responsive */
+
+/* ------------------------------------------------------------------------
+ * 11. Accessibility (focus, reduced motion)
+ * ------------------------------------------------------------------------ */
+
+/* #region Accessibility */
+
+.tms-cta .tms-cta__button:focus-visible {
+  outline: 2px solid var(--tms-primary-color, #2563eb);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* !important required to override Elementor-injected inline animation styles. */
+  .tms-cta,
+  .tms-cta * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* #endregion Accessibility */

@@ -1,0 +1,312 @@
+/*!
+ * Themeasy — Elementor Editor Panel (Sidebar)
+ *
+ * Styles applied to the Elementor editor sidebar panel to customize the
+ * appearance of Themeasy widget categories, branded icons, control
+ * overrides (sections, headings, separators, AI buttons, repeaters),
+ * and custom Themeasy control elements (notices, descriptions).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Widget Categories
+ * 02. Control Overrides
+ * 03. Custom Controls
+ * 04. Icons Manager Modal
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Widget Categories
+ * ------------------------------------------------------------------------ */
+
+/* #region Widget Categories */
+
+/* Branded Themeasy watermark on custom section controls + widget cards.
+ *
+ * The editor panel has NO dark/light class to target: Elementor swaps the UI
+ * theme by toggling media-scoped stylesheets (theme-light.css / theme-dark.css)
+ * that redefine the --e-a-* tokens at :root. So instead of swapping two
+ * baked-fill SVGs (which can't follow a manually forced Light/Dark mode, only
+ * the OS via prefers-color-scheme), we mask ONE shape and tint it with
+ * --e-a-bg-active-bold, which Elementor resolves to #3f444b (dark) / #d5d8dc
+ * (light) — matching the intended watermark shade in every mode, incl. auto.
+ * The SVG's own fill is irrelevant: a mask uses the alpha channel only.
+ */
+#elementor-panel {
+  --themeasy-el-logo: url(data:image/svg+xml;base64,PHN2ZyBpZD0idXVpZC01NzExNTQ2Yi1hYWVmLTRhMTUtODhjYi1lNmVlZjE1YjMxMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEyNDkuODExIDEyNzEuNTQ3Ij48cGF0aCBkPSJNMTIyNC41NDcsMTA4NC44NDljMCw4Mi41LTY3LjUsMTUwLTE1MCwxNTBIMTc0LjU0N2MtODIuNSwwLTE1MC02Ny41LTE1MC0xNTBWMTg0Ljg0OWMwLTgyLjUsNjcuNS0xNTAsMTUwLTE1MGg5MDBjODIuNSwwLDE1MCw2Ny41LDE1MCwxNTB2OTAwWk03NTIuMDQ3LDUwNy4zNDljMC0xNDAuODMyLTExNC4xNjctMjU1LTI1NS0yNTVoLTEwNWMtODIuNSwwLTE1MCwwLTE1MCwwaDBjMCwxNDAuODMyLDExNC4xNjcsMjU1LDI1NSwyNTVoMTA1YzgyLjUsMCwxNTAsMCwxNTAsMGgwWk00OTcuMDQ3LDEwMTcuMzQ5YzE0MC44MzIsMCwyNTUtMTE0LjE2NywyNTUtMjU1di0xMDVjMC04Mi41LDAtMTUwLDAtMTUwaDBjLTE0MC44MzIsMC0yNTUsMTE0LjE2Ny0yNTUsMjU1djEwNWMwLDgyLjUsMCwxNTAsMCwxNTBoMFpNODc5LjU0NywyNTIuMzQ5Yy03MC40MTYsMC0xMjcuNSw1Ny4wODQtMTI3LjUsMTI3LjVzNTcuMDg0LDEyNy41LDEyNy41LDEyNy41LDEyNy41LTU3LjA4NCwxMjcuNS0xMjcuNS01Ny4wODQtMTI3LjUtMTI3LjUtMTI3LjVaIiBmaWxsPSIjM2Y0NDRiIi8+PC9zdmc+Cg==)
+}
+
+/* Custom section controls — watermark top-right. */
+.elementor-control.elementor-control-themeasy_header_layout_section,
+.elementor-control.elementor-control-themeasy_header_style_section,
+.elementor-control.elementor-control-themeasy_layout_section,
+.elementor-control.elementor-control-themeasy_dark_mode_section,
+.elementor-control.elementor-control-themeasy_border_effect_section,
+.elementor-control.elementor-control-themeasy_bg_motion_section,
+.elementor-control.elementor-control-themeasy_aurora_section,
+.elementor-control.elementor-control-themeasy_grid_pattern_section,
+.elementor-control.elementor-control-themeasy_parallax_section,
+.elementor-control.elementor-control-themeasy_animation_section,
+.elementor-control.elementor-control-themeasy_hover_animation_section {
+  position: relative
+}
+
+.elementor-control.elementor-control-themeasy_header_layout_section::after,
+.elementor-control.elementor-control-themeasy_header_style_section::after,
+.elementor-control.elementor-control-themeasy_layout_section::after,
+.elementor-control.elementor-control-themeasy_dark_mode_section::after,
+.elementor-control.elementor-control-themeasy_border_effect_section::after,
+.elementor-control.elementor-control-themeasy_bg_motion_section::after,
+.elementor-control.elementor-control-themeasy_aurora_section::after,
+.elementor-control.elementor-control-themeasy_grid_pattern_section::after,
+.elementor-control.elementor-control-themeasy_parallax_section::after,
+.elementor-control.elementor-control-themeasy_animation_section::after,
+.elementor-control.elementor-control-themeasy_hover_animation_section::after {
+  content: "";
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--e-a-bg-active-bold, #3f444b);
+  -webkit-mask: var(--themeasy-el-logo) center / contain no-repeat;
+  mask: var(--themeasy-el-logo) center / contain no-repeat;
+  pointer-events: none
+}
+
+/* Themeasy widget cards — brand mark in every panel view.
+ * Keyed off data-library-element-type (= widget get_name(), all "themeasy-*"),
+ * rendered by Elementor's shared card template in BOTH the categorized list and
+ * the flat search results — so it survives search, which drops the category id.
+ */
+.elementor-element[data-library-element-type^="themeasy-"] {
+  position: relative
+}
+
+.elementor-element[data-library-element-type^="themeasy-"]::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--e-a-bg-active-bold, #3f444b);
+  -webkit-mask: var(--themeasy-el-logo) center / contain no-repeat;
+  mask: var(--themeasy-el-logo) center / contain no-repeat;
+  pointer-events: none
+}
+
+/* #endregion Widget Categories */
+
+/* ------------------------------------------------------------------------
+ * 02. Control Overrides
+ * ------------------------------------------------------------------------ */
+
+/* #region Control Overrides */
+
+.elementor-control-type-section.e-open {
+  padding-block-end: 5px
+}
+
+.elementor-control.elementor-control-type-heading .elementor-control-title {
+  padding: 7px 10px 6px;
+  border-radius: 3px;
+  background-color: var(--e-a-bg-active-bold);
+  font-weight: inherit;
+  color: var(--e-a-color-txt-accent)
+}
+
+.elementor-control.elementor-control-separator-before {
+  margin-top: 5px;
+  padding-block-start: 20px
+}
+
+.elementor-control.elementor-control-separator-before::before {
+  height: 1px;
+  border-bottom: 1px dashed;
+  border-color: var(--e-a-bg-active-bold);
+  background: none
+}
+
+.elementor-control.elementor-control-type-divider {
+  padding: 5px 0
+}
+
+.elementor-control.elementor-control-type-divider .elementor-control-content {
+  border-block-start: 1px dashed;
+  border-color: var(--e-a-bg-active-bold)
+}
+
+.elementor-control-raw-html.no-margin {
+  margin: 0
+}
+
+.elementor-control-hidden-label:has(textarea):not([class*="wysiwyg"]):has(button.elementor-control-dynamic-switcher) .e-ai-button:not(.e-active) {
+  height: 27px;
+  top: 0;
+  right: 46px;
+  padding: 0 8px;
+  background-color: #1f2124;
+  border: var(--e-a-border-bold);
+  border-inline-start-width: 1px;
+  border-start-start-radius: 0;
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+  border-end-start-radius: var(--e-a-border-radius)
+}
+
+.elementor-control-hidden-label:has(textarea):not([class*="wysiwyg"]):has(button.elementor-control-dynamic-switcher) .e-ai-button.e-active {
+  position: absolute;
+  top: 0;
+  right: 46px;
+  z-index: 1;
+  width: auto;
+  min-width: 27px;
+  height: 27px;
+  border: var(--e-a-border-bold);
+  background: var(--e-a-bg-default);
+  border-start-start-radius: 0;
+  border-start-end-radius: var(--e-a-border-radius);
+  border-end-end-radius: var(--e-a-border-radius);
+  border-end-start-radius: var(--e-a-border-radius)
+}
+
+.elementor-control-hidden-label:has(textarea):not([class*="wysiwyg"]) .e-ai-button {
+  position: absolute;
+  z-index: 1;
+  top: 6px;
+  right: 27px
+}
+
+.elementor-control-hidden-label:has(textarea):not([class*="wysiwyg"]) .e-ai-button.e-active:hover {
+  background-color: var(--e-a-bg-hover)
+}
+
+.elementor-control-hidden-label:has(textarea:focus) .e-ai-button {
+  display: none
+}
+
+.elementor-repeater-fields-wrapper .elementor-control.elementor-control-separator-before:before {
+  width: calc(100% - 20px);
+  left: 10px
+}
+
+.elementor-repeater-fields-wrapper .e-ai-button.e-active {
+  right: 36px !important
+}
+
+.elementor-repeater-fields-wrapper .e-ai-button:not(.e-active) {
+  right: 36px !important
+}
+
+.elementor-repeater-fields-wrapper .elementor-control-media .e-ai-button:not(.e-active) {
+  top: -40px !important;
+  right: 10px !important
+}
+
+.elementor-control-type-repeater .elementor-control:not(.elementor-control-type-tab) {
+  padding-block-end: 15px
+}
+
+.elementor-control-type-repeater.elementor-control-hidden-label .elementor-repeater-fields {
+  margin: 15px 0
+}
+
+.elementor-control-type-repeater.elementor-control-hidden-label .elementor-repeater-fields:first-child {
+  margin-top: 0
+}
+
+/* #endregion Control Overrides */
+
+/* ------------------------------------------------------------------------
+ * 03. Custom Controls
+ * ------------------------------------------------------------------------ */
+
+/* #region Custom Controls */
+
+.elementor-control-themeasy_is_desktop_navbar .elementor-control-content,
+.elementor-control-themeasy_is_mobile_navbar .elementor-control-content,
+.elementor-control-themeasy_is_offcanvas_panel .elementor-control-content {
+  padding-left: 1rem;
+  border-left: 1px dashed;
+  border-color: #5b60d8
+}
+
+.elementor-control-themeasy_header_builder_info,
+.elementor-control-themeasy_header_builder_style_info {
+  padding-bottom: 0
+}
+
+.themeasy-e-control-description {
+  margin: 0;
+  color: var(--e-a-color-txt-muted);
+  font-size: 11px;
+  font-style: italic;
+  line-height: 1.4
+}
+
+.themeasy-e-control-notice {
+  padding: 1rem;
+  border-top-right-radius: .25rem;
+  border-bottom-right-radius: .25rem;
+  background-color: var(--e-a-bg-hover);
+  border-left: 2px solid;
+  border-color: #5b60d8;
+  color: var(--e-a-color-txt-muted);
+  font-size: 11px;
+  font-style: italic;
+  line-height: 1.4
+}
+
+.themeasy-e-control-notice a,
+.themeasy-e-control-notice strong {
+  width: fit-content;
+  color: var(--e-a-color-txt)
+}
+
+.themeasy-e-control-notice a:hover {
+  color: var(--e-a-color-txt)
+}
+
+.themeasy-e-control-notice-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* #endregion Custom Controls */
+
+/* ------------------------------------------------------------------------
+ * 04. Icons Manager Modal
+ * ------------------------------------------------------------------------ */
+
+/* #region Icons Manager Modal */
+
+/* Tab icon ↔ label gap for the ty-* library tabs. Elementor spaces its own
+ * tabs via padding-inline-end on the <i>, but the ty-* preview classes are
+ * mask-based (inline-block, 1em box, mask centered on the border-box), so
+ * the centered mask paints over the padding area instead of clearing space.
+ * Swap it for a margin of the same size.
+ */
+.elementor-icons-manager__tab-link i[class^="ty-"],
+.elementor-icons-manager__tab-link i[class*=" ty-"] {
+  padding-inline-end: 0;
+  margin-inline-end: 15px
+}
+
+/* Divider between the My Libraries header (upload area) and the Themeasy
+ * ty-* library tabs, mirroring Elementor's separators between icon groups.
+ */
+#elementor-icons-manager__upload {
+  border-block-end: var(--e-a-border);
+  padding-block-end: 35px
+}
+
+/* #endregion Icons Manager Modal */

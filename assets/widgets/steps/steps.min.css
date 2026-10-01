@@ -1,0 +1,236 @@
+/*!
+ * Themeasy — Steps
+ *
+ * A connected sequence of step cards with an icon or auto-numbered badge per
+ * step. Supports horizontal and vertical orientation plus Material (shadow) and
+ * Outline (bordered) skins. The connector line is drawn with a CSS pseudo-element
+ * and is removed on small viewports; entrance motion is layered by the shared
+ * tms-animation system and degrades to fully visible without JS.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+.tms-steps {
+  /* Single source for the badge node's box. Defaults to twice the glyph size,
+   * which is the historical 2em node — so an unset Node Size renders exactly as
+   * before. Everything that has to line up with the node (the connector line's
+   * centre, the vertical skin's content indent) reads THIS, never the glyph. */
+  --tms-steps-node-size: calc(2 * var(--tms-steps-icon-size, 1.25rem));
+
+  /* Single source for the connector's thickness: the line itself and both
+   * centering offsets (horizontal top, vertical left) read it, so an authored
+   * Thickness keeps the line straddling the node axis. The Skin only sets the
+   * default. */
+  --tms-steps-line-width: 4px;
+
+  position: relative;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.tms-steps.tms-steps--outline {
+  --tms-steps-line-width: 2px;
+}
+
+.tms-steps.tms-steps--vertical {
+  width: 100%;
+  max-width: 900px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tms-steps.tms-steps--vertical .tms-steps__wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.tms-steps .tms-steps__item {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tms-steps.tms-steps--vertical .tms-steps__item {
+  justify-content: flex-start;
+}
+
+/* Connector line. The node's middle sits exactly on the item's top edge, so
+ * half the thickness above it centers the line on the node at any size. */
+.tms-steps .tms-steps__item::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--tms-steps-line-width, 4px) / -2);
+  left: 0;
+  width: calc(100% + 3rem);
+  height: var(--tms-steps-line-width, 4px);
+  background-color: var(--tms-border-color, #e5e7eb);
+}
+
+/* Centered on the badge node: the node starts at left 0, so its middle is half
+ * the node size minus half the line width. */
+.tms-steps.tms-steps--vertical .tms-steps__item::before {
+  top: 0;
+  left: calc(var(--tms-steps-node-size, 2.5rem) / 2 - var(--tms-steps-line-width, 4px) / 2);
+  width: var(--tms-steps-line-width, 4px);
+  height: 100%;
+}
+
+.tms-steps:not(.tms-steps--vertical) .tms-steps__item:first-child::before {
+  right: initial;
+  left: 50%;
+  width: calc(50% + 3rem);
+}
+
+.tms-steps:not(.tms-steps--vertical) .tms-steps__item:last-child::before {
+  right: 50%;
+  left: initial;
+  width: calc(50% + 3rem);
+}
+
+/* The outline skin only recolours the line — its thickness (and therefore both
+ * centering offsets) comes from --tms-steps-line-width. */
+.tms-steps.tms-steps--outline .tms-steps__item::before {
+  background-color: var(--tms-border-strong-color, #d1d5db);
+}
+
+/* Badge node: icon wrapper / number ----------------------------------------
+ * Icon contract: the wrapper span is the styled circular node; the glyph
+ * inside (svg / img / i) is 1em and tracks the node's font-size, so the Icon
+ * Size control only moves --tms-steps-icon-size. The node's BOX is sized
+ * separately by --tms-steps-node-size (Node Size control), which defaults to
+ * twice the glyph — at the default 1.25rem that is the classic 40px circle
+ * with a 20px glyph, and growing the node alone gives the tile chrome (fill +
+ * hairline + radius) room without inflating the drawing. The half-node top
+ * offset keeps the node straddling the connector line at any size. */
+.tms-steps .tms-steps__item .tms-steps__icon,
+.tms-steps .tms-steps__item .tms-steps__number {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--tms-steps-node-size, 2.5rem) * -0.5);
+  width: var(--tms-steps-node-size, 2.5rem);
+  height: var(--tms-steps-node-size, 2.5rem);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: var(--tms-primary-color, #4f46e5);
+  font-size: var(--tms-steps-icon-size, 1.25rem);
+  color: var(--tms-white-color, #ffffff);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tms-steps .tms-steps__item .tms-steps__icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-steps .tms-steps__item .tms-steps__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* Editor-only transient: <img> stands in while Elementor fetches an uploaded
+ * SVG (or when a themeasy-svg icon is not in the preloaded editor library). */
+.tms-steps .tms-steps__item .tms-steps__icon img {
+  width: 1em;
+  height: 1em;
+}
+
+.tms-steps .tms-steps__item .tms-steps__number {
+  font-weight: var(--tms-semibold-font-weight, 700);
+}
+
+.tms-steps.tms-steps--outline .tms-steps__item .tms-steps__icon,
+.tms-steps.tms-steps--outline .tms-steps__item .tms-steps__number {
+  border-radius: var(--tms-radius-sm, 0.25rem);
+  background-color: var(--tms-button-bg-color, #111827);
+  color: var(--tms-button-text-color, #ffffff);
+}
+
+.tms-steps.tms-steps--vertical .tms-steps__item .tms-steps__icon,
+.tms-steps.tms-steps--vertical .tms-steps__item .tms-steps__number {
+  top: initial;
+  left: 0;
+  margin-right: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.tms-steps.tms-steps--vertical .tms-steps__item:last-child .tms-steps__icon,
+.tms-steps.tms-steps--vertical .tms-steps__item:last-child .tms-steps__number {
+  margin-bottom: 0;
+}
+
+/* Step content card. */
+.tms-steps .tms-steps__item .tms-steps__content {
+  position: relative;
+  margin-top: 3rem;
+}
+
+.tms-steps.tms-steps--vertical .tms-steps__item .tms-steps__content {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding-left: calc(var(--tms-steps-node-size, 2.5rem) + 1rem);
+}
+
+.tms-steps.tms-steps--vertical .tms-steps__item:last-child .tms-steps__content {
+  margin-bottom: 0;
+}
+
+/* Horizontal: every card takes the height of the tallest step in its row, so
+ * uneven copy never leaves a short card floating. The .row grid is shared by
+ * the whole plugin and flex-start is the right default there, so the stretch
+ * is scoped to this widget — and to the horizontal orientation, which is the
+ * only one that rides the grid at all. */
+.tms-steps:not(.tms-steps--vertical) > .row {
+  align-items: stretch;
+}
+
+.tms-steps:not(.tms-steps--vertical) .tms-steps__item {
+  align-items: stretch;
+}
+
+.tms-steps:not(.tms-steps--vertical) .tms-steps__content .tms-animation__target,
+.tms-steps:not(.tms-steps--vertical) .tms-steps__content .tms-card {
+  height: 100%;
+}
+
+.tms-steps .tms-steps__item .tms-steps__content .tms-card {
+  border-radius: var(--tms-radius-md, 1rem);
+  box-shadow: 0 10px 10px 0 rgba(0, 0, 0, 0.05);
+  background: var(--tms-bg-color, #ffffff);
+}
+
+.tms-steps.tms-steps--outline .tms-steps__item .tms-steps__content .tms-card {
+  border-radius: var(--tms-radius-sm, 0.25rem);
+  border: 2px solid var(--tms-border-color, #e5e7eb);
+  box-shadow: none;
+  background: none;
+}
+
+/* Responsive: stack horizontal steps and drop the connector. */
+@media (max-width: 991px) {
+  .tms-steps:not(.tms-steps--vertical) .tms-steps__item {
+    margin-top: 3rem;
+  }
+
+  .tms-steps:not(.tms-steps--vertical) .tms-steps__item::before {
+    content: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-steps .tms-steps__item .tms-steps__icon,
+  .tms-steps .tms-steps__item .tms-steps__number {
+    transition: none;
+  }
+}

@@ -1,0 +1,47 @@
+/*!
+ * Themeasy — Lightbox Module CSS
+ *
+ * Custom overrides and enhancements for GLightbox.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Lightbox Link
+ * 02. GLightbox Overrides
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Lightbox Link
+ * ------------------------------------------------------------------------ */
+
+.glightbox {
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------------
+ * 02. GLightbox Overrides
+ * ------------------------------------------------------------------------ */
+
+.goverlay {
+  background: color-mix(in srgb, var(--tms-black-color) 95%, transparent);
+}
+
+.glightbox-clean .gclose,
+.glightbox-clean .gnext,
+.glightbox-clean .gprev {
+  background: transparent;
+  color: var(--tms-white-color);
+}
+
+.glightbox-clean .gclose:hover,
+.glightbox-clean .gnext:hover,
+.glightbox-clean .gprev:hover {
+  background: color-mix(in srgb, var(--tms-black-color) 100%, transparent);
+}

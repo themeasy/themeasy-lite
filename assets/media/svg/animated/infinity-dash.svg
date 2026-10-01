@@ -1,0 +1,17 @@
+<svg
+  class="tms-icon-animation"
+  data-animation="dash"
+  data-delay="1200"
+  data-duration="2.2"
+  data-loop="false"
+
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 120 60"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="3"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  >
+  <path d="M10 30 C 10 10, 40 10, 60 30 S 110 50, 110 30 S 80 10, 60 30 S 10 50, 10 30" />
+</svg>

@@ -1,0 +1,262 @@
+/*!
+ * Themeasy — Logo Wall Widget Styles
+ *
+ * Static wall of brand logos with shared hairline dividers: every cell
+ * carries a full border and a negative end/bottom margin, so adjacent
+ * borders collapse into a single crisp line (the "table wall" look). The
+ * wrapper clips the outermost cell borders; the optional outer frame is the
+ * wrapper's own border, keeping edges single-weight and symmetric even on
+ * incomplete last rows. Pure CSS — no JS.
+ *
+ * Public tokens (--tms-*) are consumed — never private (--themeasy-*).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Wrapper & collapsed-border grid
+ * 02. Cell link & logo image
+ * 03. Hover effects (color, grayscale, zoom)
+ * 04. Hover micro-label
+ * 05. Wordmark (text-only cells)
+ * 06. Accessibility (focus, reduced motion)
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & collapsed-border grid
+ * ------------------------------------------------------------------------ */
+
+/* #region Wall */
+
+.tms-logo-wall {
+  --tms-logo-wall-columns: 4;
+  --tms-logo-wall-border-color: var(--tms-border-color, #e5e7eb);
+  --tms-logo-wall-border-style: solid;
+  --tms-logo-wall-border-width: 1px;
+  --tms-logo-wall-cell-height: 8.75rem;
+  --tms-logo-wall-duration: 0.35s;
+  --tms-logo-wall-label-offset: 0.75rem;
+
+  overflow: hidden;
+}
+
+.tms-logo-wall--framed {
+  border: var(--tms-logo-wall-border-width) var(--tms-logo-wall-border-style) var(--tms-logo-wall-border-color);
+}
+
+/* The list is pulled out by one divider width on every side so the cells'
+ * outermost borders are clipped by the wrapper — only inner dividers (and
+ * the wrapper's own frame) remain visible. */
+
+.tms-logo-wall .tms-logo-wall__list {
+  display: grid;
+  grid-template-columns: repeat(var(--tms-logo-wall-columns), minmax(0, 1fr));
+  margin: calc(-1 * var(--tms-logo-wall-border-width));
+  padding: 0;
+  list-style: none;
+}
+
+/* Each cell is fully framed; the negative end/bottom margins overlap the
+ * neighbors' borders so every shared edge collapses into one line. */
+
+.tms-logo-wall .tms-logo-wall__item {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: var(--tms-logo-wall-cell-height);
+  border: var(--tms-logo-wall-border-width) var(--tms-logo-wall-border-style) var(--tms-logo-wall-border-color);
+  margin-inline-end: calc(-1 * var(--tms-logo-wall-border-width));
+  margin-block-end: calc(-1 * var(--tms-logo-wall-border-width));
+  transition: background-color var(--tms-logo-wall-duration) ease;
+}
+
+/* #endregion Wall */
+
+/* ------------------------------------------------------------------------
+ * 02. Cell link & logo image
+ * ------------------------------------------------------------------------ */
+
+/* #region Cell */
+
+.tms-logo-wall .tms-logo-wall__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1.5rem;
+  text-decoration: none;
+}
+
+.tms-logo-wall .tms-logo-wall__image {
+  display: block;
+  max-width: min(100%, 10rem);
+  max-height: 3.5rem;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transition:
+    filter var(--tms-logo-wall-duration) ease,
+    opacity var(--tms-logo-wall-duration) ease,
+    transform var(--tms-logo-wall-duration) ease;
+}
+
+/* #endregion Cell */
+
+/* ------------------------------------------------------------------------
+ * 03. Hover effects (color, grayscale, zoom)
+ * ------------------------------------------------------------------------ */
+
+/* #region Hover */
+
+.tms-logo-wall--hover-color .tms-logo-wall__image {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.tms-logo-wall--hover-color .tms-logo-wall__item:hover .tms-logo-wall__image,
+.tms-logo-wall--hover-color .tms-logo-wall__item:focus-within .tms-logo-wall__image {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.tms-logo-wall--hover-grayscale .tms-logo-wall__item:hover .tms-logo-wall__image,
+.tms-logo-wall--hover-grayscale .tms-logo-wall__item:focus-within .tms-logo-wall__image {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.tms-logo-wall--hover-zoom .tms-logo-wall__item {
+  overflow: hidden;
+}
+
+.tms-logo-wall--hover-zoom .tms-logo-wall__item:hover .tms-logo-wall__image,
+.tms-logo-wall--hover-zoom .tms-logo-wall__item:focus-within .tms-logo-wall__image {
+  transform: scale(1.08);
+}
+
+/* #endregion Hover */
+
+/* ------------------------------------------------------------------------
+ * 04. Hover micro-label
+ * ------------------------------------------------------------------------ */
+
+/* #region Label */
+
+.tms-logo-wall .tms-logo-wall__label {
+  position: absolute;
+  bottom: var(--tms-logo-wall-label-offset);
+  inset-inline-start: var(--tms-logo-wall-label-offset);
+  color: var(--tms-muted-color, #6c757d);
+  font-family: var(--tms-accent-font);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  translate: 0 0.25rem;
+  transition:
+    opacity var(--tms-logo-wall-duration) ease,
+    translate var(--tms-logo-wall-duration) ease;
+  pointer-events: none;
+}
+
+.tms-logo-wall--labels .tms-logo-wall__item:hover .tms-logo-wall__label,
+.tms-logo-wall--labels .tms-logo-wall__item:focus-within .tms-logo-wall__label {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* #endregion Label */
+
+/* ------------------------------------------------------------------------
+ * 05. Wordmark (text-only cells)
+ * ------------------------------------------------------------------------ */
+
+/* #region Wordmark */
+
+/*
+ * A cell that carries a name but no image paints the name as its content, so a
+ * wall of typographic wordmarks needs no brand assets. It fills the same cell
+ * box as an image cell — the grid stays aligned when the two kinds share a row.
+ *
+ * A brand name is never broken mid-word: it wraps at spaces only, so an
+ * oversized name overflows its cell visibly (the author lowers the size or
+ * raises the column count) instead of shattering into fragments. The explicit
+ * `normal` opts out of the theme's inherited `body { overflow-wrap: break-word }`.
+ */
+.tms-logo-wall .tms-logo-wall__wordmark {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: normal;
+  color: var(--tms-heading-color, #1a1a2e);
+  font-family: var(--tms-heading-font, inherit);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  transition:
+    color var(--tms-logo-wall-duration) ease,
+    opacity var(--tms-logo-wall-duration) ease,
+    transform var(--tms-logo-wall-duration) ease;
+}
+
+/* The image hover treatments target .tms-logo-wall__image, so a wordmark cell
+ * would sit inert next to animating neighbours — mirror the two that read as
+ * "dim at rest, resolve on hover" and the zoom, on the text instead. */
+.tms-logo-wall--hover-color .tms-logo-wall__wordmark {
+  opacity: 0.55;
+}
+
+.tms-logo-wall--hover-color .tms-logo-wall__item:hover .tms-logo-wall__wordmark,
+.tms-logo-wall--hover-color .tms-logo-wall__item:focus-within .tms-logo-wall__wordmark {
+  opacity: 1;
+}
+
+.tms-logo-wall--hover-grayscale .tms-logo-wall__item:hover .tms-logo-wall__wordmark,
+.tms-logo-wall--hover-grayscale .tms-logo-wall__item:focus-within .tms-logo-wall__wordmark {
+  opacity: 0.55;
+}
+
+.tms-logo-wall--hover-zoom .tms-logo-wall__item:hover .tms-logo-wall__wordmark,
+.tms-logo-wall--hover-zoom .tms-logo-wall__item:focus-within .tms-logo-wall__wordmark {
+  transform: scale(1.08);
+}
+
+/* #endregion Wordmark */
+
+/* ------------------------------------------------------------------------
+ * 06. Accessibility (focus, reduced motion)
+ * ------------------------------------------------------------------------ */
+
+/* #region Accessibility */
+
+.tms-logo-wall .tms-logo-wall__link:focus-visible {
+  outline: 2px solid var(--tms-primary-color, #2563eb);
+  outline-offset: calc(-2px - var(--tms-logo-wall-border-width));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-logo-wall .tms-logo-wall__item,
+  .tms-logo-wall .tms-logo-wall__image,
+  .tms-logo-wall .tms-logo-wall__label,
+  .tms-logo-wall .tms-logo-wall__wordmark {
+    transition-duration: 0.01ms !important;
+  }
+
+  .tms-logo-wall--hover-zoom .tms-logo-wall__item:hover .tms-logo-wall__image,
+  .tms-logo-wall--hover-zoom .tms-logo-wall__item:focus-within .tms-logo-wall__image,
+  .tms-logo-wall--hover-zoom .tms-logo-wall__item:hover .tms-logo-wall__wordmark,
+  .tms-logo-wall--hover-zoom .tms-logo-wall__item:focus-within .tms-logo-wall__wordmark {
+    transform: none;
+  }
+}
+
+/* #endregion Accessibility */

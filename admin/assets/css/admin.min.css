@@ -1,0 +1,409 @@
+/*!
+ * Themeasy — Free Admin CSS
+ *
+ * Styles for the Free build's Upgrade/Welcome page (Upgrade_Page). Independent
+ * of the premium panel's admin.min.css: it carries only the shared --themeasy-*
+ * color tokens plus a clean base for the upgrade page. This is a starting
+ * scaffold — extend it when finalizing the Free page design.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Color
+ * 02. Typography
+ * 03. General
+ * 04. Content
+ * 05. Button
+ * 06. Hero
+ * 07. Library
+ * 08. Features
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Color
+ * ------------------------------------------------------------------------ */
+
+/* #region Color */
+
+:root {
+
+  /* Brand */
+  --themeasy-primary-color: #5e60ce;
+  --themeasy-primary-color-10: color-mix(in srgb, var(--themeasy-primary-color) 10%, transparent);
+  --themeasy-primary-color-15: color-mix(in srgb, var(--themeasy-primary-color) 15%, transparent);
+  --themeasy-primary-color-25: color-mix(in srgb, var(--themeasy-primary-color) 25%, transparent);
+  --themeasy-primary-color-50: color-mix(in srgb, var(--themeasy-primary-color) 50%, transparent);
+  --themeasy-primary-color-75: color-mix(in srgb, var(--themeasy-primary-color) 75%, transparent);
+
+  --themeasy-secondary-color: #b5179e;
+  --themeasy-secondary-color-10: color-mix(in srgb, var(--themeasy-secondary-color) 10%, transparent);
+  --themeasy-secondary-color-15: color-mix(in srgb, var(--themeasy-secondary-color) 15%, transparent);
+  --themeasy-secondary-color-25: color-mix(in srgb, var(--themeasy-secondary-color) 25%, transparent);
+  --themeasy-secondary-color-50: color-mix(in srgb, var(--themeasy-secondary-color) 50%, transparent);
+  --themeasy-secondary-color-75: color-mix(in srgb, var(--themeasy-secondary-color) 75%, transparent);
+
+  --themeasy-accent-color: #cddcff;
+
+  /* Text */
+  --themeasy-body-color: #474852;
+  --themeasy-heading-color: #191a1d;
+
+  /* Background */
+  --themeasy-bg-color: #f5f8ff;
+  --themeasy-surface-color: #eef2f9;
+
+  /* Neutral */
+  --themeasy-black-color: #111114;
+  --themeasy-white-color: #ffffff;
+
+  /* Border */
+  --themeasy-border-color: #dfe4ef;
+  --themeasy-border-strong-color: var(--themeasy-black-color);
+
+  /* Feedback & States */
+  --themeasy-info-color: #0077b6;
+  --themeasy-success-color: #38a3a5;
+  --themeasy-warning-color: #fca311;
+  --themeasy-danger-color: #e63946;
+}
+
+:root body:has(.themeasy-admin--dark-mode) {
+
+  /* Text */
+  --themeasy-body-color: #7f8292;
+  --themeasy-heading-color: #cdd8f2;
+
+  /* Background */
+  --themeasy-bg-color: var(--themeasy-black-color);
+  --themeasy-surface-color: #1c1c21;
+
+  /* Border */
+  --themeasy-border-color: #373840;
+  --themeasy-border-strong-color: var(--themeasy-white-color);
+}
+
+/* #endregion Color */
+
+/* ------------------------------------------------------------------------
+ * 02. Typography
+ * ------------------------------------------------------------------------ */
+
+/* #region Typography */
+
+:root {
+  --themeasy-primary-font: system-ui, -apple-system, sans-serif;
+}
+
+/* #endregion Typography */
+
+/* ------------------------------------------------------------------------
+ * 03. General
+ * ------------------------------------------------------------------------ */
+
+/* #region General */
+
+body {
+  background-color: var(--themeasy-bg-color);
+  /* WordPress Default */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+body ul#adminmenu .wp-has-current-submenu::after,
+body ul#adminmenu > li.current > a.current::after {
+  border-right-color: var(--themeasy-bg-color);
+}
+
+body #wpcontent:has(.themeasy-admin) {
+  padding-left: 0;
+  color: var(--themeasy-body-color);
+  font-family: var(--themeasy-primary-font);
+  font-size: 1rem;
+}
+
+/* Bootstrap Fix */
+*, ::after, ::before {
+  box-sizing: initial;
+}
+
+.themeasy-admin {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.themeasy-admin *,
+.themeasy-admin ::after,
+.themeasy-admin ::before {
+  box-sizing: border-box;
+}
+
+.themeasy-admin__container {
+  padding: 1rem;
+}
+
+@media (min-width: 992px) {
+  .themeasy-admin__container {
+    max-width: 1270px;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 2rem;
+  }
+}
+
+body #wpfooter {
+  color: var(--themeasy-body-color);
+  font-family: var(--themeasy-primary-font);
+}
+
+/* #endregion General */
+
+/* ------------------------------------------------------------------------
+ * 04. Content
+ * ------------------------------------------------------------------------ */
+
+/* #region Content */
+
+.themeasy-admin__section-title {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--themeasy-heading-color);
+}
+
+.themeasy-admin__section-lead {
+  max-width: 640px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* #endregion Content */
+
+/* ------------------------------------------------------------------------
+ * 05. Button
+ * ------------------------------------------------------------------------ */
+
+/* #region Button */
+
+.themeasy-admin .themeasy-admin__button.button-primary {
+  border-radius: 0.25rem;
+  background-color: var(--themeasy-primary-color);
+  color: var(--themeasy-white-color);
+  transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+  will-change: transform;
+}
+
+.themeasy-admin .themeasy-admin__button.button-primary:hover {
+  background-color: var(--themeasy-primary-color);
+  color: var(--themeasy-white-color);
+  -webkit-transform: translate3d(0, calc(8px * -1), 0);
+  transform: translate3d(0, calc(8px * -1), 0);
+}
+
+.themeasy-admin .themeasy-admin__button.button-primary:active {
+  background-color: var(--themeasy-primary-color);
+  border-color: transparent;
+  color: var(--themeasy-white-color);
+}
+
+.themeasy-admin .themeasy-admin__button.button-primary:focus {
+  background-color: var(--themeasy-primary-color);
+  border-color: transparent;
+  color: var(--themeasy-white-color);
+  box-shadow: 0 0 0 2px var(--themeasy-primary-color), inset 0 0 0 1px var(--themeasy-white-color);
+  outline: 1px solid transparent;
+}
+
+.themeasy-admin .themeasy-admin__button.button-outline {
+  background: none;
+  border-radius: 0.25rem;
+  border-width: 2px;
+  border-color: var(--themeasy-primary-color);
+  color: var(--themeasy-heading-color);
+  transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+  will-change: transform;
+}
+
+.themeasy-admin .themeasy-admin__button.button-outline:hover {
+  background: none;
+  border-color: var(--themeasy-primary-color);
+  color: var(--themeasy-white-color);
+  -webkit-transform: translate3d(0, calc(8px * -1), 0);
+  transform: translate3d(0, calc(8px * -1), 0);
+}
+
+.themeasy-admin .themeasy-admin__button.button-outline:active,
+.themeasy-admin .themeasy-admin__button.button-outline:focus {
+  background: none;
+  border-color: var(--themeasy-primary-color);
+  color: var(--themeasy-heading-color);
+  box-shadow: 0 0 0 2px var(--themeasy-primary-color), inset 0 0 0 1px var(--themeasy-heading-color);
+  outline: 1px solid transparent;
+}
+
+/* #endregion Button */
+
+/* ------------------------------------------------------------------------
+ * 06. Hero
+ * ------------------------------------------------------------------------ */
+
+/* #region Hero */
+
+.themeasy-admin__hero {
+  padding: 3rem 2rem 3.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--themeasy-border-color);
+  background-color: var(--themeasy-bg-color);
+  background-image: linear-gradient(135deg, var(--themeasy-primary-color-25), var(--themeasy-bg-color));
+  text-align: center;
+}
+
+.themeasy-admin__brand svg {
+  width: auto;
+  height: 40px;
+  color: var(--themeasy-heading-color);
+}
+
+.themeasy-admin__title {
+  margin: 1.5rem 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--themeasy-heading-color);
+}
+
+.themeasy-admin__lead {
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  font-size: 1.2rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--themeasy-heading-color);
+  opacity: 0.9;
+}
+
+.themeasy-admin__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* #endregion Hero */
+
+/* ------------------------------------------------------------------------
+ * 07. Library
+ * ------------------------------------------------------------------------ */
+
+/* #region Library */
+
+.themeasy-admin__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 783px) {
+  .themeasy-admin__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.themeasy-admin__card {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--themeasy-border-color);
+  background-color: var(--themeasy-bg-color);
+  background-image: linear-gradient(135deg, var(--themeasy-primary-color-25), var(--themeasy-bg-color));
+}
+
+.themeasy-admin__card-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+
+.themeasy-admin__badge {
+  position: absolute;
+  inset-block-start: 1rem;
+  inset-inline-end: 1rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background-color: var(--themeasy-primary-color);
+  color: var(--themeasy-white-color);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.themeasy-admin__card--free .themeasy-admin__badge {
+  background-color: var(--themeasy-success-color);
+  color: var(--themeasy-white-color);
+}
+
+/* #endregion Library */
+
+/* ------------------------------------------------------------------------
+ * 08. Features
+ * ------------------------------------------------------------------------ */
+
+/* #region Features */
+
+.themeasy-admin__feature-list {
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.themeasy-admin__feature {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  padding: 1rem 1rem 1rem 0;
+  border-bottom: 1px dotted var(--themeasy-border-color);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.themeasy-admin__feature:last-child {
+  border-bottom: 0;
+}
+
+.themeasy-admin__feature-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  background-color: var(--themeasy-primary-color-25);
+  color: var(--themeasy-primary-color);
+}
+
+.themeasy-admin__feature-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.themeasy-admin__feature-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* #endregion Features */

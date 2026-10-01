@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 48" fill="none">
+  <rect class="tb-wf__page" x="2" y="2" width="60" height="44" rx="3"/>
+  <rect class="tb-wf__active" x="6" y="6" width="52" height="6" rx="1.5"/>
+  <rect class="tb-wf__muted" x="6" y="16" width="52" height="16" rx="1.5"/>
+  <rect class="tb-wf__muted" x="6" y="36" width="52" height="6" rx="1.5"/>
+</svg>

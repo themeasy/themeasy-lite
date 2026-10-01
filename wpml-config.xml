@@ -1,0 +1,525 @@
+<wpml-config>
+  <elementor-widgets>
+
+    <!-- Accordion -->
+    <widget name="themeasy-accordion">
+      <fields>
+        <field>accordion_items>title</field>
+        <field>accordion_items>description</field>
+      </fields>
+    </widget>
+
+    <!-- Badge List -->
+    <widget name="themeasy-badge-list">
+      <fields>
+        <field>badge_list>text</field>
+        <field>cursor_text</field>
+      </fields>
+    </widget>
+
+    <!-- Before / After -->
+    <widget name="themeasy-before-after">
+      <fields>
+        <field>before_label</field>
+        <field>after_label</field>
+      </fields>
+    </widget>
+
+    <!-- Blockquote -->
+    <widget name="themeasy-blockquote">
+      <fields>
+        <field>quote_text</field>
+        <field>author_name</field>
+        <field>author_role</field>
+      </fields>
+    </widget>
+
+    <!-- Breadcrumbs -->
+    <widget name="themeasy-breadcrumbs">
+      <fields>
+        <field>home_label</field>
+        <field>current_prefix</field>
+        <field>separator_custom</field>
+        <field>manual_items>item_label</field>
+      </fields>
+    </widget>
+
+    <!-- Button -->
+    <widget name="themeasy-button">
+      <fields>
+        <field>button_label</field>
+        <field>button_hidden_label</field>
+        <field>cursor_text</field>
+      </fields>
+    </widget>
+
+    <!-- Call to Action -->
+    <widget name="themeasy-cta">
+      <fields>
+        <field>badge_text</field>
+        <field>pre_title</field>
+        <field>title</field>
+        <field>description</field>
+        <field>primary_button_label</field>
+        <field>secondary_button_label</field>
+      </fields>
+    </widget>
+
+    <!-- Card -->
+    <widget name="themeasy-card">
+      <fields>
+        <field>title</field>
+        <field>description</field>
+        <field>button_label</field>
+        <field>button_hidden_label</field>
+      </fields>
+    </widget>
+
+    <!-- Card Extended -->
+    <widget name="themeasy-card-extended">
+      <fields>
+        <field>label</field>
+        <field>title</field>
+        <field>description</field>
+      </fields>
+    </widget>
+
+    <!-- Circular Text -->
+    <widget name="themeasy-circular-text">
+      <fields>
+        <field>circular_text</field>
+      </fields>
+    </widget>
+
+    <!-- Client Logos -->
+    <widget name="themeasy-client-logos">
+      <fields>
+        <field>logos>logo_name</field>
+      </fields>
+    </widget>
+
+    <!-- Post Comments -->
+    <widget name="themeasy-post-comments">
+      <fields>
+        <field>heading_text</field>
+        <field>empty_message</field>
+        <field>form_title</field>
+        <field>reply_title</field>
+        <field>reply_label</field>
+        <field>load_more_label</field>
+      </fields>
+    </widget>
+
+    <!-- Counter -->
+    <widget name="themeasy-counter">
+      <fields>
+        <field>title</field>
+        <field>description</field>
+        <field>unit_symbol</field>
+      </fields>
+    </widget>
+
+    <!-- Countdown Timer -->
+    <widget name="themeasy-countdown-timer">
+      <fields>
+        <field>days_label</field>
+        <field>hours_label</field>
+        <field>minutes_label</field>
+        <field>seconds_label</field>
+        <field>expire_message</field>
+      </fields>
+    </widget>
+
+    <!-- Custom Toggle -->
+    <widget name="themeasy-custom-toggle">
+      <fields>
+        <field>toggle_label</field>
+      </fields>
+    </widget>
+
+    <!-- Divider -->
+    <widget name="themeasy-divider">
+      <fields>
+        <field>element_text</field>
+      </fields>
+    </widget>
+
+    <!-- Featured Image -->
+    <widget name="themeasy-featured-image">
+      <fields>
+        <field>image_caption_custom</field>
+      </fields>
+    </widget>
+
+    <!-- Flip Box -->
+    <widget name="themeasy-flip-box">
+      <fields>
+        <field>front_title</field>
+        <field>front_description</field>
+        <field>back_title</field>
+        <field>back_description</field>
+        <field>button_label</field>
+      </fields>
+    </widget>
+
+    <!-- Form -->
+    <widget name="themeasy-form">
+      <fields>
+        <field>button_label</field>
+      </fields>
+    </widget>
+
+    <!-- Gallery -->
+    <widget name="themeasy-gallery">
+      <fields>
+        <field>filter_all_label</field>
+        <field>cursor_text</field>
+      </fields>
+    </widget>
+
+    <!-- Headline -->
+    <widget name="themeasy-headline">
+      <fields>
+        <field>pre_title</field>
+        <field>title_text_1</field>
+        <field>title_text_2</field>
+        <field>title_text_3</field>
+        <field>description</field>
+      </fields>
+    </widget>
+
+    <!-- Hotspot Image -->
+    <widget name="themeasy-hotspot-image">
+      <fields>
+        <field>hotspots>hotspot_number</field>
+        <field>hotspots>tooltip_heading</field>
+        <field>hotspots>tooltip_description</field>
+        <field>hotspots>tooltip_link_label</field>
+      </fields>
+    </widget>
+
+    <!-- Icon List -->
+    <widget name="themeasy-icon-list">
+      <fields>
+        <field>icon_list>text</field>
+        <field>icon_list>counter</field>
+      </fields>
+    </widget>
+
+    <!-- Image -->
+    <widget name="themeasy-image">
+      <fields>
+        <field>image_caption</field>
+        <field>cursor_text</field>
+      </fields>
+    </widget>
+
+    <!-- Image Accordion -->
+    <widget name="themeasy-image-accordion">
+      <fields>
+        <field>items>title</field>
+        <field>items>description</field>
+        <field>items>button_label</field>
+      </fields>
+    </widget>
+
+    <!-- Image Carousel -->
+    <widget name="themeasy-image-carousel">
+      <fields>
+        <field>cursor_text</field>
+      </fields>
+    </widget>
+
+    <!-- Image Reveal -->
+    <widget name="themeasy-image-reveal">
+      <fields>
+        <field>cursor_text</field>
+      </fields>
+    </widget>
+
+    <!-- Line Progress Bar -->
+    <widget name="themeasy-line-progress-bar">
+      <fields>
+        <field>title</field>
+        <field>unit_symbol</field>
+      </fields>
+    </widget>
+
+    <!-- Lottie Animation -->
+    <widget name="themeasy-lottie">
+      <fields>
+        <field>caption_title</field>
+        <field>caption_description</field>
+      </fields>
+    </widget>
+
+    <!-- Maps -->
+    <widget name="themeasy-maps">
+      <fields>
+        <field>location_title</field>
+      </fields>
+    </widget>
+
+    <!-- Menu -->
+    <widget name="themeasy-menu">
+      <fields>
+        <field>custom_menu_items>label</field>
+      </fields>
+    </widget>
+
+    <!-- Menu Toggle -->
+    <widget name="themeasy-menu-toggle">
+      <fields>
+        <field>toggle_label</field>
+      </fields>
+    </widget>
+
+    <!-- Mini Cart -->
+    <widget name="themeasy-mini-cart">
+      <fields>
+        <field>editor_cart_title</field>
+        <field>editor_cart_subtotal_label</field>
+        <field>editor_cart_view_button</field>
+        <field>editor_cart_checkout_button</field>
+        <field>editor_cart_empty_title</field>
+        <field>editor_cart_empty_description</field>
+        <field>editor_cart_empty_button</field>
+      </fields>
+    </widget>
+
+    <!-- Mini Cart Toggle -->
+    <widget name="themeasy-mini-cart-toggle">
+      <fields>
+        <field>toggle_label</field>
+      </fields>
+    </widget>
+
+    <!-- Notice Box -->
+    <widget name="themeasy-notice-box">
+      <fields>
+        <field>title</field>
+        <field>description</field>
+        <field>coupon_code</field>
+        <field>button_label</field>
+      </fields>
+    </widget>
+
+    <!-- Notification Bar -->
+    <widget name="themeasy-notification-bar">
+      <fields>
+        <field>text</field>
+        <field>button_label</field>
+      </fields>
+    </widget>
+
+    <!-- Post Meta -->
+    <widget name="themeasy-post-meta">
+      <fields>
+        <field>items>prefix_text</field>
+        <field>items>custom_text</field>
+        <field>items>reading_suffix</field>
+        <field>items>comments_zero</field>
+        <field>items>comments_one</field>
+        <field>items>comments_many</field>
+        <field>separator_custom</field>
+      </fields>
+    </widget>
+
+    <!-- Post Navigation -->
+    <widget name="themeasy-post-navigation">
+      <fields>
+        <field>prev_label</field>
+        <field>next_label</field>
+        <field>fallback_text</field>
+      </fields>
+    </widget>
+
+    <!-- Post Taxonomy -->
+    <widget name="themeasy-post-taxonomy">
+      <fields>
+        <field>prefix_text</field>
+        <field>empty_message</field>
+      </fields>
+    </widget>
+
+    <!-- Post Title -->
+    <widget name="themeasy-post-title">
+      <fields>
+        <field>before_text</field>
+        <field>after_text</field>
+      </fields>
+    </widget>
+
+    <!-- Pricing Table -->
+    <widget name="themeasy-pricing-table">
+      <fields>
+        <field>toggle_label_off</field>
+        <field>toggle_label_on</field>
+        <field>toggle_label_on_badge</field>
+        <field>pricing_table>plan_name</field>
+        <field>pricing_table>price_prefix</field>
+        <field>pricing_table>price_suffix</field>
+        <field>pricing_table>featured_badge_text</field>
+        <field>pricing_table>features_list</field>
+        <field>pricing_table>button_label</field>
+        <field>pricing_table>button_hidden_label</field>
+      </fields>
+    </widget>
+
+    <!-- Radial Progress Bar -->
+    <widget name="themeasy-radial-progress-bar">
+      <fields>
+        <field>title</field>
+        <field>unit_symbol</field>
+      </fields>
+    </widget>
+
+    <!-- Scrolling Text -->
+    <widget name="themeasy-scrolling-text">
+      <fields>
+        <field>primary_text</field>
+        <field>secondary_text</field>
+      </fields>
+    </widget>
+
+    <!-- Search Toggle -->
+    <widget name="themeasy-search-toggle">
+      <fields>
+        <field>toggle_label</field>
+      </fields>
+    </widget>
+
+    <!-- Side Icons -->
+    <widget name="themeasy-side-icons">
+      <fields>
+        <field>icon_list>text</field>
+      </fields>
+    </widget>
+
+    <!-- Side Label -->
+    <widget name="themeasy-side-label">
+      <fields>
+        <field>text</field>
+      </fields>
+    </widget>
+
+    <!-- Site Logo -->
+    <widget name="themeasy-site-logo">
+      <fields>
+        <field>site_title</field>
+      </fields>
+    </widget>
+
+    <!-- Site Search -->
+    <widget name="themeasy-site-search">
+      <fields>
+        <field>field_label</field>
+        <field>field_placeholder</field>
+        <field>error_message</field>
+        <field>button_label</field>
+      </fields>
+    </widget>
+
+    <!-- Slider -->
+    <widget name="themeasy-slider">
+      <fields>
+        <field>slides>pre_title</field>
+        <field>slides>title_text_1</field>
+        <field>slides>title_text_2</field>
+        <field>slides>title_text_3</field>
+        <field>slides>description</field>
+        <field>slides>button_label</field>
+        <field>slides>button_hidden_label</field>
+        <field>slides>secondary_button_label</field>
+        <field>slides>secondary_button_hidden_label</field>
+      </fields>
+    </widget>
+
+    <!-- Social Share Row -->
+    <widget name="themeasy-social-share-row">
+      <fields>
+        <field>networks>label</field>
+        <field>custom_share_text</field>
+        <field>copy_success_message</field>
+        <field>copy_error_message</field>
+      </fields>
+    </widget>
+
+    <!-- Steps -->
+    <widget name="themeasy-steps">
+      <fields>
+        <field>steps_items>title</field>
+        <field>steps_items>content</field>
+      </fields>
+    </widget>
+
+    <!-- Tabs -->
+    <widget name="themeasy-tabs">
+      <fields>
+        <field>tabs_items>title</field>
+        <field>tabs_items>content</field>
+      </fields>
+    </widget>
+
+    <!-- Team Member -->
+    <widget name="themeasy-team-member">
+      <fields>
+        <field>member_name</field>
+        <field>member_role</field>
+        <field>member_bio</field>
+        <field>socials>social_label</field>
+      </fields>
+    </widget>
+
+    <!-- Testimonial -->
+    <widget name="themeasy-testimonial">
+      <fields>
+        <field>person_name</field>
+        <field>occupation_info</field>
+        <field>testimonial_text</field>
+        <field>cursor_text</field>
+      </fields>
+    </widget>
+
+    <!-- Testimonial Carousel -->
+    <widget name="themeasy-testimonial-carousel">
+      <fields>
+        <field>carousel_items>person_name</field>
+        <field>carousel_items>occupation_info</field>
+        <field>carousel_items>testimonial_text</field>
+        <field>cursor_text</field>
+      </fields>
+    </widget>
+
+    <!-- Text Editor -->
+    <widget name="themeasy-text-editor">
+      <fields>
+        <field>text</field>
+      </fields>
+    </widget>
+
+    <!-- Text Marquee -->
+    <widget name="themeasy-text-marquee">
+      <fields>
+        <field>text</field>
+      </fields>
+    </widget>
+
+    <!-- Timeline -->
+    <widget name="themeasy-timeline">
+      <fields>
+        <field>timeline_items>date</field>
+        <field>timeline_items>title</field>
+        <field>timeline_items>content</field>
+      </fields>
+    </widget>
+
+    <!-- Typed Text -->
+    <widget name="themeasy-typed-text">
+      <fields>
+        <field>typed_strings>text</field>
+      </fields>
+    </widget>
+
+  </elementor-widgets>
+</wpml-config>

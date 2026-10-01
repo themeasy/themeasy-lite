@@ -1,0 +1,1045 @@
+/*!
+ * Themeasy — Shared Widget Styles
+ *
+ * Reusable styles shared across multiple Elementor widgets provided by the Themeasy plugin.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Progress Bar
+ * 02. Horizontal Icons
+ * 03. Vertical Label
+ * 04. Profile Card
+ * 05. Grid Border
+ * 06. Sliding Tabs
+ * 07. Side Widget
+ * 08. Folder Tab
+ * 09. Display Title
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Progress Bar
+ * ------------------------------------------------------------------------ */
+
+/* #region Progress Bar */
+
+.tms-progress {
+  position: relative;
+}
+
+.tms-progress__value {
+  letter-spacing: var(--tms-heading-letter-spacing);
+  color: var(--tms-heading-color);
+}
+
+/* Widget default font metrics — Elementor typography CSS (higher specificity)
+ * overrides them when the user styles the value. */
+.tms-progress__value {
+  font-family: var(--tms-heading-font);
+  font-size: var(--tms-h1-font-size);
+  font-weight: var(--tms-heading-font-weight);
+  line-height: 1;
+}
+
+/* #endregion Progress Bar */
+
+/* ------------------------------------------------------------------------
+ * 02. Horizontal Icons
+ * ------------------------------------------------------------------------ */
+
+/* #region Horizontal Icons */
+
+.tms-horizontal-icons {
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  list-style: none;
+  cursor: pointer;
+}
+
+.tms-horizontal-icons .tms-horizontal-icons__item {
+  margin: 0 0.5rem;
+  padding: 0;
+}
+
+.tms-horizontal-icons .tms-horizontal-icons__item:first-child {
+  margin-left: 0;
+}
+
+.tms-horizontal-icons .tms-horizontal-icons__item:last-child {
+  margin-right: 0;
+}
+
+.tms-horizontal-icons .tms-horizontal-icons--disabled {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+.tms-horizontal-icons .tms-horizontal-icons__icon {
+  margin: 0;
+  font-size: 1rem;
+  -webkit-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.tms-horizontal-icons svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-horizontal-icons svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* #endregion Horizontal Icons */
+
+/* ------------------------------------------------------------------------
+ * 03. Vertical Label
+ * ------------------------------------------------------------------------ */
+
+/* #region Vertical Label */
+
+.tms-vertical-label {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  width: fit-content;
+  height: max-content;
+  -webkit-writing-mode: vertical-rl;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-transform: uppercase;
+  font-family: var(--tms-accent-font);
+  font-size: 85%;
+  font-weight: var(--tms-semibold-font-weight);
+  line-height: 1;
+  letter-spacing: 1px;
+}
+
+.tms-vertical-label .tms-vertical-label__wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.tms-vertical-label .tms-vertical-label__wrapper .tms-vertical-label__icon {
+  font-size: 1rem;
+  transform: rotate(90deg);
+  -webkit-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.tms-vertical-label .tms-vertical-label__wrapper svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  transform: rotate(90deg);
+  -webkit-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.tms-vertical-label .tms-vertical-label__wrapper svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-vertical-label .tms-vertical-label__text {
+  color: var(--tms-heading-color);
+  -webkit-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.tms-vertical-label .tms-vertical-label__line {
+  width: 1px;
+  height: 35px;
+  margin: 0 0 8px 0;
+  display: inline-block;
+  background-color: var(--tms-heading-color);
+}
+
+@media (max-width: 991px) {
+  .tms-vertical-label {
+    top: 10px;
+    left: 5px;
+  }
+}
+
+/* #endregion Vertical Label */
+
+/* ------------------------------------------------------------------------
+ * 04. Profile Card
+ * ------------------------------------------------------------------------ */
+
+/* #region Profile Card */
+
+.tms-profile-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.75rem;
+  padding-bottom: 2rem; /* Improve visual bottom spacing */
+  border-radius: var(--tms-radius-lg, 1rem);
+  background-color: var(--tms-surface-color);
+}
+
+.tms-profile-card .tms-card__header {
+  padding: 0;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.tms-profile-card .tms-card__body {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tms-profile-card .tms-image {
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+}
+
+.tms-profile-card .tms-image .tms-image__img {
+  width: 100%;
+  height: 100%;
+  border-radius: 100px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.tms-profile-card .tms-profile-card__overlay-icon .icon {
+  width: auto;
+  font-size: 2rem;
+  opacity: 0.15;
+}
+
+.tms-profile-card .tms-profile-card__overlay-icon svg {
+  width: auto;
+  height: 2rem;
+  opacity: 0.15;
+}
+
+.tms-profile-card .tms-profile-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Optional company logo: leads the author group in every layout. Height-driven
+   so wide wordmarks and square marks share one visual weight. */
+.tms-profile-card .tms-profile-card__logo {
+  line-height: 0;
+}
+
+.tms-profile-card .tms-profile-card__logo-img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: 1.75rem;
+  object-fit: contain;
+}
+
+.tms-profile-card .tms-profile-card__name {
+  margin: 0;
+  font-size: 135%;
+}
+
+/* Shrink-wrapped so an authored background/border reads as a badge instead of a
+   full-width band — the vertical layout already centers it through
+   --tms-profile-card-align, the horizontal one would otherwise stretch. */
+.tms-profile-card .tms-profile-card__info {
+  margin: 0;
+  width: fit-content;
+  max-width: 100%;
+  font-family: var(--tms-accent-font);
+  font-size: var(--tms-font-size-xs);
+  font-weight: var(--tms-accent-font-weight);
+  line-height: var(--tms-accent-line-height);
+  letter-spacing: var(--tms-accent-letter-spacing);
+  text-transform: uppercase;
+}
+
+.tms-profile-card .tms-profile-card__testimonial {
+  margin: 0;
+  font-size: 100%;
+}
+
+.tms-profile-card .tms-card__icons {
+  display: flex;
+  justify-content: flex-start;
+  line-height: 0;
+}
+
+.tms-profile-card .tms-card__icons .icon {
+  font-size: 1.2rem;
+}
+
+.tms-profile-card .tms-card__icons svg {
+  height: 1.2rem;
+}
+
+/* Horizontal layout: image + content side-by-side, quote icon absolute top-right. */
+.tms-profile-card--horizontal .tms-card__header {
+  flex-direction: row;
+  align-items: center;
+}
+
+.tms-profile-card--horizontal .tms-profile-card__overlay-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+/* Vertical layout: everything stacked, quote icons flank the image. The inline
+   axis follows --tms-profile-card-align (consumer control) and falls back to the
+   legacy centered look when no alignment is authored. */
+.tms-profile-card--vertical {
+  align-items: var(--tms-profile-card-align, center);
+  text-align: var(--tms-profile-card-align, center);
+}
+
+.tms-profile-card--vertical .tms-card__header {
+  flex-direction: column;
+  align-items: var(--tms-profile-card-align, center);
+}
+
+.tms-profile-card--vertical .tms-card__header > .icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: var(--tms-profile-card-align, center);
+  gap: 1rem;
+}
+
+.tms-profile-card--vertical .tms-profile-card__content {
+  align-items: var(--tms-profile-card-align, center);
+}
+
+.tms-profile-card--vertical .tms-card__body {
+  align-items: var(--tms-profile-card-align, center);
+}
+
+.tms-profile-card--vertical .tms-card__icons {
+  justify-content: var(--tms-profile-card-align, center);
+}
+
+/* Split layout: a tall portrait column beside a featured-quote column — rating
+   on top, the quote, a divider, and the author group pinned to the bottom with
+   the closing quote mark in its corner. The header and body boxes dissolve
+   (display: contents) so their children share ONE grid, which keeps a single
+   markup tree for all three layouts. Inset and gutter are real grid tracks: the
+   portrait stays edge-framed while the text keeps its breathing room.
+   Card-level rules double the class to outrank the .tms-card component. */
+
+/* The card's parent is the query container, so the split stacks itself
+   (portrait on top) whenever the CARD is narrow — a multi-column carousel gets
+   the stacked card at any viewport width. Inline-size containment zeroes the
+   element's intrinsic width, which collapsed an auto-width widget in a ROW
+   Elementor container to 0px (measured); the intrinsic size below replaces that
+   zero and is inert wherever the width is already definite (column containers,
+   Swiper slides, an authored widget width). */
+.tms-testimonial:has(> .tms-profile-card--split),
+.tms-animation__target:has(> .tms-profile-card--split) {
+  container: tms-profile-card / inline-size;
+  contain-intrinsic-inline-size: min(36rem, 100vw);
+}
+
+.tms-profile-card.tms-profile-card--split {
+  --tms-profile-card-split-inset: 2rem;
+  --tms-profile-card-split-gutter: 3rem;
+  display: grid;
+  grid-template-columns:
+    minmax(0, var(--tms-profile-card-media-width, 45%))
+    var(--tms-profile-card-split-gutter)
+    minmax(0, 1fr)
+    var(--tms-profile-card-split-inset);
+  grid-template-rows:
+    var(--tms-profile-card-split-inset)
+    auto
+    auto
+    minmax(4rem, 1fr)
+    auto
+    var(--tms-profile-card-split-inset);
+  grid-template-areas:
+    "media . .       ."
+    "media . rating  ."
+    "media . quote   ."
+    "media . divider ."
+    "media . author  ."
+    "media . .       .";
+  gap: 0;
+  padding: 0.75rem;
+  text-align: start;
+}
+
+.tms-profile-card.tms-profile-card--split.tms-profile-card--image-right {
+  grid-template-columns:
+    var(--tms-profile-card-split-inset)
+    minmax(0, 1fr)
+    var(--tms-profile-card-split-gutter)
+    minmax(0, var(--tms-profile-card-media-width, 45%));
+  grid-template-areas:
+    ". .       . media"
+    ". rating  . media"
+    ". quote   . media"
+    ". divider . media"
+    ". author  . media"
+    ". .       . media";
+}
+
+/* No portrait (the front drops Elementor's placeholder): the quote column
+   takes the whole card. */
+.tms-profile-card.tms-profile-card--split:not(:has(.tms-image)) {
+  grid-template-columns:
+    var(--tms-profile-card-split-inset)
+    minmax(0, 1fr)
+    var(--tms-profile-card-split-inset);
+  grid-template-areas:
+    ". .       ."
+    ". rating  ."
+    ". quote   ."
+    ". divider ."
+    ". author  ."
+    ". .       .";
+}
+
+.tms-profile-card.tms-profile-card--split .tms-card__header,
+.tms-profile-card.tms-profile-card--split .tms-card__body {
+  display: contents;
+}
+
+/* Portrait: stretches to the full card height, with a square floor so a short
+   quote never squashes it into a strip (an authored Height replaces both). */
+.tms-profile-card--split .tms-image {
+  position: relative;
+  grid-area: media;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.tms-profile-card--split .tms-image::before {
+  content: "";
+  display: block;
+  padding-top: 100%;
+}
+
+.tms-profile-card--split .tms-image .tms-image__img {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--tms-radius-md, 0.75rem);
+  box-shadow: none;
+}
+
+.tms-profile-card--split .tms-card__icons {
+  grid-area: rating;
+  margin-bottom: 1.5rem;
+}
+
+/* Featured quote: the size tracks the card width (cqi), so it reads as a
+   headline in a full-width card and settles down in a narrow one. */
+.tms-profile-card--split .tms-profile-card__testimonial {
+  grid-area: quote;
+  font-size: clamp(1.125rem, 0.625rem + 2.25cqi, 2rem);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--tms-heading-color);
+}
+
+/* The hairline token vanishes on the card's surface fill, so the divider mixes
+   a translucent share of the strong border instead — it flips with dark mode. */
+.tms-profile-card--split .tms-profile-card__divider {
+  grid-area: divider;
+  align-self: center;
+  width: 100%;
+  border-top: 1px dashed var(--tms-border-color, rgba(0, 0, 0, 0.15));
+  border-top-color: color-mix(in srgb, var(--tms-border-strong-color, #1d2023) 28%, transparent);
+}
+
+/* Author group sits on the card's bottom edge; its end padding keeps a long
+   role clear of the quote mark that shares the cell. */
+.tms-profile-card--split .tms-profile-card__content {
+  grid-area: author;
+  align-self: end;
+}
+
+.tms-profile-card--split:has(> .tms-profile-card__overlay-icon) .tms-profile-card__content {
+  padding-inline-end: calc(var(--tms-profile-card-quote-size, 4rem) + 1rem);
+}
+
+.tms-profile-card--split .tms-profile-card__logo {
+  margin-bottom: 1.25rem;
+}
+
+.tms-profile-card--split .tms-profile-card__overlay-icon {
+  grid-area: author;
+  align-self: end;
+  justify-self: end;
+  line-height: 0;
+}
+
+.tms-profile-card--split .tms-profile-card__overlay-icon .icon {
+  font-size: var(--tms-profile-card-quote-size, 4rem);
+}
+
+.tms-profile-card--split .tms-profile-card__overlay-icon svg {
+  width: auto;
+  height: var(--tms-profile-card-quote-size, 4rem);
+}
+
+/* Narrow card: portrait on top (landscape crop), content below. */
+@container tms-profile-card (max-width: 699px) {
+  .tms-profile-card.tms-profile-card--split,
+  .tms-profile-card.tms-profile-card--split.tms-profile-card--image-right,
+  .tms-profile-card.tms-profile-card--split:not(:has(.tms-image)) {
+    --tms-profile-card-split-inset: 1.25rem;
+    grid-template-columns:
+      var(--tms-profile-card-split-inset)
+      minmax(0, 1fr)
+      var(--tms-profile-card-split-inset);
+    grid-template-rows:
+      auto
+      var(--tms-profile-card-split-inset)
+      auto
+      auto
+      auto
+      auto
+      var(--tms-profile-card-split-inset);
+    grid-template-areas:
+      "media media   media"
+      ".     .       ."
+      ".     rating  ."
+      ".     quote   ."
+      ".     divider ."
+      ".     author  ."
+      ".     .       .";
+  }
+
+  .tms-profile-card--split .tms-image::before {
+    padding-top: 75%;
+  }
+
+  .tms-profile-card--split .tms-profile-card__divider {
+    margin-block: 1.5rem;
+  }
+
+  .tms-profile-card--split .tms-profile-card__overlay-icon .icon {
+    font-size: var(--tms-profile-card-quote-size, 3rem);
+  }
+
+  .tms-profile-card--split .tms-profile-card__overlay-icon svg {
+    height: var(--tms-profile-card-quote-size, 3rem);
+  }
+
+  .tms-profile-card--split:has(> .tms-profile-card__overlay-icon) .tms-profile-card__content {
+    padding-inline-end: calc(var(--tms-profile-card-quote-size, 3rem) + 1rem);
+  }
+}
+
+/* #endregion Profile Card */
+
+/* ------------------------------------------------------------------------
+ * 05. Grid Border
+ * ------------------------------------------------------------------------ */
+
+/* #region Grid Border */
+
+/* The grid is drawn structurally, with no JS and no readiness gate, so the
+   table is fully painted on first frame (no FOUC, nothing hidden waiting for a
+   class). Two layers split the job:
+
+   - The FRAME (.tms-grid-border__frame, wrapping the row) paints the outer
+     edge: one border on all four sides, the optional radius, and a clip.
+   - Each CELL paints only its right and bottom dividers. The row overhangs the
+     frame's padding box by exactly one line width on the right and bottom, so
+     the dividers of the last column and of the last row land under the
+     frame's own border and are clipped away.
+
+   No cell ever needs to know whether it closes a row or the grid, so the lines
+   stay single and aligned for ANY item count at ANY breakpoint: an incomplete
+   last row simply reads as an empty cell inside the frame. And since no two
+   lines ever overlap, a translucent border color keeps one uniform tone. */
+.tms-grid-border {
+  --tms-grid-border-width: 1px;
+  --tms-grid-border-color: var(--tms-border-strong-color);
+  --tms-grid-border-radius: 0px;
+  --tms-grid-border-cell-pt: 2rem;
+  --tms-grid-border-cell-pr: 2rem;
+  --tms-grid-border-cell-pb: 2rem;
+  --tms-grid-border-cell-pl: 2rem;
+}
+
+.tms-grid-border .tms-grid-border__frame {
+  overflow: hidden;
+  border: var(--tms-grid-border-width) solid var(--tms-grid-border-color);
+  border-radius: var(--tms-grid-border-radius);
+  transition: border-color 0.3s ease;
+}
+
+/* The zero gutter needs its unit: the row-cols widths subtract it inside a
+   calc() next to a percentage, and a unitless 0 there invalidates the whole
+   expression, collapsing every column to its content width. */
+.tms-grid-border .tms-grid-border__frame > [class*="row-cols"] {
+  --tms-gutter-x: 0px;
+  --tms-gutter-y: 0px;
+  margin-right: calc(-1 * var(--tms-grid-border-width));
+  margin-bottom: calc(-1 * var(--tms-grid-border-width));
+}
+
+.tms-grid-border .tms-grid-border__col .tms-grid-border__element {
+  padding: 0;
+  border: 0 solid var(--tms-grid-border-color);
+  border-right-width: var(--tms-grid-border-width);
+  border-bottom-width: var(--tms-grid-border-width);
+  border-radius: 0;
+  box-shadow: none;
+  transition: border-color 0.3s ease;
+}
+
+.tms-grid-border .tms-grid-border__col .tms-grid-border__element .tms-card__header {
+  padding: var(--tms-grid-border-cell-pt) var(--tms-grid-border-cell-pr) var(--tms-grid-border-cell-pb) var(--tms-grid-border-cell-pl);
+}
+
+.tms-grid-border .tms-grid-border__col .tms-grid-border__element .tms-card__body {
+  padding: var(--tms-grid-border-cell-pt) var(--tms-grid-border-cell-pr) var(--tms-grid-border-cell-pb) var(--tms-grid-border-cell-pl);
+  border-top: var(--tms-grid-border-width) solid var(--tms-grid-border-color);
+  transition: border-color 0.3s ease;
+}
+
+.tms-grid-border .tms-grid-border__col .tms-grid-border__element .tms-button-group .tms-button {
+  width: 100%;
+}
+
+.tms-grid-border .tms-grid-border__col .tms-grid-border__element .tms-button-group {
+  width: 100%;
+  margin: 0 0 var(--tms-grid-border-cell-pb);
+  padding: 0 var(--tms-grid-border-cell-pr) 0 var(--tms-grid-border-cell-pl);
+}
+
+/* #endregion Grid Border */
+
+/* ------------------------------------------------------------------------
+ * 06. Sliding Tabs
+ * ------------------------------------------------------------------------ */
+
+/* #region Sliding Tabs */
+
+/* Tabs size to their label; the Category Filter "Width" control writes
+   --tab-width to give every tab one width instead. The active pill is ONE
+   glider that shared.min.js measures off the checked tab and slides there,
+   so it follows any tab width and any row alignment. Until it is placed
+   (no JS, or before init) the checked tab paints the fill itself. */
+:root .tms-sliding-tabs {
+  --tab-height: 40px;
+  --tab-gap: 10px;
+  --tab-padding-x: 1.25rem;
+}
+
+div:has(> .tms-sliding-tabs__wrapper) {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+div:has(> .tms-sliding-tabs__wrapper)::-webkit-scrollbar {
+  width: 100%;
+  height: 0;
+  background-color: transparent;
+}
+
+div:has(> .tms-sliding-tabs__wrapper)::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+.tms-sliding-tabs {
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--tab-gap);
+}
+
+.tms-sliding-tabs * {
+  z-index: 2;
+}
+
+/* Visually hidden but focusable: the radios carry the keyboard access (Tab
+   into the group, arrow keys between tabs). A zero-size flex item still opens
+   a gap, so the negative end margin hands it back and every tab keeps its
+   place; in flow, the focus scroll lands next to its own tab. */
+.tms-sliding-tabs > input[type='radio'] {
+  flex: 0 0 0;
+  width: 0;
+  min-width: 0;
+  height: 0;
+  min-height: 0;
+  margin: 0;
+  margin-inline-end: calc(var(--tab-gap) * -1);
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Tabs never shrink: the overflow belongs to the scrolling wrapper, not to
+   squeezed chips. */
+.tms-sliding-tabs .tms-sliding-tabs__tab {
+  flex-shrink: 0;
+  width: var(--tab-width, auto);
+  height: var(--tab-height);
+  padding: 0 var(--tab-padding-x);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--tms-radius-pill, 100px);
+  border: 2px solid;
+  border-color: var(--tms-surface-color);
+  background-color: var(--tms-surface-color);
+  white-space: nowrap;
+  font-weight: var(--tms-semibold-font-weight);
+  color: var(--tms-body-color);
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.tms-sliding-tabs .tms-sliding-tabs__tab:hover {
+  color: var(--tms-heading-color);
+}
+
+/* Inset ring in the tab's own text color: it contrasts with the resting and
+   the active fill alike, and the scroller's overflow cannot clip it. */
+.tms-sliding-tabs input:focus-visible + label {
+  outline: 2px solid currentColor;
+  outline-offset: -5px;
+}
+
+.tms-sliding-tabs input:checked+label,
+.tms-sliding-tabs input:checked+label:hover {
+  background: none;
+  border-color: var(--tms-button-bg-color);
+  color: var(--tms-button-text-color);
+}
+
+.tms-sliding-tabs:not(.is-glider-ready) input:checked+label {
+  background-color: var(--tab-active-bg, var(--tms-button-bg-color));
+}
+
+.tms-sliding-tabs .tms-sliding-tabs__counter {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--tms-button-text-color);
+  font-size: 12px;
+  color: var(--tms-button-bg-color);
+  -webkit-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.tms-sliding-tabs .tms-sliding-tabs__tab:hover .tms-sliding-tabs__counter {
+  background-color: var(--tms-heading-color);
+  color: var(--tms-button-text-color);
+}
+
+.tms-sliding-tabs input:checked+label>.tms-sliding-tabs__counter {
+  background-color: var(--tms-danger-color) !important;
+  color: var(--tms-white-color) !important;
+  opacity: 1;
+}
+
+/* Box and offset are written inline by shared.min.js (tmsSlidingTabs). */
+.tms-sliding-tabs .tms-sliding-tabs__glider {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  display: flex;
+  border-radius: var(--tms-radius-pill, 100px);
+  background-color: var(--tab-active-bg, var(--tms-button-bg-color));
+  box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.05);
+  -webkit-transition: transform 0.25s ease-out, width 0.25s ease-out, height 0.25s ease-out;
+  -o-transition: transform 0.25s ease-out, width 0.25s ease-out, height 0.25s ease-out;
+  -moz-transition: transform 0.25s ease-out, width 0.25s ease-out, height 0.25s ease-out;
+  transition: transform 0.25s ease-out, width 0.25s ease-out, height 0.25s ease-out;
+}
+
+.tms-sliding-tabs:not(.is-glider-ready) .tms-sliding-tabs__glider {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-sliding-tabs .tms-sliding-tabs__glider {
+    transition: none;
+  }
+}
+
+/* #endregion Sliding Tabs */
+
+/* ------------------------------------------------------------------------
+ * 07. Side Widget
+ * ------------------------------------------------------------------------ */
+
+/* #region Side Widget */
+
+.tms-side-widget {
+  position: fixed;
+  z-index: 12;
+  top: 0;
+  width: auto;
+  height: 100%;
+  padding: 0;
+  pointer-events: none;
+  user-select: none;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (max-width: 991px) {
+  .tms-side-widget {
+    display: none;
+  }
+}
+
+.tms-side-widget.show,
+.tms-side-widget.tms-side-widget--right.show,
+.tms-side-widget.tms-side-widget--left.show {
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+.tms-side-widget.tms-side-widget--right {
+  right: 1rem;
+  transform: translateX(calc(100% + 2rem));
+}
+
+.tms-side-widget.tms-side-widget--left {
+  left: 1rem;
+  transform: translateX(calc(-100% - 2rem));
+}
+
+.tms-side-widget.tms-side-widget--bottom {
+  top: initial;
+  bottom: 0;
+  height: fit-content;
+}
+
+.tms-side-widget .tms-side-widget__item {
+  position: relative;
+  width: auto;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tms-side-widget .tms-side-widget__item .tms-vertical-label {
+  position: relative;
+}
+
+/* #endregion Side Widget */
+
+/* ------------------------------------------------------------------------
+ * 08. Folder Tab
+ * ------------------------------------------------------------------------ */
+
+/* #region Folder Tab */
+
+/* A label cut into the top edge of a media surface, like a project folder
+ * (Scroll Sequence stage, Scroll Stack cards). It is a notch painted in the
+ * PAGE background, with two concave fillets joining it to that edge (radial
+ * gradients: a quarter disc of transparency in each square), so it only reads
+ * as a cut-out over a solid page background.
+ *
+ * The host gives it a positioned ancestor and may set these tokens on any
+ * ancestor (the Elementor controls write them on the widget root):
+ *   --tms-folder-tab-bg      notch color (defaults to the theme background)
+ *   --tms-folder-tab-curve   radius of the bottom corners and the fillets
+ *   --tms-folder-tab-offset  distance from the edge for --start / --end
+ * They are only ever READ here (with fallbacks), never declared, so a value
+ * set on an ancestor always reaches the tab. Labels share one grid cell: a tab
+ * that swaps labels keeps the width of the longest one and never jumps. */
+.tms-folder-tab {
+  --tms-folder-tab-shift: -50%;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 6;
+  display: grid;
+  padding: 10px 22px 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--tms-heading-color, #0a0c14);
+  background-color: var(--tms-folder-tab-bg, var(--tms-bg-color, #ffffff));
+  border-radius: 0 0 var(--tms-folder-tab-curve, 16px) var(--tms-folder-tab-curve, 16px);
+  transform: translate3d(var(--tms-folder-tab-shift), 0, 0);
+}
+
+.tms-folder-tab::before,
+.tms-folder-tab::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: var(--tms-folder-tab-curve, 16px);
+  height: var(--tms-folder-tab-curve, 16px);
+}
+
+.tms-folder-tab::before {
+  right: 100%;
+  background-image: radial-gradient(
+    circle at 0 100%,
+    transparent calc(var(--tms-folder-tab-curve, 16px) - 0.5px),
+    var(--tms-folder-tab-bg, var(--tms-bg-color, #ffffff)) var(--tms-folder-tab-curve, 16px)
+  );
+}
+
+.tms-folder-tab::after {
+  left: 100%;
+  background-image: radial-gradient(
+    circle at 100% 100%,
+    transparent calc(var(--tms-folder-tab-curve, 16px) - 0.5px),
+    var(--tms-folder-tab-bg, var(--tms-bg-color, #ffffff)) var(--tms-folder-tab-curve, 16px)
+  );
+}
+
+.tms-folder-tab--start {
+  --tms-folder-tab-shift: 0%;
+  left: var(--tms-folder-tab-offset, 40px);
+}
+
+.tms-folder-tab--end {
+  --tms-folder-tab-shift: 0%;
+  right: var(--tms-folder-tab-offset, 40px);
+  left: auto;
+}
+
+.tms-folder-tab__label {
+  grid-area: 1 / 1;
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .tms-folder-tab {
+    padding: 8px 18px 10px;
+    font-size: 0.75rem;
+  }
+}
+
+/* #endregion Folder Tab */
+
+/* ------------------------------------------------------------------------
+ * 09. Display Title
+ * ------------------------------------------------------------------------ */
+
+/* #region Display Title */
+
+/* A large title laid over media in one of three styles (Scroll Sequence
+ * headline, Scroll Stack Full Media cards):
+ * - --normal: plain text.
+ * - --blend: mix-blend-mode on the title box. It composites with everything
+ *   painted below it in the nearest stacking context, so the host must keep
+ *   the media and the title box in the SAME context: no z-index, opacity,
+ *   transform or filter on any box between them (the title box itself may
+ *   carry them). White + Difference shows the inverse of the image under
+ *   each letter.
+ * - --knockout: a solid fill with the letters cut out (inline SVG mask), the
+ *   media playing inside them. The real heading stays, invisible, for
+ *   assistive tech and for the line-height the host JS reads to space the SVG
+ *   lines (SVG text has no line boxes).
+ *
+ * Tokens, read with fallbacks (set them on any ancestor):
+ *   --tms-display-title-size   default font size (typography controls win)
+ *   --tms-display-title-blend  blend mode for --blend
+ *   --tms-display-title-fill   fill color for --knockout */
+.tms-display-title {
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.tms-display-title--blend {
+  mix-blend-mode: var(--tms-display-title-blend, difference);
+}
+
+.tms-display-title__text,
+.tms-display-title__knockout-text {
+  font-family: var(--tms-heading-font, inherit);
+  font-size: var(--tms-display-title-size, clamp(3rem, 10vw, 9rem));
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.tms-display-title__text {
+  margin: 0;
+  line-height: 0.95;
+  text-align: center;
+  color: var(--tms-white-color, #ffffff);
+}
+
+.tms-display-title--knockout .tms-display-title__text {
+  opacity: 0;
+}
+
+/* The fill overshoots its box by 1px on every side: the host clips it at its
+ * own edge (overflow: hidden), so the edge row is anti-aliased ONCE, by that
+ * clip. A fill cut exactly at the box would anti-alias its own edge too, and
+ * the media / scrim under it would bleed through as a hairline whenever the
+ * box lands on a fractional pixel (mid-scroll). The text stays centered. */
+.tms-display-title__knockout {
+  position: absolute;
+  inset: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  overflow: visible;
+}
+
+.tms-display-title__knockout-fill {
+  fill: var(--tms-display-title-fill, var(--tms-bg-color, #ffffff));
+}
+
+.tms-display-title__knockout-text {
+  fill: #000;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* #endregion Display Title */

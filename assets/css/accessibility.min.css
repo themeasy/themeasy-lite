@@ -1,0 +1,231 @@
+/*!
+ * Themeasy — Accessibility CSS
+ *
+ * Reduced-motion preferences and print-optimized styles for the plugin.
+ * Loaded last in the plugin cascade to override all other plugin styles.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Reduced Motion
+ * 02. High Contrast
+ * 03. Print
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Reduced Motion
+ * ------------------------------------------------------------------------ */
+
+/* #region Reduced Motion */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --tms-transition-fast: 0s;
+    --tms-transition-base: 0s;
+    --tms-transition-medium: 0s;
+    --tms-transition-slow: 0s;
+    --tms-hover-duration: 0s;
+    --tms-hover-duration-fast: 0s;
+  }
+
+  *,
+  :before,
+  :after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .tms-preloader,
+  .tms-cursor-interaction {
+    display: none !important;
+  }
+
+  .tms-text-animation.tms-animation--hidden,
+  .tms-block-animation.tms-animation--hidden,
+  .tms-animation.tms-animation--hidden .tms-animation__target,
+  .tms-animation.tms-animation--hidden > .elementor-element,
+  .tms-animation.tms-animation--hidden > .e-con-inner > .elementor-element {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+  }
+
+  .tms-hover__target {
+    will-change: auto !important;
+    transition: none !important;
+  }
+
+  .tms-hover__overlay {
+    transition: none !important;
+  }
+
+  .tms-preloader__spinner,
+  .tms-loading-bar .line,
+  .tms-product-grid--loader .tms-card::after,
+  .tms-product-gallery--loader::after {
+    animation: none !important;
+  }
+
+  /* Product grid and gallery skeletons: no sheen (above), and every card or
+     thumbnail reveals at once instead of cascading. Beats the order JS
+     writes inline on each column / thumbnail slide. */
+  .tms-product-grid__col,
+  .tms-product-gallery .tms-thumbs-slider__control .swiper-slide {
+    --tms-skeleton-order: 0 !important;
+  }
+
+  .swiper-wrapper {
+    transition-duration: 0s !important;
+  }
+
+  .goverlay,
+  .gslide-media,
+  .gcss,
+  .collapsing,
+  .fade,
+  .modal.fade .modal-dialog {
+    transition: none !important;
+  }
+}
+
+/* #endregion Reduced Motion */
+
+/* ------------------------------------------------------------------------
+ * 02. High Contrast
+ * ------------------------------------------------------------------------ */
+
+/* #region High Contrast */
+
+@media (prefers-contrast: more) {
+  .tms-button:disabled,
+  .tms-form .form-check-input[disabled] ~ .form-check-label,
+  .tms-form .form-check-input:disabled ~ .form-check-label,
+  .tms-custom-select__option.is-disabled,
+  .tms-select__option.is-disabled {
+    opacity: 0.8 !important;
+  }
+
+  .tms-button:focus-visible {
+    outline-offset: 2px;
+    outline: 3px solid var(--tms-heading-color) !important;
+    box-shadow: none !important;
+  }
+
+  .tms-form input:focus-visible {
+    outline-offset: 2px;
+    outline: 3px solid var(--tms-heading-color) !important;
+    box-shadow: none !important;
+  }
+
+  .tms-form select:focus-visible {
+    outline-offset: 2px;
+    outline: 3px solid var(--tms-heading-color) !important;
+    box-shadow: none !important;
+  }
+
+  .tms-form textarea:focus-visible {
+    outline-offset: 2px;
+    outline: 3px solid var(--tms-heading-color) !important;
+    box-shadow: none !important;
+  }
+
+  .tms-hover__target {
+    box-shadow: none !important;
+  }
+
+  .tms-hover:hover .tms-hover__target {
+    outline: 2px solid var(--tms-heading-color);
+    outline-offset: -2px;
+  }
+
+  .tms-hover:focus-visible .tms-hover__target {
+    outline: 2px solid var(--tms-heading-color);
+    outline-offset: -2px;
+  }
+
+  .tms-cursor-interaction {
+    display: none !important;
+  }
+
+  .modal-backdrop.show,
+  .offcanvas-backdrop.show {
+    opacity: 0.7 !important;
+  }
+
+  .tms-product-meta__value,
+  .tms-product-stock__icon {
+    opacity: 1 !important;
+  }
+}
+
+/* #endregion High Contrast */
+
+/* ------------------------------------------------------------------------
+ * 03. Print
+ * ------------------------------------------------------------------------ */
+
+/* #region Print */
+
+@media print {
+  *,
+  :before,
+  :after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .tms-preloader,
+  .tms-cursor-interaction,
+  .tms-hover__overlay {
+    display: none !important;
+  }
+
+  .tms-text-animation.tms-animation--hidden,
+  .tms-block-animation.tms-animation--hidden,
+  .tms-animation.tms-animation--hidden .tms-animation__target,
+  .tms-animation.tms-animation--hidden > .elementor-element,
+  .tms-animation.tms-animation--hidden > .e-con-inner > .elementor-element {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+  }
+
+  .tms-hover__target {
+    filter: none !important;
+    will-change: auto !important;
+    transform: none !important;
+  }
+
+  .swiper-wrapper {
+    flex-wrap: wrap !important;
+    transform: none !important;
+  }
+
+  .swiper-slide {
+    margin-bottom: 1rem;
+    flex: 0 0 100% !important;
+  }
+
+  .swiper-button-prev,
+  .swiper-button-next,
+  .swiper-pagination,
+  .swiper-scrollbar,
+  .glightbox-container,
+  .tms-loading-bar,
+  .tms-loading-bar__overlay {
+    display: none !important;
+  }
+}
+
+/* #endregion Print */

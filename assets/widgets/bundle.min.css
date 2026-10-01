@@ -1,0 +1,1531 @@
+/*!
+ * Themeasy — Bundle Widget Styles
+ *
+ * Shared styles for all Elementor widgets provided by the Themeasy plugin.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Icon
+ * 02. Icon List
+ * 03. Counter
+ * 04. Line Progress Bar
+ * 05. Radial Progress Bar
+ * 06. Circular Text
+ * 07. Typed Text
+ * 08. Scrolling Text
+ * 09. Text Marquee
+ * 10. Image Distortion
+ * 11. Image Hover Scroll
+ * 12. Image Marquee
+ * 13. Image Reveal
+ * 14. Cursor
+ * 15. Scroll to Top (moved to assets/widgets/scroll-to-top/)
+ * 16. Copyright Bar
+ * 17. Social Profiles
+ * 18. Category List
+ * 19. Megamenu Featured Card
+ * 20. Megamenu Promo Banner
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Icon
+ * ------------------------------------------------------------------------ */
+
+/* #region Icon */
+
+.tms-icon-wrapper {
+  width: 1em;
+  height: 1em;
+  font-size: 32px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--tms-primary-color);
+}
+
+.tms-icon-wrapper .tms-icon {
+  width: 1em;
+  height: 1em;
+}
+
+.tms-icon-wrapper a {
+  line-height: 0;
+}
+
+.tms-icon-wrapper svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-icon-wrapper svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-icon--gradient .tms-icon {
+  background-image: -webkit-linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+  background-image: linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent
+}
+
+.tms-icon--solid-square,
+.tms-icon--outline-square {
+  border-radius: 0
+}
+
+.tms-icon--solid-rounded,
+.tms-icon--outline-rounded {
+  border-radius: var(--tms-radius-sm, 0.5rem)
+}
+
+.tms-icon--solid-circle,
+.tms-icon--outline-circle {
+  border-radius: 50%
+}
+
+.tms-icon--solid-square,
+.tms-icon--solid-rounded,
+.tms-icon--solid-circle,
+.tms-icon--outline-square,
+.tms-icon--outline-rounded,
+.tms-icon--outline-circle {
+  display: flex;
+  justify-content: center;
+  align-items: center
+}
+
+.tms-icon--solid-square,
+.tms-icon--solid-rounded,
+.tms-icon--solid-circle {
+  background-color: var(--tms-accent-color)
+}
+
+.tms-icon--solid-square .tms-icon,
+.tms-icon--solid-rounded .tms-icon,
+.tms-icon--solid-circle .tms-icon {
+  color: var(--tms-bg-color)
+}
+
+.tms-icon--outline-square,
+.tms-icon--outline-rounded,
+.tms-icon--outline-circle {
+  border: 2px solid var(--tms-primary-color)
+}
+
+/* #endregion Icon */
+
+/* ------------------------------------------------------------------------
+ * 02. Icon List
+ * ------------------------------------------------------------------------ */
+
+/* #region Icon List */
+
+.tms-icon-list__wrapper {
+  width: 100%;
+}
+
+.tms-icon-list__title {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: var(--tms-h6-font-size);
+}
+
+/* Leading lives here, on the same element the text_typography control targets, so
+   a chosen line-height wins by specificity instead of being blocked by a direct
+   declaration on the item. Unitless on purpose: it scales with the control's font
+   size, where an absolute value would collide once the text wraps. */
+.tms-icon-list {
+  position: relative;
+  width: 100%;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  line-height: 1.3;
+}
+
+.tms-icon-list--horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.tms-icon-list .tms-icon-list__item {
+  --tms-icon-list-item-gap: 0.75rem;
+  position: relative;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--tms-icon-list-item-gap);
+  text-align: left;
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+  color: var(--tms-body-color);
+}
+
+.tms-icon-list .tms-icon-list__item:hover {
+  color: var(--tms-heading-color)
+}
+
+.tms-icon-list .tms-icon-list__icon,
+.tms-icon-list svg.tms-icon-list__icon {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 1rem;
+  color: var(--tms-button-bg-color);
+  transition: color 0.3s ease;
+}
+
+.tms-icon-list svg {
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  margin: 0;
+  padding: 0;
+  font-size: 1.5rem;
+  color: var(--tms-button-bg-color);
+  fill: currentColor;
+  transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease;
+}
+
+.tms-icon-list svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-icon-list .tms-icon-list__text {
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+/* Legacy: badges typed as HTML inside the text field. The Badge control below
+   replaces this, but saved content keeps rendering. */
+.tms-icon-list .tms-icon-list__text .tms-badge {
+  margin-left: 0.5rem;
+  padding: 2px 7.5px;
+  border-radius: var(--tms-radius-sm, 999px);
+}
+
+/* Text + badge travel as one flex item, so "Space Between" and the counter rule
+   never pull the badge away from its text. Emitted only on rows with a badge. */
+.tms-icon-list .tms-icon-list__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* The anatomy (padding, corner, size, transition) is the shared .tms-tag in
+   components.min.css. Colors come from tokens: the Style tab writes them on the
+   list, a per-item override writes them on the item — the closer declaration
+   wins by inheritance. */
+.tms-icon-list .tms-icon-list__badge {
+  color: var(--tms-icon-list-badge-color, var(--tms-white-color, #fff));
+  background-color: var(--tms-icon-list-badge-bg, var(--tms-primary-color));
+}
+
+.tms-icon-list .tms-icon-list__item:hover .tms-icon-list__badge {
+  color: var(--tms-icon-list-badge-hover-color, var(--tms-icon-list-badge-color, var(--tms-white-color, #fff)));
+  background-color: var(--tms-icon-list-badge-hover-bg, var(--tms-icon-list-badge-bg, var(--tms-primary-color)));
+}
+
+/* The rule is the only flexible item of an index row, so without a floor it
+   absorbs every pixel of difference between labels and collapses to a stub —
+   reading as a render failure rather than as "that label is longer". Basis 40px
+   with shrink 0 keeps it legible; the overflow moves to the label, which
+   truncates in the rule below. */
+.tms-icon-list .tms-icon-list__line {
+  flex: 1 0 40px;
+  height: 2px;
+  margin: 0;
+  background-color: var(--tms-border-color);
+}
+
+/* Only rows that carry a rule: elsewhere a long label still overflows as before. */
+.tms-icon-list .tms-icon-list__item:has(.tms-icon-list__line) .tms-icon-list__label {
+  min-width: 0;
+}
+
+.tms-icon-list .tms-icon-list__item:has(.tms-icon-list__line) .tms-icon-list__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Figure: follows the heading family (contract "numbers are heading"). The item
+   text beside it stays body copy on purpose. */
+.tms-icon-list .tms-icon-list__counter {
+  flex-shrink: 0;
+  font-family: var(--tms-heading-font);
+  transition: color 0.3s ease;
+}
+
+.tms-icon-list .tms-cover-link {
+  border-radius: inherit;
+}
+
+.tms-icon-list--icon-end .tms-icon-list__icon,
+.tms-icon-list--icon-end svg {
+  order: 1;
+}
+
+/* #endregion Icon List */
+
+/* ------------------------------------------------------------------------
+ * 03. Counter
+ * ------------------------------------------------------------------------ */
+
+/* #region Counter */
+
+.tms-counter {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tms-counter .tms-progress__title {
+  margin-bottom: 0;
+  letter-spacing: var(--tms-accent-letter-spacing);
+}
+
+/* Widget default accent-font metrics — Elementor typography CSS (higher
+ * specificity) overrides them when the user styles the title. */
+.tms-counter .tms-progress__title {
+  font-family: var(--tms-accent-font);
+  font-size: var(--tms-font-size-xs);
+  font-weight: var(--tms-accent-font-weight);
+  line-height: var(--tms-accent-line-height);
+  text-transform: uppercase;
+}
+
+/* #endregion Counter */
+
+/* ------------------------------------------------------------------------
+ * 04. Line Progress Bar
+ * ------------------------------------------------------------------------ */
+
+/* #region Line Progress Bar */
+
+.tms-line-progress-bar .tms-progress__title {
+  margin-bottom: 1rem;
+}
+
+.tms-progress__line {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.tms-progress__line-track {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border-radius: var(--tms-radius-pill, 100px);
+  color: var(--tms-primary-color);
+}
+
+.tms-progress__line-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  transform: scaleX(0);
+  border-radius: inherit;
+}
+
+/* #endregion Line Progress Bar */
+
+/* ------------------------------------------------------------------------
+ * 05. Radial Progress Bar
+ * ------------------------------------------------------------------------ */
+
+/* #region Radial Progress Bar */
+
+.tms-radial-progress-bar .tms-progress__title {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.tms-progress__radial {
+  position: relative;
+  width: 100%;
+}
+
+.tms-progress__radial .tms-progress__value {
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.tms-progress__radial-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--tms-primary-color);
+}
+
+.tms-progress__radial-track,
+.tms-progress__radial-fill {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.tms-progress__radial-track {
+  stroke: var(--tms-border-color);
+  opacity: 1;
+}
+
+.tms-progress__radial-fill {
+  opacity: 1;
+}
+
+/* #endregion Radial Progress Bar */
+
+/* ------------------------------------------------------------------------
+ * 06. Circular Text
+ * ------------------------------------------------------------------------ */
+
+/* #region Circular Text */
+
+/*
+ * Geometry. The root is sized from the radius the server prints inline
+ * (--tms-circular-text-radius) plus an "extent": the room a shape needs outside
+ * the text circle. With no shape the extent is 0, so the box stays exactly
+ * 2x radius and existing layouts never move. 0.5em is half the letter band —
+ * the letters inherit the root's font-size, so every em below tracks the
+ * Typography control.
+ *
+ * Layers: __shape (static) → __text (the only layer the JS spins) → __icon
+ * (static). The Style-tab controls write custom properties on the root and the
+ * layers read them with the literal defaults below.
+ */
+.tms-circular-text {
+  --tms-circular-text-extent: 0px;
+  position: relative;
+  display: block;
+  width: calc((var(--tms-circular-text-radius, 75px) + var(--tms-circular-text-extent)) * 2);
+  height: calc((var(--tms-circular-text-radius, 75px) + var(--tms-circular-text-extent)) * 2);
+  text-transform: uppercase;
+}
+
+.tms-circular-text--solid,
+.tms-circular-text--outline {
+  --tms-circular-text-extent: calc(0.5em + var(--tms-circular-text-shape-padding, 1em));
+}
+
+/* A ring thinner than the letters must still leave room for them. */
+.tms-circular-text--ring {
+  --tms-circular-text-extent: max(
+    0.5em,
+    calc(var(--tms-circular-text-ring-width, 2.25em) / 2 + var(--tms-circular-text-ring-border-width, 0px))
+  );
+}
+
+/* Letters on a filled shape default to the paper color; the Text Color control
+   targets this same element, so it wins by specificity. */
+.tms-circular-text--solid,
+.tms-circular-text--ring {
+  color: var(--tms-bg-color, #fff);
+}
+
+.tms-circular-text__text {
+  position: absolute;
+  inset: var(--tms-circular-text-extent);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  will-change: transform;
+}
+
+/* Hidden until the JS lays out the letters (no flash of the plain line), but
+   only when scripts can run; the failsafe reveals the plain text if the JS
+   never does (1ms, not 0s, so a minifier cannot fold the delay away). */
+@media (scripting: enabled) {
+  .tms-circular-text__text {
+    opacity: 0;
+    animation: tms-circular-text-failsafe 1ms linear 3s forwards;
+  }
+}
+
+@keyframes tms-circular-text-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
+.tms-circular-text__char {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+/* Shape — boxed shapes fill the root. */
+.tms-circular-text__shape {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.tms-circular-text--solid .tms-circular-text__shape {
+  background-color: var(--tms-heading-color, #1d2023);
+}
+
+.tms-circular-text--outline .tms-circular-text__shape {
+  border: 2px solid currentColor;
+}
+
+.tms-circular-text--square .tms-circular-text__shape {
+  border-radius: 0;
+}
+
+.tms-circular-text--rounded .tms-circular-text__shape {
+  border-radius: var(--tms-radius-md, 1rem);
+}
+
+.tms-circular-text--circle .tms-circular-text__shape {
+  border-radius: 50%;
+}
+
+/* Ring — a band centered on the text radius. The band IS the border, so the
+   hole stays transparent (Inner Color fills the padding box only); the two
+   edge outlines are spread box-shadows, which follow the radius and take no
+   layout room. */
+.tms-circular-text--ring .tms-circular-text__shape {
+  inset: calc(var(--tms-circular-text-extent) - var(--tms-circular-text-ring-width, 2.25em) / 2);
+  border: var(--tms-circular-text-ring-width, 2.25em) solid
+    var(--tms-circular-text-ring-color, var(--tms-heading-color, #1d2023));
+  border-radius: 50%;
+  background: var(--tms-circular-text-ring-fill, transparent) padding-box;
+  box-shadow:
+    0 0 0 var(--tms-circular-text-ring-border-width, 0px)
+      var(--tms-circular-text-ring-border-color, var(--tms-primary-color, #3772ff)),
+    inset 0 0 0 var(--tms-circular-text-ring-border-width, 0px)
+      var(--tms-circular-text-ring-border-color, var(--tms-primary-color, #3772ff));
+}
+
+/* Icon — centered and static; the glyph is 1em, so font-size sizes it. */
+.tms-circular-text__icon {
+  position: absolute;
+  inset: 0;
+  width: 1em;
+  height: 1em;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: calc(var(--tms-circular-text-radius, 75px) * 0.5);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* The ring hole shows the page, not the band: keep the icon off the paper
+   color the ring gives the letters. */
+.tms-circular-text--ring .tms-circular-text__icon {
+  color: var(--tms-heading-color, #1d2023);
+}
+
+.tms-circular-text__icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-circular-text__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-circular-text__icon img {
+  width: 1em;
+  height: 1em;
+}
+
+/* #endregion Circular Text */
+
+/* ------------------------------------------------------------------------
+ * 07. Typed Text
+ * ------------------------------------------------------------------------ */
+
+/* #region Typed Text */
+
+.tms-typed-text__wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tms-typed-text {
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.tms-typed-text__strings::after {
+  content: '|';
+  display: inline-block;
+  margin-left: 0.08em;
+  animation: tms-typed-text-blink 1s steps(2, start) infinite;
+}
+
+.tms-typed-text--disabled .tms-typed-text__strings::after {
+  display: none;
+}
+
+@keyframes tms-typed-text-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* #endregion Typed Text */
+
+/* ------------------------------------------------------------------------
+ * 08. Scrolling Text
+ * ------------------------------------------------------------------------ */
+
+/* #region Scrolling Text */
+
+.tms-scrolling-text {
+  /* Resting indent of the text block; the drift is centered on this position. */
+  --tms-scrolling-text-offset: 10vw;
+  /* Total travel of each line across the scroll range (half to each side). */
+  --tms-scrolling-text-distance: 40vw;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.tms-scrolling-text .tms-scrolling-text__image {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.tms-scrolling-text .tms-scrolling-text__wrapper {
+  position: relative;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.tms-scrolling-text.has-image .tms-scrolling-text__wrapper {
+  position: absolute;
+}
+
+.tms-scrolling-text .tms-scrolling-text__content {
+  margin-left: var(--tms-scrolling-text-offset, 10vw);
+}
+
+.tms-scrolling-text .tms-scrolling-text__primary-text,
+.tms-scrolling-text .tms-scrolling-text__secondary-text {
+  position: relative;
+  margin: 0;
+  display: block;
+  line-height: 1;
+  color: var(--tms-border-color);
+}
+
+.tms-scrolling-text .tms-scrolling-text__secondary-text {
+  margin-top: 1.5rem;
+}
+
+/* #endregion Scrolling Text */
+
+/* ------------------------------------------------------------------------
+ * 09. Text Marquee
+ * ------------------------------------------------------------------------ */
+
+/* #region Text Marquee */
+
+.tms-text-marquee {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.tms-text-marquee .tms-text-marquee__content {
+  display: flex;
+  width: max-content;
+  gap: 2rem;
+  will-change: transform;
+}
+
+/* Editor preview / reduced motion: keep the text static and readable. */
+.tms-text-marquee--static .tms-text-marquee__content {
+  transform: none !important;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-text-marquee .tms-text-marquee__content {
+    transform: none !important;
+    will-change: auto;
+  }
+}
+
+/* #endregion Text Marquee */
+
+/* ------------------------------------------------------------------------
+ * 10. Image Distortion
+ * ------------------------------------------------------------------------ */
+
+/* #region Image Distortion */
+
+.tms-image-distortion {
+  position: relative;
+}
+
+.tms-image-distortion__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* The plain <img> is the layout element AND every fallback path (editor
+ * preview, reduced motion, no Three.js/GSAP, WebGL denied) — the canvas is
+ * absolute, so without it the box collapses to zero. It is hidden only once
+ * the widget JS confirms a first WebGL frame by adding --ready.
+ *
+ * Sizing contract: the authored Width/Height controls style the
+ * .tms-image-distortion box itself; the image tracks it at 100%. With no
+ * authored height the box is auto, the percentage height resolves to auto,
+ * and the image's natural ratio sizes the box — so both cases stay in sync
+ * without any JS-imposed height. Object Fit paints here and the widget JS
+ * mirrors it into the WebGL sampling. */
+.tms-image-distortion .tms-image-distortion__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.tms-image-distortion--ready .tms-image-distortion__image {
+  visibility: hidden;
+}
+
+/* #endregion Image Distortion */
+
+/* ------------------------------------------------------------------------
+ * 11. Image Hover Scroll
+ * ------------------------------------------------------------------------ */
+
+/* #region Image Hover Scroll */
+
+.tms-image-hover-scroll {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.tms-image-hover-scroll__media {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.tms-image-hover-scroll__track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+.tms-image-hover-scroll__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  will-change: transform;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* #endregion Image Hover Scroll */
+
+/* ------------------------------------------------------------------------
+ * 12. Image Marquee
+ * ------------------------------------------------------------------------ */
+
+/* #region Image Marquee */
+
+.tms-image-marquee {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.tms-image-marquee .tms-image-marquee__content {
+  width: max-content;
+  display: flex;
+  gap: 1.5rem;
+  will-change: transform;
+}
+
+/* #endregion Image Marquee */
+
+/* ------------------------------------------------------------------------
+ * 13. Image Reveal
+ * ------------------------------------------------------------------------ */
+
+/* #region Image Reveal */
+
+.tms-image-reveal {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hidden state is gated by a JS-applied class so the image stays visible with no
+   JS, no GSAP, and under reduced motion. In the editor the class IS applied —
+   --static drops the ScrollTrigger, not the reveal — and the timeline's own
+   autoAlpha tween takes it straight back to visible. */
+.tms-image-reveal.tms-image-reveal--armed {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-image-reveal.tms-image-reveal--armed {
+    visibility: visible;
+  }
+}
+
+.tms-image-reveal .tms-image-reveal__target {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: left;
+}
+
+/* #endregion Image Reveal */
+
+/* ------------------------------------------------------------------------
+ * 14. Cursor
+ * ------------------------------------------------------------------------ */
+
+/* #region Cursor */
+
+.tms-cursor {
+  display: block
+}
+
+.tms-cursor__circle,
+.tms-cursor__dot {
+  display: none
+}
+
+@media (any-pointer:fine) {
+  .tms-cursor__circle {
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 32px;
+    display: block;
+    border-radius: 100%;
+    border: 2px solid;
+    border-color: var(--tms-button-bg-color);
+    transform: translate(-50%, -50%);
+    transition: width .4s ease-out, height .4s ease-out, border-color .4s ease-out;
+    pointer-events: none
+  }
+
+  .tms-cursor__circle.tms-cursor--click {
+    width: 42px;
+    height: 42px
+  }
+
+  .tms-cursor__circle.tms-cursor--hover {
+    width: 42px;
+    height: 42px
+  }
+
+  .tms-cursor__dot {
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    display: block;
+    border-radius: 100%;
+    background-color: var(--tms-button-bg-color);
+    transform: translate(-50%, -50%);
+    transition: background-color .4s ease-out;
+    pointer-events: none
+  }
+
+  .tms-cursor__dot.tms-cursor--click {
+    background-color: var(--tms-primary-color)
+  }
+
+  .tms-cursor__dot.tms-cursor--hover {
+    background-color: var(--tms-primary-color)
+  }
+}
+
+/* #endregion Cursor */
+
+/* ------------------------------------------------------------------------
+ * 15. Scroll to Top — moved to assets/widgets/scroll-to-top/scroll-to-top.min.css
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 16. Copyright Bar — moved to assets/widgets/copyright-bar/copyright-bar.min.css
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 17. Social Profiles
+ * ------------------------------------------------------------------------ */
+
+/* #region Social Profiles */
+
+.tms-social-profiles {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.tms-social-profiles__list-item {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  line-height: 0;
+}
+
+/* Node: the shape behind the glyph. Its box reads --tms-social-node-size (Node
+ * Size control, always px) and falls back to 2.5em, which resolves against the
+ * item's own font-size (Icon Size) -- so an unset Node Size renders exactly as
+ * before, while an authored value pins the node precisely and leaves the glyph
+ * free to be sized on its own. The "No Background" shape and the Minimal
+ * variant opt out below and size themselves from their padding instead. */
+.tms-social-profiles__item {
+  --tms-social-item-color: var(--tms-primary-color);
+  position: relative;
+  width: var(--tms-social-node-size, 2.5em);
+  height: var(--tms-social-node-size, 2.5em);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  line-height: 1;
+  text-decoration: none;
+  color: var(--tms-social-item-color);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tms-social-profiles__icon {
+  display: inline-flex;
+  width: 1em;
+  height: 1em;
+  font-size: inherit;
+  line-height: 1;
+}
+
+.tms-social-profiles__item svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-social-profiles__item svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* Editor-only transient: <img> stands in while Elementor fetches an uploaded
+ * SVG (or a ty-* icon that is not preloaded in the editor library). */
+.tms-social-profiles__item img {
+  width: 1em;
+  height: 1em;
+}
+
+.tms-social-profiles__item:focus-visible {
+  outline: 2px solid var(--tms-primary-color);
+  outline-offset: 2px;
+}
+
+/* Shape modifiers */
+.tms-social-profiles--square .tms-social-profiles__item {
+  border-radius: 0;
+}
+
+.tms-social-profiles--rounded .tms-social-profiles__item {
+  border-radius: var(--tms-radius-sm, 0.5rem);
+}
+
+.tms-social-profiles--circle .tms-social-profiles__item {
+  border-radius: 50%;
+}
+
+.tms-social-profiles--none .tms-social-profiles__item {
+  width: auto;
+  height: auto;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+/* Variant modifiers */
+.tms-social-profiles--filled .tms-social-profiles__item {
+  background-color: var(--tms-social-item-color);
+  color: var(--tms-white-color);
+}
+
+.tms-social-profiles--outline .tms-social-profiles__item {
+  background-color: transparent;
+  color: var(--tms-social-item-color);
+  border: 2px solid var(--tms-social-item-color);
+}
+
+.tms-social-profiles--minimal .tms-social-profiles__item {
+  width: auto;
+  height: auto;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  color: var(--tms-social-item-color);
+}
+
+/* Hover effects */
+.tms-social-profiles--hover-scale .tms-social-profiles__item:hover {
+  transform: scale(1.1);
+}
+
+.tms-social-profiles--hover-lift .tms-social-profiles__item:hover {
+  transform: translateY(-3px);
+}
+
+.tms-social-profiles--hover-rotate .tms-social-profiles__item:hover {
+  transform: rotate(15deg);
+}
+
+/* #endregion Social Profiles */
+
+/* ------------------------------------------------------------------------
+ * 18. Category List
+ * ------------------------------------------------------------------------ */
+
+/* #region Category List */
+
+.tms-category-list__wrapper {
+  width: 100%;
+  display: block;
+}
+
+.tms-category-list__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Widget default heading metrics — Elementor typography CSS (higher
+ * specificity) overrides them when the user styles the title. The explicit
+ * size keeps the header balanced against the item text regardless of which
+ * heading tag is picked. */
+.tms-category-list__title {
+  margin: 0;
+  font-size: var(--tms-font-size-xl);
+  line-height: 1.2;
+}
+
+.tms-category-list__subtitle {
+  margin: 0;
+  color: var(--tms-muted-color);
+  line-height: 1.4;
+}
+
+.tms-category-list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.tms-category-list__list-item {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tms-category-list__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  /* Vertical rhythm only — zero inline padding so the row aligns flush
+     with the widget title above it (a 12px indent read as misalignment).
+     The Item Padding control (no default) is the opt-in override. */
+  padding: 8px 0;
+  border-radius: var(--tms-radius-sm, 0);
+  text-decoration: none;
+  color: inherit;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: background-color 0.3s ease, color 0.3s ease,
+              border-color 0.3s ease, transform 0.3s ease,
+              box-shadow 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tms-category-list__item:focus-visible {
+  outline: 2px solid var(--tms-primary-color);
+  outline-offset: 2px;
+}
+
+/* Stack layout — centered column with media on top. */
+.tms-category-list--stack .tms-category-list__item {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.tms-category-list--stack .tms-category-list__count {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+/* Separators — hairline drawn on each non-first item to avoid double borders. */
+.tms-category-list--separated-yes .tms-category-list__list-item + .tms-category-list__list-item .tms-category-list__item {
+  border-top: 1px solid var(--tms-divider-color, rgba(0, 0, 0, 0.08));
+  border-radius: 0;
+}
+
+/* Reveal-on-hover arrow. */
+.tms-category-list--arrow-reveal-yes .tms-category-list__arrow {
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+
+.tms-category-list--arrow-reveal-yes .tms-category-list__item:hover .tms-category-list__arrow,
+.tms-category-list--arrow-reveal-yes .tms-category-list__item:focus-visible .tms-category-list__arrow {
+  opacity: 1;
+}
+
+.tms-category-list__media {
+  flex-shrink: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1;
+  overflow: hidden;
+  /* Visible tile by default — a surface plate on the theme radius makes the
+     icon column read as an aligned rail instead of floating glyphs. */
+  border: 1px solid;
+  border-color: var(--tms-border-color);
+  background-color: var(--tms-surface-color, rgba(0, 0, 0, 0.04));
+  border-radius: var(--tms-radius-sm, 0);
+  width: var(--tms-category-list-media-size, 28px);
+  height: var(--tms-category-list-media-size, 28px);
+  font-size: calc(var(--tms-category-list-media-size, 28px) * 0.6);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.tms-category-list__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.tms-category-list__icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-category-list__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-category-list__media .tms-category-list__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.tms-category-list__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.tms-category-list__text-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tms-category-list__text {
+  min-width: 0;
+  margin: 0;
+  color: var(--tms-body-color);
+  transition: color 0.3s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Stack layout: titles can wrap freely since width is narrower. */
+.tms-category-list--stack .tms-category-list__text {
+  white-space: normal;
+}
+
+.tms-category-list--stack .tms-category-list__text-row {
+  justify-content: center;
+}
+
+.tms-category-list__description {
+  margin: 0;
+  color: var(--tms-muted-color);
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+/* The badge is the shared .tms-tag--micro (components.min.css): anatomy and
+   colors both come from there. */
+
+.tms-category-list__count {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 0.5rem;
+  opacity: 0.7;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Pill style — wraps the count in a soft chip. */
+.tms-category-list--count-pill .tms-category-list__count {
+  opacity: 1;
+  padding: 0.15em 0.6em;
+  border-radius: var(--tms-radius-pill, 999px);
+  background-color: var(--tms-surface-alt-color, rgba(0, 0, 0, 0.06));
+  line-height: 1.4;
+}
+
+.tms-category-list--stack.tms-category-list--count-pill .tms-category-list__count {
+  align-self: center;
+}
+
+.tms-category-list__arrow {
+  flex-shrink: 0;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  color: var(--tms-muted-color);
+  transition: transform 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+}
+
+.tms-category-list__arrow svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-category-list__arrow svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* When both count and arrow are present, push the arrow further with margin only. */
+.tms-category-list__count + .tms-category-list__arrow {
+  margin-left: 0.4rem;
+}
+
+.tms-category-list__view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  color: var(--tms-primary-color);
+  transition: color 0.3s ease;
+}
+
+.tms-category-list__view-all svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-category-list__view-all svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-category-list__view-all-icon {
+  display: inline-flex;
+  transition: transform 0.3s ease;
+}
+
+.tms-category-list__view-all:hover .tms-category-list__view-all-icon,
+.tms-category-list__view-all:focus-visible .tms-category-list__view-all-icon {
+  transform: translateX(3px);
+}
+
+/* #endregion Category List */
+
+/* ------------------------------------------------------------------------
+ * 19. Megamenu Featured Card
+ * ------------------------------------------------------------------------ */
+
+/* #region Megamenu Featured Card */
+
+.tms-megamenu-card {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tms-megamenu-card__media {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.tms-megamenu-card__media .tms-megamenu-card__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+/* Anatomy from the shared .tms-tag (components.min.css); the card owns the
+   corner placement and its colors. */
+.tms-megamenu-card .tms-megamenu-card__badge {
+  position: absolute;
+  top: 0.75rem;
+  background-color: var(--tms-primary-color);
+  color: var(--tms-bg-color);
+}
+
+.tms-megamenu-card__badge--top-left {
+  left: 0.75rem;
+}
+
+.tms-megamenu-card__badge--top-right {
+  right: 0.75rem;
+}
+
+.tms-megamenu-card__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.tms-megamenu-card__eyebrow {
+  margin: 0;
+  font-family: var(--tms-accent-font);
+  font-size: var(--tms-font-size-xs);
+  font-weight: var(--tms-accent-font-weight);
+  line-height: var(--tms-accent-line-height);
+  letter-spacing: var(--tms-accent-letter-spacing);
+  text-transform: uppercase;
+  color: var(--tms-primary-color);
+}
+
+.tms-megamenu-card__title {
+  margin: 0;
+  color: var(--tms-heading-color);
+  transition: color 0.3s ease;
+}
+
+.tms-megamenu-card__description {
+  margin: 0;
+  color: var(--tms-body-color);
+}
+
+.tms-megamenu-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--tms-button-bg-color);
+  transition: color 0.3s ease;
+}
+
+.tms-megamenu-card__cta-arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.tms-megamenu-card:hover .tms-megamenu-card__cta-arrow {
+  transform: translateX(4px);
+}
+
+.tms-megamenu-card .tms-cover-link {
+  border-radius: inherit;
+}
+
+/* Hover effects */
+.tms-megamenu-card--hover-zoom:hover .tms-megamenu-card__image {
+  transform: scale(1.05);
+}
+
+.tms-megamenu-card--hover-lift {
+  will-change: transform;
+}
+
+.tms-megamenu-card--hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.tms-megamenu-card--hover-overlay .tms-megamenu-card__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0);
+  pointer-events: none;
+  transition: background-color 0.3s ease;
+}
+
+.tms-megamenu-card--hover-overlay:hover .tms-megamenu-card__media::after {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* #endregion Megamenu Featured Card */
+
+/* ------------------------------------------------------------------------
+ * 20. Megamenu Promo Banner
+ * ------------------------------------------------------------------------ */
+
+/* #region Megamenu Promo Banner */
+
+.tms-megamenu-promo {
+  position: relative;
+  width: 100%;
+  display: flex;
+  overflow: hidden;
+}
+
+.tms-megamenu-promo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--tms-promo-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: transform 0.4s ease;
+}
+
+.tms-megamenu-promo__overlay {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s ease;
+}
+
+.tms-megamenu-promo__content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tms-megamenu-promo__eyebrow {
+  margin: 0;
+  font-family: var(--tms-accent-font);
+  font-size: var(--tms-font-size-xs);
+  font-weight: var(--tms-accent-font-weight);
+  line-height: var(--tms-accent-line-height);
+  letter-spacing: var(--tms-accent-letter-spacing);
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.tms-megamenu-promo__title {
+  margin: 0;
+  color: #fff;
+}
+
+.tms-megamenu-promo__subtitle {
+  margin: 0;
+  color: #fff;
+  opacity: 0.85;
+}
+
+.tms-megamenu-promo__button {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--tms-button-bg-color);
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tms-megamenu-promo .tms-cover-link {
+  border-radius: inherit;
+}
+
+/* Hover effects */
+.tms-megamenu-promo--hover-zoom:hover::before {
+  transform: scale(1.05);
+}
+
+.tms-megamenu-promo--hover-darken::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0);
+  pointer-events: none;
+  transition: background-color 0.3s ease;
+}
+
+.tms-megamenu-promo--hover-darken:hover::after {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* #endregion Megamenu Promo Banner */

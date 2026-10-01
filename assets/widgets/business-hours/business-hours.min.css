@@ -1,0 +1,351 @@
+/*!
+ * Themeasy — Business Hours
+ *
+ * Opening-hours list: dl rows of day label + hours joined by an optional
+ * leader line, an optional header (icon + title + live Open/Closed badge) and
+ * a footer exception note. Today's row is highlighted server-side (accent
+ * wash + edge bar + optional "Today" pill) and re-synced by JS on minute
+ * boundaries; the structure is complete and correct with no JavaScript. The
+ * only motion is the status-dot radar pulse while open, which fully stops
+ * under (prefers-reduced-motion: reduce).
+ *
+ * Tokens consumed: --tms-primary-color, --tms-heading-color, --tms-body-color,
+ * --tms-border-color, --tms-success-color, --tms-danger-color, --tms-radius-md,
+ * --tms-radius-pill (public --tms-* design API).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+.tms-business-hours {
+  /* Structural knobs driven by Elementor controls. */
+  --tms-business-hours-row-gap: 0.875rem;
+  --tms-business-hours-header-spacing: 1.25rem;
+  --tms-business-hours-icon-gap: 0.625em;
+  --tms-business-hours-leader-style: none;
+  --tms-business-hours-leader-weight: 2px;
+  --tms-business-hours-leader-spacing: 0.75em;
+  --tms-business-hours-leader-color: color-mix(in srgb, var(--tms-heading-color, #111827) 30%, transparent);
+  --tms-business-hours-divider-style: solid;
+  --tms-business-hours-divider-weight: 1px;
+  --tms-business-hours-divider-color: var(--tms-border-color, rgba(15, 23, 42, 0.1));
+  --tms-business-hours-accent: var(--tms-primary-color, #5b6cff);
+  --tms-business-hours-today-padding: 10px 15px;
+  --tms-business-hours-today-radius: var(--tms-radius-md, 10px);
+  --tms-business-hours-today-bar-width: 3px;
+  --tms-business-hours-note-spacing: 1rem;
+  --tms-business-hours-open-color: var(--tms-success-color, #15803d);
+  --tms-business-hours-open-bg: color-mix(in srgb, var(--tms-business-hours-open-color) 12%, transparent);
+  --tms-business-hours-closed-color: var(--tms-danger-color, #b91c1c);
+  --tms-business-hours-closed-bg: color-mix(in srgb, var(--tms-business-hours-closed-color) 10%, transparent);
+  position: relative;
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------------
+ * Header — icon + title on the start side, status badge pushed to the end.
+ * Wraps gracefully when both are long (badge drops to its own line).
+ * ---------------------------------------------------------------------- */
+.tms-business-hours__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 1em;
+  margin-block-end: var(--tms-business-hours-header-spacing);
+}
+
+.tms-business-hours__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--tms-business-hours-icon-gap);
+  min-width: 0;
+}
+
+.tms-business-hours__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--tms-heading-color, #111827);
+}
+
+.tms-business-hours__icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-business-hours__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-business-hours__icon img {
+  width: 1em;
+  height: 1em;
+}
+
+.tms-business-hours__title {
+  min-width: 0;
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: normal;
+  overflow-wrap: break-word;
+  color: var(--tms-heading-color, #111827);
+}
+
+/* ------------------------------------------------------------------------
+ * Status badge — a live Open/Closed pill. State classes are set by PHP and
+ * re-synced by JS; [hidden] must win over the inline-flex display for the
+ * "unknown" state (hours present but not parseable).
+ * ---------------------------------------------------------------------- */
+.tms-business-hours__badge {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 0.5em;
+  margin-inline-start: auto;
+  padding: 0.4em 0.85em;
+  border-radius: var(--tms-radius-pill, 999px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: color 0.25s ease, background-color 0.25s ease;
+}
+
+.tms-business-hours__badge[hidden] {
+  display: none;
+}
+
+.tms-business-hours__badge--open {
+  color: var(--tms-business-hours-open-color);
+  background-color: var(--tms-business-hours-open-bg);
+}
+
+.tms-business-hours__badge--closed {
+  color: var(--tms-business-hours-closed-color);
+  background-color: var(--tms-business-hours-closed-bg);
+}
+
+.tms-business-hours__badge-dot {
+  position: relative;
+  flex: 0 0 auto;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Radar pulse: an expanding, fading copy of the dot — only while open, only
+ * when the Pulse toggle is on, and fully removed under reduced motion. */
+.tms-business-hours__badge--pulse.tms-business-hours__badge--open .tms-business-hours__badge-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: currentColor;
+  animation: tms-business-hours-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes tms-business-hours-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+
+  80%,
+  100% {
+    transform: scale(2.75);
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * List — a dl in grid flow so row rhythm stays perfectly even. Each row is
+ * a flex line: dt (day + pill), leader, dd (hours / closed label), all
+ * sharing one text baseline like a classic printed schedule.
+ * ---------------------------------------------------------------------- */
+.tms-business-hours__list {
+  display: grid;
+  row-gap: var(--tms-business-hours-row-gap);
+  margin: 0;
+}
+
+.tms-business-hours__row {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+}
+
+/* Optional divider, centered in the row gap. */
+.tms-business-hours--divider .tms-business-hours__row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: calc(var(--tms-business-hours-row-gap) / -2);
+  border-block-end: var(--tms-business-hours-divider-weight) var(--tms-business-hours-divider-style) var(--tms-business-hours-divider-color);
+}
+
+.tms-business-hours__day {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: baseline;
+  gap: 0.6em;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+  color: var(--tms-heading-color, #111827);
+}
+
+.tms-business-hours__cell {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: baseline;
+  min-width: 0;
+  margin: 0;
+}
+
+/* The leader is an empty span: with align-items: baseline its bottom edge IS
+ * the text baseline, so the dotted line sits exactly where a printed schedule
+ * draws it. It also provides the day/hours separation when set to None. */
+.tms-business-hours__leader {
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  margin-inline: var(--tms-business-hours-leader-spacing);
+  border-block-end-width: var(--tms-business-hours-leader-weight);
+  border-block-end-style: var(--tms-business-hours-leader-style);
+  border-block-end-color: var(--tms-business-hours-leader-color);
+}
+
+.tms-business-hours__hours {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: end;
+  overflow-wrap: break-word;
+  font-variant-numeric: tabular-nums;
+  color: var(--tms-body-color, #4b5563);
+}
+
+.tms-business-hours__closed-label {
+  flex: 0 1 auto;
+  font-size: 0.875rem;
+  font-style: italic;
+  line-height: 1.5;
+  text-align: end;
+  color: color-mix(in srgb, var(--tms-body-color, #4b5563) 65%, transparent);
+}
+
+/* ------------------------------------------------------------------------
+ * Today highlight — a faint accent wash + a start-edge accent bar, plus the
+ * optional "Today" pill on the day label. The wash is the row's OWN
+ * background, not a negative-inset pseudo painted behind it: the old pseudo
+ * bled outside the widget (hence a vw-capped "bleed" knob) and no padding
+ * control could reach the row's real box. Padding lands on today's row only,
+ * so it reads as a plate lifted out of the flat list.
+ * ---------------------------------------------------------------------- */
+.tms-business-hours__row--today {
+  padding: var(--tms-business-hours-today-padding);
+  border-radius: var(--tms-business-hours-today-radius);
+  background: var(--tms-business-hours-today-bg, color-mix(in srgb, var(--tms-business-hours-accent) 7%, transparent));
+}
+
+/* Start-edge accent bar. A pseudo rather than a border-inline-start: a border
+ * follows the plate's corner radius and tapers into a thin arc, and it would
+ * also push the row's content by its own width. This stays a crisp bar at any
+ * radius, and the padding control keeps measuring from the same edge. */
+.tms-business-hours__row--today::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--tms-business-hours-today-bar-width);
+  border-start-start-radius: inherit;
+  border-end-start-radius: inherit;
+  background-color: var(--tms-business-hours-accent);
+}
+
+.tms-business-hours__row--today .tms-business-hours__day {
+  font-weight: 600;
+}
+
+.tms-business-hours__row--today .tms-business-hours__hours {
+  font-weight: 600;
+  color: var(--tms-heading-color, #111827);
+}
+
+/* The "Today" pill lives in every row but only today's row reveals it, so the
+ * client-side re-sync can move the highlight without rebuilding markup. */
+.tms-business-hours__today-pill {
+  display: none;
+  flex: 0 0 auto;
+  padding: 0.3em 0.55em;
+  border-radius: var(--tms-radius-pill, 999px);
+  font-family: var(--tms-accent-font);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--tms-business-hours-accent);
+  background-color: color-mix(in srgb, var(--tms-business-hours-accent) 14%, transparent);
+}
+
+.tms-business-hours__row--today .tms-business-hours__today-pill {
+  display: inline-flex;
+}
+
+/* ------------------------------------------------------------------------
+ * Exception note.
+ * ---------------------------------------------------------------------- */
+.tms-business-hours__note {
+  margin: var(--tms-business-hours-note-spacing) 0 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  overflow-wrap: break-word;
+  color: color-mix(in srgb, var(--tms-body-color, #4b5563) 75%, transparent);
+}
+
+/* ------------------------------------------------------------------------
+ * Reduced motion — the list is fully static: no pulse, no color fades.
+ * ---------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .tms-business-hours__badge {
+    transition: none;
+  }
+
+  .tms-business-hours__badge--pulse.tms-business-hours__badge--open .tms-business-hours__badge-dot::after {
+    animation: none;
+    content: none;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * Responsive.
+ * ---------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .tms-business-hours__title {
+    font-size: 1rem;
+  }
+
+  .tms-business-hours__icon {
+    font-size: 1.125rem;
+  }
+
+  .tms-business-hours__badge {
+    font-size: 0.75rem;
+  }
+
+  .tms-business-hours__leader {
+    min-width: 1rem;
+  }
+}

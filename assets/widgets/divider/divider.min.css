@@ -1,0 +1,553 @@
+/*!
+ * Themeasy — Divider (SVG Separator)
+ *
+ * Decorative separator with three skins: a classic rule (solid/dashed/dotted/
+ * double or gradient fill, with optional fade-out ends), a dot rule with
+ * configurable dot size and gap, and an SVG motif that either spans the width
+ * as a single silhouette or repeats as a seamless pattern (curve, wave,
+ * zigzag, triangle, mountains, tilt, arrow, clouds), with flip H/V modifiers
+ * — painted filled as a CSS mask, or as a line by an inline <svg> stroke that
+ * can draw itself on scroll. Line and dots share one structure — horizontal or
+ * vertical, a single continuous rule or two segments flanking a center element
+ * (icon, text, badge). Everything is fully visible with no JS (the draw-on is
+ * the one motion that needs GSAP, and it degrades to the drawn line);
+ * consumes public --tms-* tokens with literal fallbacks so dark mode
+ * keeps working.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 00. Container sizing contract (Elementor)
+ * 01. Wrapper & base structure
+ * 02. Line skin — rule, styles, gradient, fade edges
+ * 02b. Line skin — vertical orientation
+ * 02c. Dots skin — repeating dot rule
+ * 03. Line skin — center element (icon, text, badge)
+ * 04. Line skin — element position modifiers
+ * 05. Shape skin — masked SVG motifs (silhouette or pattern)
+ * 05b. Shape skin — line style (inline SVG stroke)
+ * 05c. Shape skin — draw-on animation
+ * 06. Shape skin — flip modifiers
+ * 07. Accessibility (reduced motion)
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 00. Container sizing contract (Elementor)
+ * ------------------------------------------------------------------------ */
+
+/* #region Container sizing */
+
+/* A divider is pure decoration: nothing inside it has an intrinsic width (the
+ * rule is `flex: 1 1 0`, the shape is a `width: 100%` mask). So in any
+ * shrink-to-fit context — a Container whose Align Items is not `stretch`, or
+ * any row Container — the widget box sizes itself from that content, every
+ * percentage inside resolves against zero, and the divider disappears. Only an
+ * absolute Width (px/em/rem) used to survive, because it is the one value that
+ * feeds a real number back into the intrinsic pass.
+ *
+ * Elementor exposes a custom-property contract for exactly this case and its
+ * own Divider opts into it the same way (see widget-divider.min.css): the
+ * Container publishes --container-widget-width / --container-widget-flex-grow,
+ * and the widget reads them instead of shrink-wrapping. With the default
+ * `stretch` alignment the property is already `100%`, so this rule is a no-op
+ * on every divider authored so far. */
+
+.e-con > .elementor-widget-themeasy-divider,
+.e-con-inner > .elementor-widget-themeasy-divider {
+  width: var(--container-widget-width, 100%);
+
+  --flex-grow: var(--container-widget-flex-grow);
+}
+
+/* #endregion Container sizing */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & base structure
+ * ------------------------------------------------------------------------ */
+
+/* #region Wrapper */
+
+.tms-divider {
+  --tms-divider-line-color: var(--tms-accent-color, var(--tms-primary-color, currentColor));
+  --tms-divider-line-weight: 2px;
+  --tms-divider-line-style: solid;
+  --tms-divider-fade-length: 20%;
+  --tms-divider-dot-color: var(--tms-accent-color, var(--tms-primary-color, currentColor));
+  --tms-divider-dot-size: 4px;
+  --tms-divider-dot-gap: 12px;
+  --tms-divider-shape-color: var(--tms-accent-color, var(--tms-primary-color, currentColor));
+  --tms-divider-shape-height: 80px;
+  --tms-divider-shape-weight: 6px;
+  --tms-divider-shape-linecap: butt;
+
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.tms-divider__inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  gap: 16px;
+}
+
+/* #endregion Wrapper */
+
+/* ------------------------------------------------------------------------
+ * 02. Line skin — rule, styles, gradient, fade edges
+ * ------------------------------------------------------------------------ */
+
+/* #region Line rule */
+
+/* Line and dots are the two rule skins: identical structure, different paint. */
+
+.tms-divider--skin-line .tms-divider__line,
+.tms-divider--skin-dots .tms-divider__line {
+  flex: 1 1 0;
+  display: block;
+  align-self: center;
+  min-width: 0;
+}
+
+/* Solid color: render via border-top to support dashed/dotted/double styles.
+ * Line style (solid/dashed/dotted/double) is exposed only on this skin. */
+
+.tms-divider--line-solid .tms-divider__line {
+  height: 0;
+  border-top-width: var(--tms-divider-line-weight);
+  border-top-style: var(--tms-divider-line-style);
+  border-top-color: var(--tms-divider-line-color);
+}
+
+/* Gradient fill: background + explicit height; line style is ignored.
+ * The solid color acts as a fallback before the user configures the
+ * Elementor gradient group control (so the line is always visible). */
+
+.tms-divider--line-gradient .tms-divider__line {
+  height: var(--tms-divider-line-weight);
+  border-radius: calc(var(--tms-divider-line-weight) / 2);
+  background-color: var(--tms-divider-line-color);
+}
+
+/* Fade edges: the rule dissolves into transparency at the divider's own ends.
+ * With a center element each segment masks only its OUTER end, so the rule
+ * stays solid where it meets the element instead of pinching around it.
+ * -webkit-mask-image is required for Safari. */
+
+.tms-divider--fade-edges .tms-divider__line {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 var(--tms-divider-fade-length),
+    #000 calc(100% - var(--tms-divider-fade-length)),
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 var(--tms-divider-fade-length),
+    #000 calc(100% - var(--tms-divider-fade-length)),
+    transparent
+  );
+}
+
+.tms-divider--fade-edges .tms-divider__line--start {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--tms-divider-fade-length));
+  mask-image: linear-gradient(90deg, transparent, #000 var(--tms-divider-fade-length));
+}
+
+.tms-divider--fade-edges .tms-divider__line--end {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - var(--tms-divider-fade-length)), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - var(--tms-divider-fade-length)), transparent);
+}
+
+/* #endregion Line rule */
+
+/* ------------------------------------------------------------------------
+ * 02b. Line skin — vertical orientation
+ * ------------------------------------------------------------------------ */
+
+/* #region Vertical */
+
+/* The inner flips to a column, so it must shrink-wrap horizontally for the
+ * wrapper's justify-content (the Alignment control) to have anything to move.
+ * Its height comes from the Height control — a column flex item with no
+ * height would collapse to zero. */
+
+.tms-divider--vertical .tms-divider__inner {
+  flex-direction: column;
+  width: auto;
+}
+
+.tms-divider--vertical .tms-divider__line {
+  min-height: 0;
+}
+
+/* The rule swaps its painted edge from the block-start border to the
+ * inline-start one; the weight/style/color vars carry over untouched. */
+
+.tms-divider--vertical.tms-divider--line-solid .tms-divider__line {
+  width: 0;
+  height: auto;
+  border-top: 0;
+  border-left-width: var(--tms-divider-line-weight);
+  border-left-style: var(--tms-divider-line-style);
+  border-left-color: var(--tms-divider-line-color);
+}
+
+.tms-divider--vertical.tms-divider--line-gradient .tms-divider__line {
+  width: var(--tms-divider-line-weight);
+  height: auto;
+}
+
+/* The fade mask follows the axis: top-to-bottom instead of left-to-right. */
+
+.tms-divider--vertical.tms-divider--fade-edges .tms-divider__line {
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 var(--tms-divider-fade-length),
+    #000 calc(100% - var(--tms-divider-fade-length)),
+    transparent
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 var(--tms-divider-fade-length),
+    #000 calc(100% - var(--tms-divider-fade-length)),
+    transparent
+  );
+}
+
+.tms-divider--vertical.tms-divider--fade-edges .tms-divider__line--start {
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 var(--tms-divider-fade-length));
+  mask-image: linear-gradient(180deg, transparent, #000 var(--tms-divider-fade-length));
+}
+
+.tms-divider--vertical.tms-divider--fade-edges .tms-divider__line--end {
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - var(--tms-divider-fade-length)), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - var(--tms-divider-fade-length)), transparent);
+}
+
+/* #endregion Vertical */
+
+/* ------------------------------------------------------------------------
+ * 02c. Dots skin — repeating dot rule
+ * ------------------------------------------------------------------------ */
+
+/* #region Dots */
+
+/* One dot per background tile: the tile is (size + gap) wide and size tall, so
+ * a `closest-side` circle resolves to a radius of size/2 and the leftover gap
+ * stays empty. repeat-x then lays the tiles along the rule. (A
+ * repeating-radial-gradient would draw concentric rings, not a row of dots.) */
+
+.tms-divider--skin-dots .tms-divider__line {
+  height: var(--tms-divider-dot-size);
+  background-image: radial-gradient(
+    circle closest-side,
+    var(--tms-divider-dot-color) 100%,
+    transparent 100%
+  );
+  background-repeat: repeat-x;
+  background-position: center;
+  background-size: calc(var(--tms-divider-dot-size) + var(--tms-divider-dot-gap)) 100%;
+}
+
+/* Vertical: the tile stacks instead of running, so the axes swap. */
+
+.tms-divider--vertical.tms-divider--skin-dots .tms-divider__line {
+  width: var(--tms-divider-dot-size);
+  height: auto;
+  background-repeat: repeat-y;
+  background-size: 100% calc(var(--tms-divider-dot-size) + var(--tms-divider-dot-gap));
+}
+
+/* #endregion Dots */
+
+/* ------------------------------------------------------------------------
+ * 03. Line skin — center element (icon, text, badge)
+ * ------------------------------------------------------------------------ */
+
+/* #region Element */
+
+.tms-divider__element {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  line-height: 1;
+  text-align: center;
+  color: var(--tms-divider-line-color);
+}
+
+.tms-divider__element--text {
+  letter-spacing: 0.05em;
+}
+
+.tms-divider__element--icon {
+  font-size: 1.25em;
+  line-height: 1;
+}
+
+/* Icon contract — the glyph is 1em so it tracks the wrapper font-size (the
+ * Icon Size control drives it); filled sets read fill, outline sets (Feather
+ * and anything with fill="none") need stroke or they vanish. */
+
+.tms-divider__element--icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-divider__element--icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* Editor-only transient: <img> stands in while Elementor fetches an uploaded
+ * SVG (or when a themeasy-svg icon is not in the preloaded editor library). */
+
+.tms-divider__element--icon img {
+  width: 1em;
+  height: 1em;
+}
+
+/* #endregion Element */
+
+/* ------------------------------------------------------------------------
+ * 04. Line skin — element position modifiers
+ * ------------------------------------------------------------------------ */
+
+/* #region Positions */
+
+/* No rules by design. Which segments exist is decided in PHP: the element's
+ * own side has no segment, so start renders the trailing line only, end the
+ * leading one only, and center keeps both — the base rule's flex: 1 1 0
+ * already splits them 50/50. Nothing to hide and nothing to size per
+ * position. */
+
+/* #endregion Positions */
+
+/* ------------------------------------------------------------------------
+ * 05. Shape skin — masked SVG motifs (silhouette or pattern)
+ * ------------------------------------------------------------------------ */
+
+/* #region Shape */
+
+.tms-divider--skin-shape .tms-divider__inner {
+  display: block;
+  gap: 0;
+}
+
+.tms-divider__shape {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: var(--tms-divider-shape-height);
+  line-height: 0;
+  color: var(--tms-divider-shape-color);
+}
+
+/* The motif is a mask, not an inline <svg>: it lets a periodic shape repeat at
+ * its own width (below) while the paint still comes from currentColor, so
+ * shape_color and dark mode keep working untouched. */
+
+.tms-divider__shape-motif {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: currentColor;
+  -webkit-mask-image: var(--tms-divider-shape-mask);
+  mask-image: var(--tms-divider-shape-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: left center;
+  mask-position: left center;
+}
+
+/* Periodic motifs (wave / clouds / zigzag) tile at their authored width, so
+ * the motif keeps its proportions at any viewport instead of stretching. */
+
+.tms-divider--shape-tiled .tms-divider__shape-motif {
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-size: var(--tms-divider-shape-tile, 1200px) 100%;
+  mask-size: var(--tms-divider-shape-tile, 1200px) 100%;
+}
+
+/* #endregion Shape */
+
+/* ------------------------------------------------------------------------
+ * 05b. Shape skin — line style (inline SVG stroke)
+ * ------------------------------------------------------------------------ */
+
+/* #region Shape line */
+
+/* The line style is a real stroke, not a mask: PHP emits the motif's OPEN
+ * contour (the silhouette minus its bottom edge — same source map, so filled
+ * and line can never trace different geometry) into an inline <svg> with
+ * preserveAspectRatio="none". It stretches over the divider exactly like the
+ * silhouette does, while vector-effect keeps the thickness at a constant
+ * screen size instead of shearing with the non-uniform scale.
+ *
+ * This is what a mask could not give. The old paint was the silhouette masked
+ * against a copy of itself pushed down by the thickness, so the surviving band
+ * was measured VERTICALLY: it read thicker on every slope and flattened the
+ * deepest troughs as soon as the line got thick. A stroke is perpendicular to
+ * the path everywhere — and, unlike a mask, it has a length to animate, which
+ * is what makes the draw-on possible at all (section 05c).
+ *
+ * The stroke straddles the path, so half a thickness spills on each side. The
+ * wrapper reserves exactly that much as block padding and the <svg> fills the
+ * content box, so the divider still measures its authored Height and nothing
+ * is clipped vertically. overflow lives on the wrapper alone, to trim the
+ * tiling surplus horizontally. */
+
+.tms-divider--shape-line .tms-divider__shape {
+  box-sizing: border-box;
+  padding-block: calc(var(--tms-divider-shape-weight) / 2);
+  overflow: hidden;
+}
+
+.tms-divider__shape-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.tms-divider__shape-path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--tms-divider-shape-weight);
+  stroke-linecap: var(--tms-divider-shape-linecap);
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* A stroked <svg> cannot repeat itself the way a mask does, so a periodic
+ * motif is drawn N times inside a viewBox that is N tiles wide (PHP publishes
+ * N as --tms-divider-shape-repeats). Sizing the element to N real tiles is
+ * what lands every copy at its authored width; the wrapper clips the surplus.
+ * min-width keeps a divider wider than the baked-in repeats from ending in a
+ * gap — it stretches a little instead. */
+
+.tms-divider--shape-tiled .tms-divider__shape-svg {
+  width: calc(var(--tms-divider-shape-repeats, 1) * var(--tms-divider-shape-tile, 1200px));
+  min-width: 100%;
+}
+
+/* #endregion Shape line */
+
+/* ------------------------------------------------------------------------
+ * 05c. Shape skin — draw-on animation
+ * ------------------------------------------------------------------------ */
+
+/* #region Shape draw */
+
+/* Pre-paint guard for the draw-on. Every path carries pathLength="1000", so a
+ * 1000-unit dash hides the whole stroke no matter how long it really is — and
+ * the module reads that same attribute, so the two cannot drift.
+ *
+ * The module boots from the footer — after the first paint — so without this
+ * the finished line flashes in and then snaps back to zero when GSAP arms it.
+ * PHP prints the class only on the front (never on the editor canvas) and the
+ * module drops it the moment it takes over, whether it animates or bows out.
+ *
+ * Two safety nets, because a decorative divider may never end up invisible:
+ * the guard is gated on `scripting: enabled`, so a no-JS reader is served the
+ * drawn line; and the failsafe draws it anyway if the module never arrives at
+ * all (GSAP missing, a script error, a slow network). Once the module has
+ * dropped the class neither can fight GSAP's inline values. */
+
+@media screen and (scripting: enabled) {
+  .tms-divider--draw-pending .tms-divider__shape-path {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: tms-divider-draw-failsafe 1ms linear 3s forwards;
+  }
+}
+
+@keyframes tms-divider-draw-failsafe {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* #endregion Shape draw */
+
+/* ------------------------------------------------------------------------
+ * 06. Shape skin — flip modifiers
+ * ------------------------------------------------------------------------ */
+
+/* #region Flip */
+
+/* Both paints flip the same way — the mask motif and the stroked <svg> are
+ * interchangeable here, so the modifiers list both rather than branching on
+ * the style. The line style needs no vertical correction: its box never
+ * overflows (the thickness lives in the wrapper's padding, section 05b). */
+
+.tms-divider--flip-h .tms-divider__shape-motif,
+.tms-divider--flip-h .tms-divider__shape-svg {
+  transform: scaleX(-1);
+}
+
+.tms-divider--flip-v .tms-divider__shape-motif,
+.tms-divider--flip-v .tms-divider__shape-svg {
+  transform: scaleY(-1);
+}
+
+.tms-divider--flip-h.tms-divider--flip-v .tms-divider__shape-motif,
+.tms-divider--flip-h.tms-divider--flip-v .tms-divider__shape-svg {
+  transform: scale(-1, -1);
+}
+
+/* #endregion Flip */
+
+/* ------------------------------------------------------------------------
+ * 07. Accessibility
+ * ------------------------------------------------------------------------ */
+
+/* #region Accessibility */
+
+/* Divider is purely presentational — suppress any inherited transitions
+ * when the user prefers reduced motion. */
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-divider,
+  .tms-divider__line,
+  .tms-divider__element,
+  .tms-divider__shape,
+  .tms-divider__shape-motif,
+  .tms-divider__shape-svg,
+  .tms-divider__shape-path {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Killing the failsafe above would strand the pre-paint guard on a reader who
+ * never gets the module either (no JS at all), so the guard has to resolve to
+ * the finished line here rather than to nothing. The stroke itself is what
+ * this preference protects, and it ends up drawn and still. */
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-divider--draw-pending .tms-divider__shape-path {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* #endregion Accessibility */

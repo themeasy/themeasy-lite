@@ -1,0 +1,2885 @@
+/*!
+ * Themeasy — Components CSS
+ *
+ * UI components: images, buttons, forms, fields, selects,
+ * cards, badges, tooltips, modals, tabs, and pagination.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Image Styles
+ * 02. Button
+ * 03. Form
+ * 04. Field
+ * 05. Custom Select
+ * 06. Card
+ * 07. Badge
+ * 08. Tooltip
+ * 09. Modal
+ * 10. Tabs
+ * 11. Accordion
+ * 12. Pagination
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Image Styles
+ * ------------------------------------------------------------------------ */
+
+/* #region Image Styles */
+
+.tms-image {
+	position: relative;
+	width: 100%;
+}
+
+/* The caption floats over the image on one of six anchors, driven by the
+   widget's Caption Position control. The base rule is the bottom-right anchor;
+   each modifier only re-declares the edges it changes, so the two axes stay
+   independent. --tms-image-caption-inset is the distance to the image edge. */
+
+.tms-image .tms-image__caption {
+  --tms-image-caption-inset: 1rem;
+
+  position: absolute;
+  z-index: 1;
+  top: auto;
+  right: var(--tms-image-caption-inset);
+  bottom: var(--tms-image-caption-inset);
+  left: auto;
+  max-width: calc(100% - (var(--tms-image-caption-inset) * 2));
+  padding: 10px 15px;
+  border-radius: var(--tms-radius-sm, 0.5rem);
+  background-color: color-mix(in srgb, var(--tms-primary-color) 65%, transparent);
+  box-shadow: var(--tms-shadow-sm);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--tms-white-color);
+  font-size: 85%;
+  text-align: center;
+}
+
+/* Vertical anchor. */
+
+.tms-image .tms-image__caption--top-left,
+.tms-image .tms-image__caption--top-center,
+.tms-image .tms-image__caption--top-right {
+  top: var(--tms-image-caption-inset);
+  bottom: auto;
+}
+
+/* Horizontal anchor. The centered pair keeps physical left + translateX so it
+   stays centered under both writing directions. */
+
+.tms-image .tms-image__caption--top-left,
+.tms-image .tms-image__caption--bottom-left {
+  right: auto;
+  left: var(--tms-image-caption-inset);
+}
+
+.tms-image .tms-image__caption--top-right,
+.tms-image .tms-image__caption--bottom-right {
+  right: var(--tms-image-caption-inset);
+  left: auto;
+}
+
+.tms-image .tms-image__caption--top-center,
+.tms-image .tms-image__caption--bottom-center {
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tms-image .tms-image__img {
+	width: 100%;
+	height: auto;
+	display: block;
+	user-select: none;
+  border-radius: var(--tms-radius-sm, 0);
+}
+
+.tms-image .tms-image__overlay {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  -webkit-transition: all .2s ease-in-out;
+  -o-transition: all .2s ease-in-out;
+  -moz-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+
+/* #endregion Image Styles */
+
+/* #region Image Group */
+
+.tms-image-group .tms-image-group__item {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center
+}
+
+.tms-image-group .tms-image-group__item .tms-image {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: auto;
+  display: block
+}
+
+.tms-image-group .tms-image-group__item .tms-image .tms-image__img {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: auto;
+  display: block;
+	border-radius: 0.25rem;
+  transition: transform 2s cubic-bezier(.2, 1, .2, 1)
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__icon-box {
+  position: absolute;
+  z-index: 2;
+  -webkit-transition: all .3s ease;
+  -o-transition: all .3s ease;
+  -moz-transition: all .3s ease;
+  transition: all .3s ease
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__icon-box .tms-image-group__icon {
+  font-size: 5rem;
+  color: var(--tms-white-color);
+  -webkit-transition: all .3s ease;
+  -o-transition: all .3s ease;
+  -moz-transition: all .3s ease;
+  transition: all .3s ease;
+  opacity: 0
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__icon-box svg {
+  width: auto;
+  height: 5rem;
+  color: var(--tms-white-color);
+  fill: var(--tms-white-color);
+  -webkit-transition: all .3s ease;
+  -o-transition: all .3s ease;
+  -moz-transition: all .3s ease;
+  transition: all .3s ease;
+  opacity: 0
+}
+
+/* A stroke glyph (fill="none") keeps its outline; the forced fill above would
+   paint it into a solid disc. */
+.tms-image-group .tms-image-group__item .tms-image-group__icon-box svg[fill="none"] {
+  fill: none;
+  stroke: currentColor
+}
+
+.tms-image-group .tms-image-group__item:hover .tms-image-group__icon-box .tms-image-group__icon {
+  font-size: 6rem;
+  opacity: 1
+}
+
+.tms-image-group .tms-image-group__item:hover .tms-image-group__icon-box svg {
+  width: auto;
+  height: 6rem;
+  opacity: 1
+}
+
+.tms-image-group .tms-image-group__item--active .tms-image-group__icon-box .tms-image-group__icon {
+  font-size: 8rem;
+  opacity: .75
+}
+
+.tms-image-group .tms-image-group__item--active .tms-image-group__icon-box svg {
+  width: auto;
+  height: 8rem;
+  opacity: .75
+}
+
+.tms-image-group .tms-image-group__item--active:hover .tms-image-group__icon-box .tms-image-group__icon {
+  font-size: 9rem;
+  opacity: 1
+}
+
+.tms-image-group .tms-image-group__item--active:hover .tms-image-group__icon-box svg {
+  width: auto;
+  height: 9rem;
+  opacity: 1
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+	width: calc(100% - 3rem);
+  margin: 1.5rem;
+  padding: 1.3rem 1.5rem 1.6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: .25rem;
+  background-color: transparent;
+  opacity: 0;
+  -webkit-transition: all .2s ease-in-out;
+  -o-transition: all .2s ease-in-out;
+  -moz-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+
+.tms-image-group [class*="row-cols"] {
+	align-items: center;
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: .25rem;
+  background-color: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  -webkit-transition: all .6s ease-in-out;
+  -o-transition: all .6s ease-in-out;
+  -moz-transition: all .6s ease-in-out;
+  transition: all .6s ease-in-out
+}
+
+/* Keyboard focus reveals an on-hover text box too, or a tabbed-to card would
+   announce a link whose caption never shows. */
+.tms-image-group .tms-image-group__item--active .tms-image-group__text,
+.tms-image-group .tms-image-group__item:hover .tms-image-group__text,
+.tms-image-group .tms-image-group__item:focus-visible .tms-image-group__text {
+  opacity: 1
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text-inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text .tms-image-group__title {
+  margin: 0;
+  font-size: 135%;
+  color: var(--tms-heading-color)
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text .tms-image-group__description {
+  margin: 0;
+  color: var(--tms-body-color)
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text:has(.tms-image-group__subtitle) {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 1rem
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text:has(.tms-image-group__subtitle) .tms-image-group__title {
+  max-width: 80%
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text .tms-image-group__subtitle {
+  margin-top: 10px;
+  margin-bottom: 0
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text:has(.tms-image-group__subtitle) .tms-image-group__action-icon {
+  position: absolute;
+  top: 20px;
+  right: 15px
+}
+
+/* Action button: the span is the plate, the glyph inside is 1em (icon
+   contract), so font-size sizes the icon and the plate follows it. The
+   plate keeps the legacy __action-icon class — saved Elementor style rules
+   target it. Defaults reproduce the old 50px plate: 18px glyph + 2 x 14px
+   padding + 2 x 2px border. The corner follows the theme radius, like the
+   carousel arrow plate; 50% keeps the legacy circle outside Themeasy themes. */
+.tms-image-group .tms-image-group__item .tms-image-group__text .tms-image-group__action-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px;
+  border-radius: var(--tms-radius-sm, 50%);
+  border: 2px solid;
+  border-color: rgba(0, 0, 0, .1);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--tms-button-bg-color);
+  -webkit-transition: color .4s ease, border-color .4s ease, background-color .4s ease;
+  -o-transition: color .4s ease, border-color .4s ease, background-color .4s ease;
+  -moz-transition: color .4s ease, border-color .4s ease, background-color .4s ease;
+  transition: color .4s ease, border-color .4s ease, background-color .4s ease
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text .tms-image-group__action-icon svg,
+.tms-image-group .tms-image-group__item .tms-image-group__text .tms-image-group__action-icon img {
+  width: 1em;
+  height: 1em
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text .tms-image-group__action-icon svg {
+  fill: currentColor
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text .tms-image-group__action-icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor
+}
+
+.tms-image-group .tms-image-group__item:hover .tms-image-group__text .tms-image-group__action-icon,
+.tms-image-group .tms-image-group__item:focus-visible .tms-image-group__text .tms-image-group__action-icon {
+  border-color: var(--tms-button-bg-color);
+  background-color: var(--tms-button-bg-color);
+  color: var(--tms-button-text-color)
+}
+
+@media (max-width:991px) {
+  .tms-image-group .tms-image-group__item .tms-image-group__icon-box .tms-image-group__icon {
+    font-size: 3rem
+  }
+
+  .tms-image-group .tms-image-group__item .tms-image-group__icon-box svg {
+    height: 3rem
+  }
+
+  .tms-image-group .tms-image-group__item:hover .tms-image-group__icon-box .tms-image-group__icon {
+    font-size: 3.5rem
+  }
+
+  .tms-image-group .tms-image-group__item:hover .tms-image-group__icon-box svg {
+    height: 3.5rem
+  }
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text .tms-image-group__play-btn {
+  position: absolute;
+  top: -1.5rem;
+  right: 1rem;
+}
+
+.tms-image-group .tms-image-group__item .tms-image-group__text .tms-image-group__play-btn .tms-image-group__play-icon {
+  width: 50px;
+  height: auto;
+  padding: 12px 10px 12px 14px;
+  border-radius: 50%;
+  border: 2px solid;
+  border-color: var(--tms-primary-color);
+  background-color: var(--tms-primary-color);
+  color: var(--tms-white-color);
+  transition: all 0.4s ease;
+}
+
+.tms-image-group .tms-image-group__item:hover .tms-image-group__text .tms-image-group__play-btn .tms-image-group__play-icon {
+  border-color: var(--tms-primary-color);
+  background-color: var(--tms-primary-color);
+  color: var(--tms-white-color);
+  animation: tms-pulse-scale 1s infinite ease-in-out;
+}
+
+/* #endregion Image Group */
+
+/* ------------------------------------------------------------------------
+ * 02. Button
+ * ------------------------------------------------------------------------ */
+
+/* #region Button */
+
+.tms-button-group {
+	position: relative;
+	z-index: 1;
+	width: fit-content;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 1.5rem;
+}
+
+.tms-button {
+	position: relative;
+	margin: 0;
+	padding: 0.5rem 1.3rem;
+	width: auto;
+	min-width: 130px;
+	height: auto;
+	min-height: 48px;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5rem;
+	border: none;
+	border-radius: var(--tms-radius-sm, 0.5rem);
+	/* A shadowless replica sets --tms-button-shadow: none in its style.css. */
+	box-shadow: var(--tms-button-shadow, 0 5px 10px 0 rgb(0 0 0 / 15%));
+	background-color: var(--tms-button-bg-color);
+	color: var(--tms-button-text-color);
+	/* Button typography tokens (Settings → Typography → Button). Fallbacks
+	   mirror the pre-token rendering: the old font-size read the undefined
+	   --tms-body-font-size and fell back to inheriting the body's md step,
+	   and line-height was a hardcoded 1 here vs 1.2 on .tms-button__text —
+	   the shared token (default 1.2) unifies both once settings are saved. */
+	font-family: var(--tms-button-font, inherit);
+	font-size: var(--tms-button-font-size, var(--tms-font-size-md));
+	font-weight: var(--tms-button-font-weight);
+	font-style: var(--tms-button-font-style, normal);
+	line-height: var(--tms-button-line-height, 1);
+	letter-spacing: var(--tms-button-letter-spacing, 0px);
+	word-spacing: var(--tms-button-word-spacing, 0px);
+	text-decoration: none;
+	text-transform: var(--tms-button-text-transform, none);
+	text-align: center;
+	/* The button is shrink-to-fit, so its width comes from the label's own
+	   measurement — and a tracked/uppercase Button typography (Settings →
+	   Typography) can measure a hair wider than that box, wrapping a two-word
+	   label onto a second line inside a container that is already exactly as
+	   wide as the button. Labels are single-line by design; keep them so. */
+	white-space: nowrap;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+	-webkit-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	transition: all 0.4s ease;
+}
+
+.tms-button:hover,
+.tms-button:focus,
+.tms-button:active {
+	background-color: var(--tms-button-bg-color);
+	text-decoration: none;
+	color: var(--tms-button-text-color);
+}
+
+.tms-button:focus-visible {
+	outline: 2px solid var(--tms-button-bg-color);
+	outline-offset: 2px;
+}
+
+.tms-button:disabled {
+	opacity: 0.65;
+	cursor: no-drop;
+	pointer-events: none;
+}
+
+.tms-button--simple::before,
+.tms-button--muted-fill::before,
+.tms-button--muted-outline::before,
+.tms-button--outline::before,
+.tms-button--duocolor::before,
+.tms-button--duocolor-outline::before,
+.tms-button:disabled::before,
+.tms-button.btn::before,
+.tms-button[style]::before,
+.tms-button[class*="add"]::before {
+	content: none;
+}
+
+.tms-button .tms-button__text {
+	position: relative;
+	z-index: 1;
+	width: max-content;
+	margin: 0;
+	padding: 0;
+	color: currentColor;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: var(--tms-button-line-height, 1.2);
+	text-decoration: none;
+	text-align: center;
+	-webkit-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	transition: all 0.4s ease;
+}
+
+.tms-button .tms-button__icon {
+	position: relative;
+	z-index: 1;
+	color: currentColor;
+	font-size: inherit;
+	line-height: 1;
+	-webkit-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	transition: all 0.4s ease;
+}
+
+.tms-button.tms-button--icon-left .tms-button__icon {
+	order: -1;
+}
+
+.tms-button svg {
+	position: relative;
+	z-index: 1;
+	width: 1em;
+	height: 1em;
+	display: block;
+	color: currentColor;
+	fill: currentColor;
+	-webkit-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	transition: all 0.4s ease;
+}
+
+.tms-button svg[fill="none"] {
+	fill: none;
+	stroke: currentColor;
+}
+
+.tms-button.tms-button--icon-left svg {
+	order: -1;
+}
+
+/* An icon-only button carries no label, so the 130px label-width floor and the
+   label-sized horizontal padding both over-inflate it into a wide box with a
+   glyph adrift in the middle. Collapse it to a square that tracks the button's
+   own min-height. The Elementor Width/Height and Padding controls still win:
+   {{WRAPPER}} adds the page + element classes on top of this specificity. */
+.tms-button.tms-button--icon-only {
+	min-width: 48px;
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
+}
+
+/* #endregion Button */
+
+/* #region Button Simple */
+
+.tms-button.tms-button--simple {
+	min-width: auto;
+	min-height: auto;
+	padding: 0;
+	background: none;
+	box-shadow: none;
+	color: var(--tms-heading-color);
+}
+
+/* #endregion Button Simple */
+
+/* #region Button Muted */
+
+.tms-button.tms-button--muted-fill {
+	padding: 0.75rem 1rem;
+	background-color: var(--tms-surface-color);
+	box-shadow: none;
+	color: var(--tms-heading-color);
+}
+
+.tms-button.tms-button--muted-fill:hover {
+	background-color: var(--tms-button-bg-color);
+	color: var(--tms-button-text-color);
+}
+
+.tms-button.tms-button--muted-outline {
+	border: 2px solid;
+	border-color: var(--tms-border-color);
+	box-shadow: none;
+	background-color: transparent;
+	color: var(--tms-button-bg-color);
+}
+
+.tms-button.tms-button--muted-outline:hover {
+	border-color: var(--tms-button-bg-color);
+	background-color: var(--tms-button-bg-color);
+	border-image: unset;
+	color: var(--tms-button-text-color);
+}
+
+/* #endregion Button Muted */
+
+/* #region Button Outline */
+
+.tms-button.tms-button--outline {
+	border: 2px solid;
+	border-color: var(--tms-button-bg-color);
+	box-shadow: none;
+	background-color: transparent;
+	color: var(--tms-button-bg-color);
+}
+
+.tms-button.tms-button--outline:hover {
+	background-color: var(--tms-button-bg-color);
+	border-color: var(--tms-button-bg-color);
+	border-image: unset;
+	color: var(--tms-button-text-color);
+}
+
+/* #endregion Button Outline */
+
+/* #region Button Brutalist */
+
+.tms-button.tms-button--brutalist, .tms-button.tms-button--brutalist:hover {
+	position: relative;
+	isolation: isolate;
+	padding: 0.8rem 1.4rem;
+	box-shadow: none;
+	border-radius: 0.5rem;
+	border: 2px solid;
+	border-color: var(--tms-button-bg-color);
+	background-color: transparent;
+	color: var(--tms-button-bg-color);
+	transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.tms-button.tms-button--brutalist::before {
+	content: '';
+	position: absolute;
+	z-index: 0;
+	top: 6px;
+	left: 5px;
+	width: 100%;
+	height: 100%;
+	border-radius: 0.8rem;
+	background-color: var(--tms-button-bg-color);
+	transition: top 0.2s ease-in-out, left 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.tms-button.tms-button--brutalist::after {
+	content: '';
+	position: absolute;
+	z-index: 1;
+	inset: 0;
+	border-radius: inherit;
+	background-color: var(--tms-primary-color);
+	transition: background-color 0.2s ease-in-out;
+}
+
+.tms-button.tms-button--brutalist:hover::before {
+	top: 8px;
+	left: 7px;
+}
+
+.tms-button.tms-button--brutalist .tms-button__text,
+.tms-button.tms-button--brutalist .tms-button__icon,
+.tms-button.tms-button--brutalist svg {
+	z-index: 2;
+}
+
+/* #endregion Button Brutalist */
+
+/* #region Button Gradient */
+
+.tms-button.tms-button--gradient {
+	position: relative;
+	overflow: hidden;
+	background-color: transparent;
+	color: var(--tms-white-color);
+}
+
+.tms-button.tms-button--gradient::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: none;
+	background-image: -webkit-linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+	background-image: linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+	transform: none;
+	-webkit-transition: all .6s ease;
+	-o-transition: all .6s ease;
+	-moz-transition: all .6s ease;
+	transition: all .6s ease;
+}
+
+.tms-button.tms-button--gradient::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-image: -webkit-linear-gradient(45deg, var(--tms-secondary-color) 0%, var(--tms-primary-color) 100%);
+	background-image: linear-gradient(45deg, var(--tms-secondary-color) 0%, var(--tms-primary-color) 100%);
+	-webkit-transition: all .4s ease;
+	-o-transition: all .4s ease;
+	-moz-transition: all .4s ease;
+	transition: all 1s ease;
+	opacity: 0;
+}
+
+.tms-button.tms-button--gradient:hover::after {
+	opacity: 1;
+}
+
+.tms-button.tms-button--gradient .tms-button__text {
+	color: var(--tms-white-color);
+}
+
+.tms-button.tms-button--gradient-outline {
+	position: relative;
+	overflow: hidden;
+	box-shadow: none;
+	border-radius: 0;
+	background-color: transparent;
+}
+
+.tms-button.tms-button--gradient-outline::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border-width: 2px !important;
+	border-style: solid !important;
+	border-image-slice: 1 !important;
+	border-image-source: -webkit-linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+	border-image-source: linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+	transform: none;
+	-webkit-transition: all 0.6s ease;
+	-o-transition: all 0.6s ease;
+	-moz-transition: all 0.6s ease;
+	transition: all 0.6s ease;
+}
+
+.tms-button.tms-button--gradient-outline::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border-width: 2px !important;
+	border-style: solid !important;
+	border-image-slice: 1 !important;
+	border-image-source: -webkit-linear-gradient(45deg, var(--tms-secondary-color) 0%, var(--tms-primary-color) 100%);
+	border-image-source: linear-gradient(45deg, var(--tms-secondary-color) 0%, var(--tms-primary-color) 100%);
+	-webkit-transition: all 0.6s ease;
+	-o-transition: all 0.6s ease;
+	-moz-transition: all 0.6s ease;
+	transition: all 0.6s ease;
+	opacity: 0;
+}
+
+.tms-button.tms-button--gradient-outline:hover::after {
+	opacity: 1;
+}
+
+.tms-button.tms-button--gradient-outline .tms-button__text {
+	background-image: -webkit-linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+	background-image: linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+	-webkit-background-clip: text;
+	-moz-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	-webkit-transition: all 0.6s ease;
+	-o-transition: all 0.6s ease;
+	-moz-transition: all 0.6s ease;
+	transition: all 0.6s ease;
+}
+
+.tms-button.tms-button--gradient-outline:hover .tms-button__text {
+	background-image: -webkit-linear-gradient(45deg, var(--tms-secondary-color) 0%, var(--tms-primary-color) 100%);
+	background-image: linear-gradient(45deg, var(--tms-secondary-color) 0%, var(--tms-primary-color) 100%);
+	-webkit-background-clip: text;
+	-moz-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.tms-button.tms-button--gradient-outline .tms-button__icon {
+	background-image: -webkit-linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+	background-image: linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+	-webkit-background-clip: text;
+	-moz-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	-webkit-transition: all 0.6s ease;
+	-o-transition: all 0.6s ease;
+	-moz-transition: all 0.6s ease;
+	transition: all 0.6s ease;
+}
+
+.tms-button.tms-button--gradient-outline svg {
+	color: var(--tms-secondary-color);
+}
+
+.tms-button.tms-button--gradient-outline:hover .tms-button__icon {
+	background-image: -webkit-linear-gradient(45deg, var(--tms-secondary-color) 0%, var(--tms-primary-color) 100%);
+	background-image: linear-gradient(45deg, var(--tms-secondary-color) 0%, var(--tms-primary-color) 100%);
+	-webkit-background-clip: text;
+	-moz-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.tms-button.tms-button--gradient-outline:hover svg {
+	color: var(--tms-primary-color);
+}
+
+/* #endregion Button Gradient */
+
+/* #region Button Duocolor */
+
+.tms-button.tms-button--duocolor {
+	padding: 0 0 0 1.3rem;
+	gap: 0.5rem;
+	border-radius: 0;
+	background-color: var(--tms-button-text-color);
+	color: var(--tms-button-bg-color);
+}
+
+.tms-button.tms-button--duocolor.tms-button--icon-left {
+	padding: 0 1.3rem 0 0;
+}
+
+.tms-button.tms-button--duocolor:hover {
+	background-color: var(--tms-button-bg-color);
+	color: var(--tms-button-text-color);
+}
+
+.tms-button .tms-button__duocolor-icon {
+	width: 38px;
+	height: 38px;
+  margin: 5px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 0;
+	background-color: var(--tms-button-bg-color);
+	color: var(--tms-button-text-color);
+	-webkit-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	transition: all 0.4s ease;
+}
+
+.tms-button:hover .tms-button__duocolor-icon {
+	background-color: var(--tms-button-text-color);
+	color: var(--tms-button-bg-color);
+}
+
+.tms-button.tms-button--icon-left .tms-button__duocolor-icon {
+	order: -1;
+}
+
+.tms-button.tms-button--duocolor-outline {
+	padding: 0 0 0 1.3rem;
+	gap: 1.25rem;
+	border: 2px solid;
+	border-color: var(--tms-button-bg-color);
+	border-radius: 0;
+	box-shadow: none;
+	background-color: transparent;
+	color: var(--tms-button-bg-color);
+}
+
+.tms-button.tms-button--duocolor-outline.tms-button--icon-left {
+	padding: 0 1.3rem 0 0;
+}
+
+.tms-button.tms-button--duocolor-outline:hover {
+	background-color: var(--tms-button-bg-color);
+	color: var(--tms-button-text-color);
+}
+
+/* #endregion Button Duocolor */
+
+/* ------------------------------------------------------------------------
+ * 03. Form
+ * ------------------------------------------------------------------------ */
+
+/* #region Form */
+
+.tms-form {
+  /* Structural knobs driven by the Form widget's Elementor controls. */
+  --tms-form-row-gap: 1rem;
+  --tms-form-column-gap: 1rem;
+  --tms-form-label-gap: 10px;
+  --tms-form-button-spacing: 0px;
+  width: 100%;
+  position: relative;
+}
+
+/* The floating label lives inside the field box, so consecutive rows need
+ * more vertical air than the boxed designs to stay readable. Declared as a
+ * token override (not a `gap` rule) so the Rows Gap control keeps winning
+ * through plain inheritance, whatever the design. */
+.tms-form.tms-form--floating {
+  --tms-form-row-gap: 2rem;
+}
+
+.tms-form__row {
+  position: relative;
+  margin: 1rem 0;
+  display: flex;
+  gap: var(--tms-form-column-gap, 1rem);
+  align-items: flex-end;
+}
+
+.was-validated .tms-form__row {
+  align-items: flex-start;
+}
+
+.tms-form__row:first-child {
+	margin-top: 0;
+}
+
+.tms-form__row:last-child {
+	margin-bottom: 0;
+}
+
+.tms-form__col {
+  width: 100%;
+}
+
+.tms-form__col:has(.tms-button) {
+  width: auto;
+}
+
+.tms-form__submit {
+  margin: 1rem 0 0;
+}
+
+.tms-form .form-label {
+  margin-bottom: var(--tms-form-label-gap, 10px);
+}
+
+.tms-form .tms-form__overlay-btn {
+	position: absolute;
+	z-index: 1;
+	right: 0.75rem;
+	padding: 0.75rem;
+	display: block;
+	background: none;
+	box-shadow: none;
+}
+
+.tms-form .tms-form__overlay-btn::before {
+	content: none !important;
+}
+
+.tms-form .tms-form__overlay-btn:hover {
+	background: none;
+}
+
+.tms-form .tms-form__overlay-icon {
+	display: block;
+	font-size: var(--tms-font-size-sm);
+	color: var(--tms-heading-color);
+}
+
+.tms-form .form-check {
+	min-height: 0;
+	margin: 10px 0;
+	padding: 0;
+	display: flex;
+	align-items: center;
+}
+
+.tms-form .form-check:last-child {
+	margin-bottom: 0;
+}
+
+.tms-form [readonly]~.form-check-label {
+	color: var(--tms-heading-color);
+}
+
+.tms-form .form-check-label {
+	width: -webkit-fill-available;
+	margin: 0 0 0 7.5px;
+	cursor: pointer;
+}
+
+.tms-form .form-check-input {
+	width: 20px;
+	min-width: 20px;
+	height: 20px;
+	min-height: 20px;
+	margin: 0;
+	float: none;
+	vertical-align: middle;
+	box-shadow: none !important;
+	border-radius: var(--tms-radius-sm, 0.5rem);
+	/* Hairline, like the .form-control fields beside it (and every WooCommerce
+	   control: checkout radios, the shop filter's category checkboxes). */
+	border: 1px solid;
+	border-color: var(--tms-border-color);
+	background-color: transparent;
+	cursor: pointer;
+	-webkit-transition: all 0.4s ease-in-out;
+	-o-transition: all 0.4s ease-in-out;
+	-moz-transition: all 0.4s ease-in-out;
+	transition: all 0.4s ease-in-out;
+}
+
+.tms-form .form-check-input:checked {
+	border-color: var(--tms-heading-color);
+	background-color: var(--tms-heading-color);
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+	background-size: 14px;
+}
+
+/* Dark mode control */
+.tms-dark-mode .tms-form .form-check-input:checked {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+
+.tms-form .form-check-input[disabled]~.form-check-label,
+.tms-form .form-check-input:disabled~.form-check-label {
+	opacity: 0.65;
+	cursor: no-drop;
+}
+
+.tms-form .form-check-input.tms-form__radio {
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+/* A switch is a toggle track, not a field: it keeps its 2px outline. */
+.tms-form .form-check-input.tms-form__switch {
+	width: 2.5rem;
+	height: 1rem;
+	padding: 0;
+	border-width: 2px;
+	border-radius: var(--tms-radius-pill, 50rem);
+	border-color: var(--tms-body-color);
+	background-color: transparent;
+	background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='black' stroke='black'/></svg>");
+	background-size: contain;
+	background-repeat: no-repeat;
+  background-position: left center;
+	cursor: pointer;
+}
+
+.tms-form .form-check-input.tms-form__switch:checked {
+	border-color: var(--tms-heading-color);
+	background-color: var(--tms-heading-color);
+	background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='white' stroke='white'/></svg>");
+  background-position: right center;
+}
+
+/* Dark mode control */
+.tms-dark-mode .tms-form .form-check-input.tms-form__switch {
+	background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='white' stroke='white'/></svg>");
+}
+
+.tms-dark-mode .tms-form .form-check-input.tms-form__switch:checked {
+	background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='black' stroke='black'/></svg>");
+}
+
+.tms-form .form-range:focus {
+	background: none;
+	outline: 0;
+}
+
+.tms-form .form-range:disabled {
+	pointer-events: none;
+	background: none;
+}
+
+.tms-form .form-range::-webkit-slider-runnable-track {
+	border-radius: var(--tms-radius-pill, 999px);
+	background-color: var(--tms-surface-color);
+}
+
+.tms-form .form-range:not(:disabled)::-webkit-slider-thumb {
+	background-color: var(--tms-heading-color);
+}
+
+.tms-form .form-range:focus::-webkit-slider-thumb {
+	box-shadow: 0 0 0 2px var(--tms-bg-color), 0 0 0 3px var(--tms-heading-color)
+}
+
+.tms-form .form-control.is-valid,
+.was-validated .form-control:valid {
+	border-color: var(--tms-success-color) !important;
+	box-shadow: 0 0 0 1px var(--tms-success-color);
+	background-image: none;
+}
+
+.tms-form .form-control.is-valid:focus,
+.was-validated .form-control:valid:focus {
+	border-color: var(--tms-success-color) !important;
+	box-shadow: 0 0 0 1px var(--tms-success-color);
+}
+
+.tms-form .form-control.is-invalid,
+.was-validated .form-control:invalid {
+	border-color: var(--tms-danger-color) !important;
+	box-shadow: 0 0 0 1px var(--tms-danger-color);
+	background-image: none;
+}
+
+.tms-form .form-control.is-invalid:focus,
+.was-validated .form-control:invalid:focus {
+	border-color: var(--tms-danger-color) !important;
+	box-shadow: 0 0 0 1px var(--tms-danger-color);
+}
+
+.tms-form .valid-feedback {
+	display: none;
+	width: 100%;
+	margin-top: 5px;
+	font-size: 85%;
+	color: var(--tms-success-color);
+}
+
+.tms-form .invalid-feedback {
+	display: none;
+	width: 100%;
+	margin-top: 5px;
+	font-size: 85%;
+	color: var(--tms-danger-color);
+}
+
+.tms-form__loading {
+	position: absolute;
+	width: 102%;
+	height: 102%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgb(255 255 255 / 50%);
+	backdrop-filter: blur(1px);
+}
+
+.tms-form__loading .spinner-border {
+	color: var(--tms-primary-color);
+}
+
+/* #endregion Form */
+
+/* #region Basic Form */
+
+.tms-form--basic .tms-form__col {
+	display: flex;
+	flex-direction: column;
+}
+
+.tms-form--basic .tms-form__col .form-label {
+	order: -1;
+}
+
+/* #endregion Basic Form */
+
+/* #region Compact Form */
+
+.tms-form--compact .tms-form__col .form-label {
+	display: none;
+}
+
+/* #endregion Compact Form */
+
+/* #region Form Floating */
+
+.tms-form .form-floating>.form-label {
+	margin: 0;
+	padding: 1rem calc(var(--bs-gutter-x) * 0.5);
+}
+
+.form-floating>.form-control:focus~label,
+.form-floating>.form-control:not(:placeholder-shown)~label {
+	opacity: 1;
+	transform: scale(1) translateY(-1rem) translateX(0);
+}
+
+.tms-form .form-floating .tms-form__overlay-btn {
+	right: -5px;
+	bottom: -4px;
+	min-width: auto;
+}
+
+.tms-form .form-floating .form-control::placeholder {
+	font-size: 0;
+}
+
+.tms-form .form-floating>.form-control {
+	height: initial;
+	min-height: initial;
+	padding: 0.5rem 0 0.5rem;
+	line-height: inherit;
+	border-radius: 0;
+	border: none;
+	border-bottom: 2px solid;
+	border-bottom-color: var(--tms-border-strong-color);
+	background: none;
+	box-shadow: none;
+	outline: none;
+}
+
+.tms-form .form-floating>.form-control:focus {
+	background: none;
+	box-shadow: none;
+	outline: none;
+	border-bottom-color: var(--tms-border-strong-color);
+}
+
+.tms-form .form-floating>.form-control.tms-form__textarea {
+	height: 120px;
+	line-height: inherit;
+}
+
+.tms-form .form-floating>.form-control.tms-form__textarea:focus~label::after,
+.tms-form .form-floating>.form-control.tms-form__textarea:not(:placeholder-shown)~label::after {
+  background: none;
+}
+
+.tms-form .form-floating>.form-control.tms-form__file {
+	padding: 1.75rem 0 0.5rem;
+}
+
+.tms-form .form-floating>.form-control.tms-form__color {
+	width: 100%;
+	padding: 1.75rem 0 0.5rem;
+}
+
+.tms-form .form-floating>.form-control.tms-form__color::-webkit-color-swatch {
+	width: 50px;
+	height: 30px;
+	padding: 0;
+	margin-top: 5px;
+	margin-right: calc(100% - 30px);
+	border: none;
+	border-radius: 0;
+}
+
+.tms-form .form-floating>.form-control.tms-form__color::-moz-color-swatch {
+	width: auto;
+	height: auto;
+	padding: 0;
+	margin-top: 5px;
+	margin-right: calc(100% - 30px);
+	border: none;
+	border-radius: 0;
+}
+
+.tms-form .form-floating>.form-select,
+.tms-form .form-floating>.form-select:focus,
+.tms-form .form-floating>.tms-form__datalist,
+.tms-form .form-floating>.tms-form__datalist:focus {
+	background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/></svg>");
+	background-repeat: no-repeat;
+	background-position: right 0 bottom 10px;
+	background-size: 12px 12px;
+}
+
+/* Dark mode control */
+.tms-dark-mode .tms-form .form-floating>.form-select,
+.tms-dark-mode .tms-form .form-floating>.form-select:focus,
+.tms-dark-mode .tms-form .form-floating>.tms-form__datalist,
+.tms-dark-mode .tms-form .form-floating>.tms-form__datalist:focus {
+	background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/></svg>");
+}
+
+.tms-form .form-floating>.form-select option:first-child {
+	margin-top: 1rem;
+}
+
+.tms-form .has-icon.form-floating>.tms-form__datalist {
+	background-image: none;
+}
+
+.tms-form .form-floating .form-control.is-valid,
+.was-validated .form-floating .form-control:valid {
+	box-shadow: none;
+	outline: none;
+}
+
+.tms-form .form-floating .form-control.is-invalid,
+.was-validated .form-floating .form-control:invalid {
+	padding: 1.25rem 0 0;
+	box-shadow: none;
+	outline: none;
+}
+
+.tms-form .form-floating .form-control.tms-form__textarea.is-invalid,
+.was-validated .form-floating .form-control.tms-form__textarea:invalid {
+	padding-top: 1.35rem;
+}
+
+/* #endregion Form Floating */
+
+/* #region Inline Form */
+
+.tms-form:not(.tms-form--basic):has(.tms-form--inline) .form-control {
+  min-height: 58px;
+  padding-right: 100px;
+}
+
+.tms-form.tms-form--floating:has(.tms-form--inline) .form-control {
+  height: initial;
+}
+
+.tms-form:not(.tms-form--basic):has(.tms-form--inline) .tms-form__submit {
+  position: absolute;
+  height: 58px;
+  right: 8px;
+  display: flex;
+  /* The submit wrapper is also a .tms-form__row, which wpcf7.min.css sets to a
+   * column: without an explicit row, align-items centred the button across
+   * and left it pinned to the top of the 58px box (backlog #229). */
+  flex-direction: row;
+  align-items: center;
+  /* The button is absolutely positioned INSIDE the field here, so Button
+   * Spacing would offset it from its static position instead of adding air
+   * above it. This out-specifies the token rule in wpcf7.min.css (4 classes
+   * to 3), so the control is inert on an inline form by construction. */
+  margin-top: 0;
+}
+
+.tms-form.tms-form--floating:has(.tms-form--inline) .tms-form__submit {
+  right: 0;
+}
+
+.tms-form:not(.tms-form--basic):has(.tms-form--inline) .tms-form__submit button {
+  min-width: auto;
+  min-height: 32px;
+  padding: 0 15px;
+}
+
+/* #endregion Inline Form */
+
+/* #region Stacked Site Search */
+
+.tms-site-search--stacked .tms-form__row {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.tms-site-search .tms-form__submit {
+  margin-top: 0;
+}
+
+/* Header-search look: a square that matches the field's own height. Scoped to
+   the icon-only modifier — unconditionally it also squashed the Label + Icon
+   and Label Only modes, clipping the label out of a 48px box with no padding
+   (the default "Search" label rendered as "earch" spilling past the button). */
+.tms-site-search .tms-button.tms-button--icon-only {
+  width: var(--tms-form-control-min-height, 48px);
+  height: var(--tms-form-control-min-height, 48px);
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+}
+
+.tms-site-search .tms-button:hover {
+  background-color: var(--tms-primary-color);
+}
+
+.tms-site-search .tms-button:focus {
+  box-shadow: none;
+}
+
+/* Oversized glyph for the square icon-only button only; alongside a label the
+   icon tracks the button's own font-size like every other .tms-button. */
+.tms-site-search .tms-form__submit .tms-button.tms-button--icon-only svg {
+  font-size: 1.2rem;
+}
+
+/* #endregion Stacked Site Search */
+
+/* ------------------------------------------------------------------------
+ * 04. Field
+ * ------------------------------------------------------------------------ */
+
+/* #region Field */
+
+.tms-form .form-control {
+	min-height: var(--tms-form-control-min-height, 48px);
+	padding: 0.75rem 1rem;
+  border: 1px solid;
+  border-color: var(--tms-border-color);
+	/* Fields follow the theme radius; 0 fallback keeps the legacy square
+	   look outside Themeasy themes. Authored field_border_radius wins. */
+	border-radius: var(--tms-radius-sm, 0);
+	box-shadow: none;
+	background-color: var(--tms-surface-color);
+  font-size: var(--tms-font-size-sm);
+	color: var(--tms-heading-color);
+	-webkit-transition: all 0.4s ease-in-out;
+	-o-transition: all 0.4s ease-in-out;
+	-moz-transition: all 0.4s ease-in-out;
+	transition: all 0.4s ease-in-out;
+}
+
+.tms-form .form-control:focus {
+	box-shadow: none;
+	outline: none;
+	background-color: var(--tms-surface-color);
+	color: var(--tms-heading-color);
+	filter: brightness(0.97);
+}
+
+.tms-form .form-control:disabled {
+	background-color: var(--tms-surface-color);
+	color: var(--tms-heading-color);
+	cursor: no-drop;
+}
+
+.tms-form .form-control::placeholder {
+	font-size: var(--tms-font-size-sm);
+	color: var(--tms-body-color);
+}
+
+/* #endregion Field */
+
+/* ------------------------------------------------------------------------
+ * 05. Custom Select
+ * ------------------------------------------------------------------------ */
+
+/* #region Custom Select */
+
+.tms-custom-select,
+.tms-select {
+  position: relative;
+  z-index: 10;
+  display: inline-block;
+  user-select: none;
+}
+
+.tms-custom-select__wrapper,
+.tms-select__wrap {
+  position: relative;
+  display: inline-block;
+  width: auto;
+}
+
+.tms-custom-select__wrapper select.tms-custom-select,
+.tms-select__wrap select.tms-custom-select {
+  display: none;
+}
+
+/* --tms-custom-select-width / -height: per-instance overrides (Product Grid
+   sort selector controls). Desktop only: below 992px the select fills its row
+   at a 48px touch height (see the media query at the end of this region). */
+.tms-custom-select__trigger,
+.tms-select__trigger {
+  position: relative;
+  width: var(--tms-custom-select-width, 300px);
+  min-height: var(--tms-custom-select-height, 40px);
+  padding: 0 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  /* --tms-custom-select-radius: per-instance override (Product Grid sort
+     selector control), read by the open state and the dropdown too. */
+  border-radius: var(--tms-custom-select-radius, var(--tms-radius-sm, 0.25rem));
+  /* Hairline like every field: invisible at rest (surface on surface), it is
+     the width an authored Border Color shows. */
+  border: 1px solid var(--tms-surface-color);
+  background-color: var(--tms-surface-color);
+  font-weight: var(--tms-semibold-font-weight);
+  color: var(--tms-heading-color);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-radius 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.tms-select.is-open .tms-select__trigger,
+.tms-custom-select.is-open .tms-custom-select__trigger {
+  border-radius:
+    var(--tms-custom-select-radius, var(--tms-radius-sm, 0.25rem))
+    var(--tms-custom-select-radius, var(--tms-radius-sm, 0.25rem))
+    0 0;
+}
+
+.tms-custom-select__trigger::after,
+.tms-select__trigger::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  flex-shrink: 0;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/></svg>") center / contain no-repeat;
+  mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/></svg>") center / contain no-repeat;
+  transition: transform 0.2s ease;
+}
+
+.tms-custom-select.is-open .tms-custom-select__trigger::after,
+.tms-select.is-open .tms-select__trigger::after {
+  transform: rotate(180deg);
+}
+
+.tms-custom-select__options,
+.tms-select__options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  min-width: 100%;
+  margin: 0;
+  padding: 8px 0;
+  border-radius:
+    0 0
+    var(--tms-custom-select-radius, var(--tms-radius-sm, 0.25rem))
+    var(--tms-custom-select-radius, var(--tms-radius-sm, 0.25rem));
+  box-sizing: border-box;
+  background-color: var(--tms-bg-color);
+  box-shadow: 0px 10px 18px rgba(0, 0, 0, 0.08);
+  transform: translateY(-10px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.tms-custom-select.is-open .tms-custom-select__options,
+.tms-select.is-open .tms-select__options {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.tms-custom-select__option,
+.tms-select__option {
+  padding: 10px 18px;
+  display: block;
+  font-size: 0.9rem;
+  font-weight: var(--tms-semibold-font-weight);
+  color: var(--tms-body-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tms-custom-select__option:hover,
+.tms-select__option:hover {
+  background-color: var(--tms-surface-color);
+  color: var(--tms-heading-color);
+}
+
+.tms-custom-select__option.selected,
+.tms-select__option.selected,
+.tms-custom-select__option.selected:hover,
+.tms-select__option.selected:hover {
+  background-color: var(--tms-button-bg-color);
+  color: var(--tms-button-text-color);
+}
+
+.tms-custom-select__option.is-disabled,
+.tms-select__option.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 991px) {
+  .tms-custom-select__wrapper,
+  .tms-select__wrap,
+  .tms-custom-select,
+  .tms-select {
+    width: 100%;
+  }
+
+  .tms-custom-select__trigger,
+  .tms-select__trigger {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
+/* #endregion Custom Select */
+
+/* ------------------------------------------------------------------------
+ * 06. Card
+ * ------------------------------------------------------------------------ */
+
+/* #region Card */
+
+.tms-card {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+  padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	word-wrap: break-word;
+	background-color: var(--tms-surface-color);
+	background-clip: border-box;
+	border: none;
+	border-radius: var(--tms-radius-sm);
+	-webkit-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+}
+
+.tms-card .tms-card__wrapper {
+	display: flex;
+	flex-direction: column;
+}
+
+.tms-card .tms-card__wrapper .tms-card__header {
+	padding: 0 0 1.75rem;
+}
+
+.tms-card .tms-card__wrapper .tms-card__body {
+	padding: 0;
+}
+
+.tms-card .tms-card__header {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	padding: 1.75rem;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	border: none;
+	background: none;
+}
+
+.tms-card .tms-card__header:first-child {
+	border-radius: 0;
+}
+
+.tms-card .tms-card__header .tms-card__icon {
+	font-size: 2rem;
+  line-height: 0;
+	color: var(--tms-heading-color);
+}
+
+.tms-card .tms-card__header svg {
+	width: 1em;
+	height: 1em;
+	color: currentColor;
+	fill: currentColor;
+}
+
+.tms-card .tms-card__header svg[fill="none"] {
+	fill: none;
+	stroke: currentColor;
+}
+
+.tms-card .tms-card__body {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	padding: 1.75rem;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	gap: 0;
+}
+
+.tms-card .tms-card__title {
+	margin-top: 0;
+	margin-bottom: 0;
+	color: var(--tms-heading-color);
+}
+
+/* Widget default font metrics — Elementor typography CSS (higher specificity)
+ * overrides them when the user styles the title. Margins and color stay on the
+ * rule above. */
+.tms-card .tms-card__title {
+	font-size: var(--tms-font-size-md);
+	font-weight: var(--tms-semibold-font-weight);
+}
+
+.tms-card.tms-card--has-icon .tms-card__title {
+	margin-top: 0.75rem;
+}
+
+.tms-card .tms-card__description {
+	margin-top: 1rem;
+	margin-bottom: 0;
+}
+
+.tms-card .tms-button-group {
+	width: 100%;
+	display: flex;
+	margin: 2rem 0 0;
+}
+
+.tms-card .tms-button-group .tms-button {
+	position: relative;
+	z-index: 2;
+}
+
+.tms-card .tms-card__overlay {
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-size: cover;
+	background-position: center center;
+	background-color: var(--tms-black-color);
+	opacity: 0.25;
+	-webkit-transition: all 0.3s ease-out 0s;
+	-o-transition: all 0.3s ease-out 0s;
+	-moz-transition: all 0.3s ease-out 0s;
+	transition: all 0.3s ease-out 0s;
+}
+
+.tms-card.tms-card--outline {
+	border: 1px solid var(--tms-border-color);
+}
+
+/* Equal-height cards: fill the widget cell so every card in the same row
+ * matches the tallest one, and let the body absorb the leftover space so the
+ * button group always sits on the bottom edge. */
+.tms-card.tms-card--stretch,
+.tms-card.tms-card--stretch .tms-card__wrapper {
+  height: 100%;
+}
+
+.tms-card.tms-card--stretch .tms-card__body {
+  flex-grow: 1;
+}
+
+/* #endregion Card */
+
+/* ------------------------------------------------------------------------
+ * 07. Badge
+ * ------------------------------------------------------------------------ */
+
+/* #region Badge */
+
+.tms-badge-list {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.tms-badge-list > *,
+.tms-badge-list .tms-animation__target {
+	display: inline-flex;
+}
+
+.tms-badge {
+	padding: 5px 7.5px;
+	display: inline;
+	border-radius: var(--tms-radius-sm);
+	border: 2px solid;
+	border-color: var(--tms-surface-color);
+	background-color: var(--tms-surface-color);
+	font-size: var(--tms-font-size-xs);
+	font-weight: var(--tms-semibold-font-weight);
+	color: var(--tms-heading-color);
+	-webkit-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+}
+
+.tms-badge.tms-badge--primary {
+	border-color: var(--tms-primary-color);
+	background-color: var(--tms-primary-color);
+	color: var(--tms-white-color);
+}
+
+.tms-badge.tms-badge--secondary {
+	border-color: var(--tms-secondary-color);
+	background-color: var(--tms-secondary-color);
+	color: var(--tms-white-color);
+}
+
+.tms-badge.tms-badge--accent {
+	border-color: var(--tms-accent-color);
+	background-color: var(--tms-accent-color);
+	color: var(--tms-white-color);
+}
+
+.tms-badge.tms-badge--large {
+	padding: 10px 20px;
+	font-size: 100%;
+}
+
+.tms-badge::before {
+	content: none !important;
+}
+
+.tms-badge--outline {
+	background-color: transparent;
+}
+
+.tms-badge--active,
+.tms-badge:hover,
+a:hover>.tms-badge {
+	background-color: var(--tms-button-bg-color);
+	border-color: var(--tms-button-bg-color);
+	text-decoration: none;
+	color: var(--tms-button-text-color);
+}
+
+.tms-badge__text {
+	display: table-row;
+}
+
+/* Only chips that carry a glyph: the plain chip keeps its inline / table-row
+   anatomy untouched. Without this the table-row text opens an anonymous table
+   row of its own and the icon stacks ABOVE the label instead of beside it. */
+.tms-badge:has(.tms-badge__icon) {
+	display: inline-flex;
+	align-items: center;
+}
+
+.tms-badge:has(.tms-badge__icon) .tms-badge__text {
+	display: inline;
+}
+
+.tms-badge__icon {
+	margin-right: 5px;
+	color: var(--tms-heading-color);
+}
+
+/* Icon contract: the fill/stroke pair (stroke sets carry fill="none" and would
+   render blank on the fill rule alone) plus the editor's transient <img>. */
+.tms-badge__icon svg {
+	width: 1em;
+	height: 1em;
+	fill: currentColor;
+}
+
+.tms-badge__icon svg[fill="none"] {
+	fill: none;
+	stroke: currentColor;
+}
+
+.tms-badge__icon img {
+	width: 1em;
+	height: 1em;
+}
+
+.tms-badge:hover .tms-badge__icon,
+a:hover>.tms-badge .tms-badge__icon {
+	color: var(--tms-button-text-color);
+}
+
+.tms-badge--gradient {
+	margin-left: 5px;
+	border: none;
+	border-radius: var(--tms-radius-pill, 999px);
+	padding: 3px 10px 4px;
+	background-image: -webkit-linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+	background-image: linear-gradient(45deg, var(--tms-primary-color) 0%, var(--tms-secondary-color) 100%);
+	color: var(--tms-white-color);
+}
+
+/* Text tag: the one badge anatomy every widget shares for a short label beside
+   its content ("New", "Hot", "-20%"), modeled on the Icon List badge. A widget
+   prints `.tms-tag` next to its own `__badge` class and keeps its colors in
+   `--tms-{widget}-badge-*` tokens, mapped by its own rule at higher
+   specificity. `.tms-badge` above is another role (the neutral list/term chip)
+   and stays as is. The corner rides the `sm` tier (chips/labels), so it follows
+   the theme; the 999px fallback keeps the legacy pill outside a Themeasy theme. */
+.tms-tag {
+	flex-shrink: 0;
+	display: inline-block;
+	padding: 0.125rem 0.5rem;
+	border-radius: var(--tms-radius-sm, 999px);
+	font-size: var(--tms-font-size-xs, 0.75rem);
+	font-weight: var(--tms-body-font-weight, 400);
+	line-height: 1.2;
+	letter-spacing: normal;
+	white-space: nowrap;
+	color: var(--tms-white-color, #fff);
+	background-color: var(--tms-primary-color);
+	transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Micro-label variant (uppercase + tracked => accent family, accent weight). */
+.tms-tag--micro {
+	font-family: var(--tms-accent-font, inherit);
+	font-weight: var(--tms-accent-font-weight, 600);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* #endregion Badge */
+
+/* ------------------------------------------------------------------------
+ * 08. Tooltip
+ * ------------------------------------------------------------------------ */
+
+/* #region Tooltip */
+
+/* The bubble is anchored to the trigger's edge (bottom/top/left/right at
+   100% + gap), never to its static position: a trigger that is flex,
+   inline-block or holds block children must not move it. `transform` only
+   centers it on the cross axis and carries the reveal travel. */
+.tms-tooltip {
+  /* Micro-UI: follows the theme radius, capped so large-radius themes
+     don't balloon a 24px tooltip. */
+  --tms-tooltip-radius: min(var(--tms-radius-sm, 0.25rem), 0.5rem);
+  /* Space between the trigger's edge and the bubble; the arrow lives in it. */
+  --tms-tooltip-gap: 10px;
+  /* Side of the square that, rotated 45deg, draws the arrow. */
+  --tms-tooltip-arrow: 10px;
+  /* How far the bubble slides toward its resting spot while revealing. */
+  --tms-tooltip-travel: 6px;
+
+  position: absolute;
+  z-index: 10;
+  width: max-content;
+  min-width: 10px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--tms-tooltip-radius);
+  box-shadow: 0 10px 10px 0 rgba(0, 0, 0, 0.05);
+  background: var(--tms-black-color);
+  text-align: center;
+  font-size: 85%;
+  line-height: 24px;
+  color: var(--tms-white-color);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s cubic-bezier(0.7, -0.5, 0.3, 1);
+}
+
+.tms-tooltip__trigger {
+  position: relative;
+}
+
+.tms-tooltip__trigger.to-top .tms-tooltip {
+  bottom: calc(100% + var(--tms-tooltip-gap));
+  left: 50%;
+  transform: translate(-50%, var(--tms-tooltip-travel));
+}
+
+.tms-tooltip__trigger.to-bottom .tms-tooltip {
+  top: calc(100% + var(--tms-tooltip-gap));
+  left: 50%;
+  transform: translate(-50%, calc(-1 * var(--tms-tooltip-travel)));
+}
+
+.tms-tooltip__trigger.to-right .tms-tooltip {
+  top: 50%;
+  left: calc(100% + var(--tms-tooltip-gap));
+  transform: translate(calc(-1 * var(--tms-tooltip-travel)), -50%);
+}
+
+.tms-tooltip__trigger.to-left .tms-tooltip {
+  top: 50%;
+  right: calc(100% + var(--tms-tooltip-gap));
+  transform: translate(var(--tms-tooltip-travel), -50%);
+}
+
+.tms-tooltip--active .tms-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tms-tooltip--active.to-top .tms-tooltip,
+.tms-tooltip--active.to-bottom .tms-tooltip {
+  transform: translate(-50%, 0);
+}
+
+.tms-tooltip--active.to-right .tms-tooltip,
+.tms-tooltip--active.to-left .tms-tooltip {
+  transform: translate(0, -50%);
+}
+
+/* Arrow: a square rotated 45deg and centered on the edge that faces the
+   trigger. It paints in the bubble's own color beneath the label, so only
+   the half outside the bubble shows (tip = arrow * 0.707, inside the gap). */
+.tms-tooltip::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: var(--tms-tooltip-arrow);
+  height: var(--tms-tooltip-arrow);
+  background: inherit;
+}
+
+.tms-tooltip__trigger.to-top .tms-tooltip::before {
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.tms-tooltip__trigger.to-bottom .tms-tooltip::before {
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, 50%) rotate(45deg);
+}
+
+.tms-tooltip__trigger.to-right .tms-tooltip::before {
+  top: 50%;
+  right: 100%;
+  transform: translate(50%, -50%) rotate(45deg);
+}
+
+.tms-tooltip__trigger.to-left .tms-tooltip::before {
+  top: 50%;
+  left: 100%;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-tooltip {
+    --tms-tooltip-travel: 0px;
+  }
+}
+
+/* #endregion Tooltip */
+
+/* ------------------------------------------------------------------------
+ * 09. Modal
+ * ------------------------------------------------------------------------ */
+
+/* #region Modal */
+
+.modal .modal-dialog {
+	width: 100%;
+	max-width: 480px;
+	height: 100%;
+	margin: 0 auto;
+	padding: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.modal .modal-content {
+	border: none;
+	border-radius: var(--tms-radius-sm);
+	box-shadow: none;
+	background-color: var(--tms-bg-color);
+}
+
+.modal .modal-header {
+	position: relative;
+	min-height: 80px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	padding: 1.75rem 1.75rem 0;
+	border: none;
+	border-radius: 0;
+}
+
+.modal .modal-header .title {
+	width: 100%;
+	margin-bottom: 1.5rem;
+	padding-bottom: 1.5rem;
+	border-bottom: 1px solid;
+	border-color: var(--tms-border-color);
+}
+
+.modal .modal-body {
+	padding: 1.75rem;
+	border: none;
+	border-radius: 0;
+}
+
+.modal .modal-footer {
+	padding: 1.75rem;
+	border: none;
+	border-radius: 0;
+}
+
+.modal .close-button {
+	position: absolute;
+	z-index: 2;
+	top: -15px;
+	right: -15px;
+	width: 30px;
+	height: 30px;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 50%;
+	background-color: var(--tms-button-text-color);
+	box-shadow: 0 10px 10px 0 rgba(0, 0, 0, 0.15);
+	font-size: 1rem;
+	color: var(--tms-button-bg-color);
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.modal .close-button:hover {
+	background-color: var(--tms-button-bg-color);
+	color: var(--tms-button-text-color);
+	opacity: 1;
+}
+
+/* Close icon glyph: drawn via mask on the empty <i>/<span> element, so no
+   icon-font dependency. Sized by the trigger's font-size, colored by its
+   color (currentColor). Shared with the offcanvas close button below. */
+.modal .close-button::before,
+.offcanvas .close-button::before {
+	content: '';
+	width: 1em;
+	height: 1em;
+	display: block;
+	background-color: currentColor;
+	-webkit-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='black' stroke-linecap='round' stroke-width='2' d='M3.5 3.5l9 9m0-9l-9 9'/></svg>") center / contain no-repeat;
+	mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='black' stroke-linecap='round' stroke-width='2' d='M3.5 3.5l9 9m0-9l-9 9'/></svg>") center / contain no-repeat;
+}
+
+.modal-backdrop {
+	background-color: var(--tms-black-color);
+}
+
+.modal-backdrop.show {
+	opacity: 0.5;
+}
+
+@media (max-width: 767px) {
+	.modal .modal-header {
+		padding: 1rem;
+	}
+
+	.modal .modal-body {
+		padding: 1rem;
+	}
+
+	.modal .modal-footer {
+		padding: 1rem;
+	}
+
+	.modal .close-button {
+		top: 1rem;
+		right: 1rem;
+	}
+}
+
+/* #endregion Modal */
+
+/* #region Offcanvas */
+
+.offcanvas.offcanvas-top,
+.offcanvas.offcanvas-bottom {
+	height: 50vh;
+}
+
+.offcanvas.offcanvas-top .offcanvas-dialog,
+.offcanvas.offcanvas-bottom .offcanvas-dialog {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.offcanvas.offcanvas-top .offcanvas-content,
+.offcanvas.offcanvas-bottom .offcanvas-content {
+	width: 100%;
+}
+
+.offcanvas.offcanvas-start {
+	border-right: none;
+}
+
+.offcanvas.offcanvas-end {
+	width: 480px;
+	border-left: none;
+}
+
+.offcanvas .offcanvas-dialog {
+  height: 100%;
+	padding: 0;
+	background-color: var(--tms-bg-color);
+	overflow-y: auto;
+}
+
+.offcanvas .offcanvas-dialog::-webkit-scrollbar {
+  width: 6px;
+  height: 100%;
+  background-color: transparent;
+}
+
+.offcanvas .offcanvas-dialog::-webkit-scrollbar-thumb {
+  background-color: var(--tms-border-color);
+}
+
+.offcanvas .offcanvas-content {
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.offcanvas .offcanvas-header {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	padding: 1.75rem 1.75rem 1rem;
+	border: none;
+	border-radius: 0;
+}
+
+.offcanvas .offcanvas-header .text {
+	margin: 0;
+  font-size: 120%;
+	line-height: 1;
+}
+
+.offcanvas .close-button {
+	position: absolute;
+	z-index: 2;
+	top: 1.75rem;
+	right: 1.75rem;
+	margin: 0;
+	padding: 0;
+	font-size: 1.5rem;
+	color: var(--tms-heading-color);
+	cursor: pointer;
+	-webkit-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+}
+
+.offcanvas .close-button:hover {
+	opacity: 0.65;
+	outline: none;
+}
+
+.offcanvas .offcanvas-header .title {
+	margin-bottom: 1.5rem;
+	padding-bottom: 1.5rem;
+	border-bottom: 1px solid;
+	border-color: var(--tms-border-color);
+}
+
+.offcanvas .offcanvas-body {
+	padding: 1.75rem;
+	border: none;
+	border-radius: 0;
+}
+
+.offcanvas .offcanvas-footer {
+	padding: 1.75rem;
+	border: none;
+	border-radius: 0;
+}
+
+.offcanvas-backdrop {
+	background-color: var(--tms-black-color);
+}
+
+.offcanvas-backdrop.show {
+	opacity: 0.5;
+}
+
+@media (max-width: 767px) {
+
+	.offcanvas .offcanvas-header {
+		padding: 1rem;
+	}
+
+	.offcanvas .close-button {
+		top: 1rem;
+		right: 1rem;
+	}
+
+	.offcanvas .offcanvas-body {
+		padding: 1rem;
+		overflow-x: hidden;
+	}
+
+	.offcanvas .offcanvas-footer {
+		padding: 1rem;
+	}
+}
+
+/* #endregion Offcanvas */
+
+/* ------------------------------------------------------------------------
+ * 10. Tabs
+ * ------------------------------------------------------------------------ */
+
+/* #region Tabs */
+
+/* --tms-tabs-gap is the single knob for the strip <-> content spacing. It is
+ * consumed by every layout branch (horizontal margin, vertical flex gap, and the
+ * stacked layout below 991px) so one Elementor control covers them all. Each
+ * branch keeps its own fallback, preserving the legacy look when unset. */
+
+/* Every rule that starts at a wrapper class (.horizontal-tab, .vertical-tab,
+ * .filled-tab) reaches its strip and content through child combinators only.
+ * A tabs widget dropped inside another one's panel carries the same class
+ * vocabulary, and a descendant selector painted the outer skin on it (a Filled
+ * outer turned an Underline inner into pills). `> *` stands for the <li>, so
+ * each rule keeps the specificity of its old descendant form. */
+
+/* The Tabs widgets' knobs are custom properties, and custom properties
+ * inherit: each widget root restarts them so an inner widget never reads the
+ * outer one's values. `initial` is the guaranteed-invalid value, so every
+ * var() below falls back to its own default. */
+.tms-tabs {
+	--tms-tabs-gap: initial;
+	--tms-tabs-item-gap: initial;
+	--tms-tabs-vertical-width: initial;
+}
+
+.horizontal-tab > .nav-tabs {
+	margin-top: 0;
+	margin-bottom: var(--tms-tabs-gap, 3rem);
+	justify-content: flex-start;
+	border-bottom: 2px solid;
+	border-color: var(--tms-border-color);
+}
+
+/* The strip never shrinks, so Tabs Width is exact: the content absorbs the
+ * gap (backlog #236; 35% used to land at 33.9% with a 40px gap). */
+.vertical-tab > .nav-pills {
+	width: var(--tms-tabs-vertical-width, 25%);
+	height: 100%;
+	margin: 0;
+	flex-shrink: 0;
+	border-left: 2px solid;
+	border-color: var(--tms-border-color);
+}
+
+/* Space between the tab items: none on the Underline strip, 15px between the
+ * Filled pills. The Filled rule comes second so it wins at equal specificity. */
+.tms-tabs > .nav {
+	gap: var(--tms-tabs-item-gap, 0px);
+}
+
+.filled-tab > .nav-tabs,
+.filled-tab > .nav-pills {
+	display: flex;
+	gap: var(--tms-tabs-item-gap, 15px);
+	border: none;
+}
+
+.nav-tabs .nav-item {
+	margin: 0;
+}
+
+.nav-pills .nav-item {
+	width: 100%;
+	margin: 0;
+}
+
+.nav-tabs .product-reviews .nav-link {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 10px;
+}
+
+/* The badge is taller than a tight label line-height (e.g. 12px), so it would
+   stretch the flex row and push this tab's label below its siblings'. Negative
+   block margins (half its height) take it out of the row height: the tab keeps
+   the label's height and the badge stays centered on it, overflowing into the
+   link padding. The Badge control of both Tabs widgets prints the same pill
+   (.tms-tabs__badge), in either orientation. */
+.nav-tabs .product-reviews .reviews-count,
+.tms-tabs > .nav > * > .nav-link > .tms-tabs__badge {
+	order: 2;
+	width: 20px;
+	height: 20px;
+	margin-block: -10px;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background-color: var(--tms-danger-color);
+	font-size: 12px;
+	line-height: 20px;
+	color: var(--tms-white-color);
+	transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link,
+.nav-pills .nav-link {
+	position: relative;
+	width: fit-content;
+	margin: 0;
+	padding: 0 20px 20px;
+	background: none;
+	border: none;
+	border-radius: 0;
+	font-size: var(--tms-font-size-sm);
+	font-weight: var(--tms-semibold-font-weight);
+	text-align: left;
+	color: var(--tms-body-color);
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link {
+	padding: 10px 20px;
+}
+
+.filled-tab > .nav-tabs > * > .nav-link,
+.filled-tab > .nav-pills > * > .nav-link {
+	padding: 10px 15px;
+	border-radius: 999px;
+}
+
+.nav-tabs .nav-link:hover,
+.nav-tabs .nav-link:focus,
+.nav-pills .nav-link:hover,
+.nav-pills .nav-link:focus {
+	border: none;
+	text-decoration: none;
+	color: var(--tms-heading-color);
+}
+
+.nav-tabs .nav-link.active,
+.nav-pills .nav-link.active {
+	background-color: inherit;
+	border: none;
+	color: var(--tms-heading-color);
+}
+
+/* The active pill keeps the resting padding: a wider one resized it on every
+ * switch and shifted the whole strip (backlog #236). */
+.filled-tab > .nav-tabs > * > .nav-link.active,
+.filled-tab > .nav-pills > * > .nav-link.active {
+	border: none;
+	background-color: var(--tms-button-bg-color);
+	color: var(--tms-button-text-color);
+}
+
+.nav-tabs .nav-link:before {
+	content: '';
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	width: 0;
+	height: 3px;
+	background-color: var(--tms-border-strong-color);
+	transform: translateX(-50%);
+	transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link.active:before {
+	width: 100%;
+}
+
+.filled-tab > .nav-tabs > * > .nav-link.active:before {
+	content: none;
+}
+
+.nav-pills .nav-link:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: calc(100% - 2px);
+  height: 0;
+  width: 6px;
+  border-radius: 999px;
+  background-color: var(--tms-border-strong-color);
+  transform: translateY(-50%);
+  transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link.active:before {
+	height: 100%;
+}
+
+.filled-tab > .nav-pills > * > .nav-link.active:before {
+	content: none;
+}
+
+.horizontal-tab > .tab-content {
+	padding: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.vertical-tab {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--tms-tabs-gap, 1.5rem);
+}
+
+.vertical-tab > .tab-content {
+	width: calc(100% - var(--tms-tabs-vertical-width, 25%));
+	min-width: 0;
+}
+
+/* Tabs widgets: Stretch alignment. The items share the strip equally and each
+ * label centers in its cell, so the underline and the Filled pill span it. */
+.tms-tabs > .tms-tabs__nav--stretch > .nav-item {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.tms-tabs > .tms-tabs__nav--stretch > .nav-item > .nav-link {
+	width: 100%;
+	justify-content: center;
+	text-align: center;
+}
+
+/* Tabs widget: a tab that carries an icon or a badge becomes a flex row
+ * (icon + label + badge); one without keeps its original box. The Icon
+ * Position control moves the icon through --tms-tabs-icon-order (and
+ * flex-direction for top/bottom). */
+.tms-tabs > .nav > * > .nav-link:has(> .tms-tabs__icon),
+.tms-tabs > .nav > * > .nav-link:has(> .tms-tabs__badge) {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+/* Icon contract: the wrapper span is the styled box and the glyph inside is
+ * 1em, so the Icon Size control moves one font-size and nothing else. */
+.tms-tabs__icon {
+	order: var(--tms-tabs-icon-order, 0);
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	line-height: 1;
+}
+
+.tms-tabs__icon svg {
+	width: 1em;
+	height: 1em;
+	fill: currentColor;
+}
+
+.tms-tabs__icon svg[fill="none"] {
+	fill: none;
+	stroke: currentColor;
+}
+
+/* Editor-only transient: <img> stands in while Elementor fetches an uploaded
+ * SVG (or when a themeasy-svg icon is not in the preloaded editor library). */
+.tms-tabs__icon img {
+	width: 1em;
+	height: 1em;
+}
+
+@media (max-width: 991px) {
+	.horizontal-tab > .nav-tabs {
+		margin-bottom: var(--tms-tabs-gap, 1.5rem);
+		padding: 10px;
+		border: 3px solid;
+		border-color: var(--tms-border-color);
+	}
+
+	/* Tabs widgets: the strip stays on one line and scrolls sideways instead
+	 * of wrapping inside the framed box above (backlog #236). A scroll
+	 * container clips everything outside its padding box, its own border
+	 * included, so the Underline line is drawn inside the box as an inset
+	 * shadow (the Line Color / Line Width controls also write
+	 * --tms-tabs-line-*), the active indicator sits on it from inside the tab,
+	 * and 8px of block padding keeps the focus ring and small pill shadows in
+	 * view. The Alignment control writes `safe` alignment, so the start of an
+	 * overflowing strip stays reachable; core.min.js scrolls a tab the
+	 * keyboard activates into view. */
+	.tms-tabs.horizontal-tab > .nav-tabs {
+		flex-wrap: nowrap;
+		padding: 8px 0 0;
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		border-style: none;
+		box-shadow: inset 0 calc(-1 * var(--tms-tabs-line-width, 2px)) 0
+			var(--tms-tabs-line-color, var(--tms-border-color));
+		scrollbar-width: none;
+	}
+
+	.tms-tabs.horizontal-tab > .nav-tabs::-webkit-scrollbar {
+		display: none;
+	}
+
+	.tms-tabs.filled-tab > .nav-tabs {
+		padding-bottom: 8px;
+		box-shadow: none;
+	}
+
+	.tms-tabs.horizontal-tab > .nav-tabs:not(.tms-tabs__nav--stretch) > .nav-item {
+		flex-shrink: 0;
+	}
+
+	.tms-tabs.horizontal-tab > .nav-tabs > * > .nav-link::before {
+		top: auto;
+		bottom: 0;
+	}
+
+	.nav-tabs .nav-link,
+	.nav-pills .nav-link {
+		font-size: var(--tms-font-size-sm);
+	}
+
+	.vertical-tab {
+		display: block;
+	}
+
+	.vertical-tab > .nav-pills {
+		width: 100%;
+		display: block;
+		margin-bottom: var(--tms-tabs-gap, 1.5rem);
+	}
+
+	.vertical-tab > .tab-content {
+		width: 100%;
+	}
+}
+
+/* #endregion Tabs */
+
+/* ------------------------------------------------------------------------
+ * 11. Accordion
+ * ------------------------------------------------------------------------ */
+
+/* #region Accordion */
+
+.accordion .accordion-item {
+  margin-top: 0;
+  margin-bottom: 0;
+  border-bottom: 2px solid;
+  border-color: var(--tms-border-color);
+  background: none;
+  font-size: 100%;
+  font-weight: var(--tms-body-font-weight);
+  color: var(--tms-body-color)
+}
+
+.accordion .accordion-item .tms-accordion__title {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: var(--tms-font-size-md);
+  font-weight: var(--tms-semibold-font-weight);
+  color: var(--tms-heading-color)
+}
+
+.accordion .accordion-item .accordion-button {
+  padding: 1.5rem 0;
+  display: flex;
+  align-items: flex-start;
+  background: none;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  -webkit-transition: all .4s ease;
+  -o-transition: all .4s ease;
+  -moz-transition: all .4s ease;
+  transition: all .4s ease
+}
+
+.accordion .accordion-item:first-child .accordion-button {
+  padding-top: 0
+}
+
+.accordion .accordion-item:last-child .accordion-button.collapsed {
+  padding-bottom: 0
+}
+
+.accordion .accordion-item .accordion-button::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-chevron-down'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")
+}
+
+.tms-dark-mode .accordion .accordion-item .accordion-button::after {
+  filter: brightness(1) invert(1)
+}
+
+.accordion .accordion-item .accordion-body {
+  padding: 0 0 1.5rem 0;
+  background: none
+}
+
+.accordion .accordion-item:last-child .accordion-body {
+  padding-bottom: 0
+}
+
+/* #endregion Accordion */
+
+/* ------------------------------------------------------------------------
+ * 12. Pagination
+ * ------------------------------------------------------------------------ */
+
+/* #region Pagination */
+
+.tms-pager {
+  margin-top: var(--tms-spacing-xl);
+  width: 100%;
+  font-size: var(--tms-font-size-sm);
+  font-weight: var(--tms-semibold-font-weight);
+  color: var(--tms-heading-color);
+}
+
+/* `stretch` keeps every plate on the row the same height: the arrows carry an
+ * 18px icon while the numbers carry a text line box, so any authored padding
+ * would otherwise leave the arrows shorter than the numbers. */
+.tms-pager .page-numbers,
+.tms-pager > ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--tms-spacing-xs);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tms-pager .page-numbers li,
+.tms-pager > ul > li {
+  display: flex;
+}
+
+/* Item base — 40x40 plate on the theme radius (50% keeps the legacy circle
+ * outside Themeasy themes), same chrome family as the carousel nav arrows:
+ * paper fill + hairline + soft shadow. The 40px is a floor, not a cap: a fixed
+ * width/height would clip three-digit page numbers and swallow any authored
+ * padding (border-box), so the widgets' Padding control would do nothing. */
+.tms-pager a.page-numbers,
+.tms-pager span.page-numbers,
+.tms-pager .tms-pager__item,
+.tms-pager .tms-pager__prev,
+.tms-pager .tms-pager__next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 1px solid var(--tms-border-color);
+  border-radius: var(--tms-radius-sm, 50%);
+  background-color: var(--tms-button-text-color, transparent);
+  box-shadow: var(--tms-shadow-sm, 0 10px 10px 0 rgba(0, 0, 0, 0.05));
+  font-size: var(--tms-font-size-sm);
+  font-weight: var(--tms-semibold-font-weight);
+  text-decoration: none;
+  color: var(--tms-button-bg-color);
+  cursor: pointer;
+  transition:
+    transform var(--tms-transition-fast),
+    background-color var(--tms-transition-fast),
+    border-color var(--tms-transition-fast),
+    color var(--tms-transition-fast);
+}
+
+/* Prev / Next — these plates always carry a bare icon, never a text label, so
+ * they are square by construction: the row stretches them to the numbers'
+ * height and `aspect-ratio` derives the width from it, whatever padding the
+ * widget controls add. (They used to inherit a horizontal-only padding, which
+ * made every arrow a wider rectangle than the number beside it.) Same radius
+ * family as the numbers — 999px keeps the legacy pill outside Themeasy
+ * themes — so arrows and numbers still read as one set. */
+.tms-pager a.page-numbers.prev,
+.tms-pager a.page-numbers.next,
+.tms-pager .tms-pager__prev,
+.tms-pager .tms-pager__next {
+  aspect-ratio: 1;
+  padding: 0;
+  border-radius: var(--tms-radius-sm, 999px);
+}
+
+/* Hover / focus */
+.tms-pager a.page-numbers:hover,
+.tms-pager a.page-numbers:focus-visible,
+.tms-pager .tms-pager__item:hover,
+.tms-pager .tms-pager__item:focus-visible,
+.tms-pager .tms-pager__prev:hover,
+.tms-pager .tms-pager__prev:focus-visible,
+.tms-pager .tms-pager__next:hover,
+.tms-pager .tms-pager__next:focus-visible {
+  transform: translateY(-2px);
+  text-decoration: none;
+  background-color: var(--tms-button-bg-color);
+  border-color: var(--tms-button-bg-color);
+  color: var(--tms-button-text-color);
+}
+
+/* Active / current */
+.tms-pager span.page-numbers.current,
+.tms-pager .tms-pager__item--active {
+  background-color: var(--tms-button-bg-color);
+  border-color: var(--tms-button-bg-color);
+  color: var(--tms-button-text-color);
+  font-weight: var(--tms-semibold-font-weight);
+  cursor: default;
+}
+
+/* Dots — no plate, so the item shadow would read as a smudge under a gap. */
+.tms-pager span.page-numbers.dots,
+.tms-pager .tms-pager__dots {
+  min-width: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  color: var(--tms-muted-color);
+  line-height: 0;
+  letter-spacing: 2px;
+  cursor: default;
+}
+
+/* Disabled prev/next (AJAX template) */
+.tms-pager li.disabled .tms-pager__prev,
+.tms-pager li.disabled .tms-pager__next {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Icon size inside pager */
+.tms-pager .tms-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Authored prev/next glyph (Post Grid / Archive Results icon controls). The
+ * widget owns this wrapper — the icon helper returns a bare 1em SVG — so the
+ * Icon Size control drives it through font-size. Both fill and stroke rules
+ * are required: Feather and anything with fill="none" are stroke sets. */
+.tms-pager .tms-pager__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+  line-height: 0;
+}
+
+.tms-pager .tms-pager__icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-pager .tms-pager__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-pager .tms-pager__icon img {
+  width: 1em;
+  height: 1em;
+  object-fit: contain;
+}
+
+/* The arrows are icon-only, so each one carries its own screen-reader label.
+ * Themeasy themes define this utility globally; the plugin also ships as a
+ * standalone widgets addon, so the pager cannot assume it exists. */
+.tms-pager .screen-reader-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* #endregion Pagination */

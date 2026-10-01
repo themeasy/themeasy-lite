@@ -1,0 +1,759 @@
+/*!
+ * Themeasy — Section Intro Widget Styles
+ *
+ * Composition-first section opener: eyebrow + title + description + actions
+ * arranged as two content groups (heading / content) on a CSS grid. Five
+ * layouts (stacked, split, offset eyebrow column, row with inline actions,
+ * vertical rail), six eyebrow styles (text, pill, tag, line, dot, brackets),
+ * five frame treatments (top/bottom hairline, outline, panel, blueprint with
+ * corner ticks) and an adaptive divider. Pure CSS — no widget JS. Layout
+ * modifiers use :where() so the empty-group fallbacks and responsive stack
+ * rules always win on source order, never on specificity.
+ *
+ * Public tokens (--tms-*) are consumed — never private (--themeasy-*).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Wrapper & custom properties
+ * 02. Content groups (head / body)
+ * 03. Eyebrow (base, icon, six styles)
+ * 04. Title & inline accents (em / mark)
+ * 05. Description
+ * 06. Actions
+ * 07. Divider
+ * 08. Layout: Stacked (base)
+ * 09. Layout: Split
+ * 10. Layout: Offset
+ * 11. Layout: Row
+ * 12. Layout: Rail
+ * 13. Empty-group fallbacks
+ * 14. Frames (lines, outline, panel, blueprint)
+ * 15. Responsive (stack collapses, mobile polish)
+ * 16. Accessibility (focus, reduced motion)
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & custom properties
+ * ------------------------------------------------------------------------ */
+
+/* #region Wrapper */
+
+.tms-section-intro {
+  --tms-section-intro-align: start;
+  --tms-section-intro-split: 50%;
+  --tms-section-intro-offset-col: 200px;
+  --tms-section-intro-head-gap: 1rem;
+  --tms-section-intro-body-gap: 1.5rem;
+  --tms-section-intro-border-color: var(--tms-border-color, #e5e7eb);
+  --tms-section-intro-border-width: 1px;
+  --tms-section-intro-divider-color: var(--tms-section-intro-border-color);
+  --tms-section-intro-divider-size: 1px;
+  --tms-section-intro-tick-size: 0.75rem;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "h"
+    "b";
+  width: 100%;
+  row-gap: 2rem;
+  column-gap: 3rem;
+  color: var(--tms-body-color, #4a4f5a);
+}
+
+/* #endregion Wrapper */
+
+/* ------------------------------------------------------------------------
+ * 02. Content groups (head / body)
+ * ------------------------------------------------------------------------ */
+
+/* #region Groups */
+
+.tms-section-intro .tms-section-intro__head {
+  grid-area: h;
+  display: flex;
+  flex-direction: column;
+  align-items: var(--tms-section-intro-align, start);
+  gap: var(--tms-section-intro-head-gap);
+  min-width: 0;
+}
+
+.tms-section-intro .tms-section-intro__body {
+  grid-area: b;
+  display: flex;
+  flex-direction: column;
+  align-items: var(--tms-section-intro-align, start);
+  gap: var(--tms-section-intro-body-gap);
+  min-width: 0;
+}
+
+/* #endregion Groups */
+
+/* ------------------------------------------------------------------------
+ * 03. Eyebrow (base, icon, six styles)
+ * ------------------------------------------------------------------------ */
+
+/* #region Eyebrow */
+
+.tms-section-intro .tms-section-intro__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  max-width: 100%;
+  color: var(--tms-primary-color, #2563eb);
+  /* Accent is the eyebrow/label family across the library (see the headline
+   * pre-title). The metrics below stay local — they are this widget's design. */
+  font-family: var(--tms-accent-font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.tms-section-intro .tms-section-intro__eyebrow-text {
+  display: inline-block;
+  min-width: 0;
+}
+
+/* Icon (fill/stroke pair — stroke sets ship with fill="none"). */
+
+.tms-section-intro .tms-section-intro__eyebrow-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1em;
+  height: 1em;
+  font-size: 1.25em;
+  line-height: 1;
+}
+
+.tms-section-intro svg.tms-section-intro__eyebrow-icon {
+  fill: currentColor;
+}
+
+.tms-section-intro svg.tms-section-intro__eyebrow-icon[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* Style: Pill (border). */
+
+.tms-section-intro--eyebrow-pill .tms-section-intro__eyebrow {
+  padding: 0.5em 1.1em;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+
+/* Style: Tag (background). */
+
+.tms-section-intro--eyebrow-tag .tms-section-intro__eyebrow {
+  padding: 0.5em 0.9em;
+  background-color: rgba(37, 99, 235, 0.1);
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+  border-radius: 0.375rem;
+}
+
+/* Style: Line (leading dash). */
+
+.tms-section-intro--eyebrow-line .tms-section-intro__eyebrow::before {
+  content: "";
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 2.25em;
+  height: 2px;
+  background-color: currentColor;
+}
+
+/* Style: Dot (status marker with a soft pulse). */
+
+.tms-section-intro--eyebrow-dot .tms-section-intro__eyebrow::before {
+  content: "";
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 0.5em;
+  height: 0.5em;
+  background-color: currentColor;
+  border-radius: 50%;
+  animation: tms-section-intro-dot-pulse 2.6s ease-out infinite;
+}
+
+@keyframes tms-section-intro-dot-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 40%, transparent);
+  }
+
+  70%,
+  100% {
+    box-shadow: 0 0 0 0.55em transparent;
+  }
+}
+
+/* Style: Brackets (technical label). */
+
+.tms-section-intro--eyebrow-brackets .tms-section-intro__eyebrow::before {
+  content: "[";
+}
+
+.tms-section-intro--eyebrow-brackets .tms-section-intro__eyebrow::after {
+  content: "]";
+}
+
+.tms-section-intro--eyebrow-brackets .tms-section-intro__eyebrow::before,
+.tms-section-intro--eyebrow-brackets .tms-section-intro__eyebrow::after {
+  flex: 0 0 auto;
+  font-weight: 400;
+  opacity: 0.65;
+}
+
+/* #endregion Eyebrow */
+
+/* ------------------------------------------------------------------------
+ * 04. Title & inline accents (em / mark)
+ * ------------------------------------------------------------------------ */
+
+/* #region Title */
+
+.tms-section-intro .tms-section-intro__title {
+  margin: 0;
+  max-width: 100%;
+  color: var(--tms-heading-color, #11131a);
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+/* Accent: <em> — colored, italic by default. */
+
+.tms-section-intro .tms-section-intro__title em {
+  color: var(--tms-primary-color, #2563eb);
+  font-style: italic;
+}
+
+/* Highlight: <mark> — marker-pen bar behind the text, theme-safe. */
+
+.tms-section-intro .tms-section-intro__title mark {
+  --tms-section-intro-mark-color: rgba(37, 99, 235, 0.18);
+
+  padding: 0 0.12em;
+  color: inherit;
+  background: transparent;
+  box-shadow: inset 0 -0.42em 0 0 var(--tms-section-intro-mark-color);
+}
+
+/* Custom properties keep the last declaration regardless of support, so the
+ * color-mix() upgrade must be @supports-gated to preserve the rgba fallback. */
+
+@supports (color: color-mix(in srgb, red, blue)) {
+  .tms-section-intro .tms-section-intro__title mark {
+    --tms-section-intro-mark-color: color-mix(in srgb, var(--tms-primary-color, #2563eb) 18%, transparent);
+  }
+}
+
+/* #endregion Title */
+
+/* ------------------------------------------------------------------------
+ * 05. Description
+ * ------------------------------------------------------------------------ */
+
+/* #region Description */
+
+.tms-section-intro .tms-section-intro__description {
+  color: var(--tms-body-color, #4a4f5a);
+  font-size: var(--tms-font-size-md);
+}
+
+.tms-section-intro .tms-section-intro__description p {
+  margin: 0 0 0.75em;
+}
+
+.tms-section-intro .tms-section-intro__description p:last-child {
+  margin-bottom: 0;
+}
+
+/* #endregion Description */
+
+/* ------------------------------------------------------------------------
+ * 06. Actions
+ * ------------------------------------------------------------------------ */
+
+/* #region Actions */
+
+.tms-section-intro .tms-section-intro__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: var(--tms-section-intro-align, start);
+  gap: 0.75rem;
+  max-width: 100%;
+}
+
+.tms-section-intro .tms-section-intro__button {
+  position: relative;
+  z-index: 2;
+}
+
+/* #endregion Actions */
+
+/* ------------------------------------------------------------------------
+ * 07. Divider
+ * ------------------------------------------------------------------------ */
+
+/* #region Divider */
+
+/* Horizontal by default (stacked / row); column layouts flip it below. */
+
+.tms-section-intro .tms-section-intro__divider {
+  grid-area: d;
+  display: block;
+  justify-self: stretch;
+  width: auto;
+  height: var(--tms-section-intro-divider-size);
+  background-color: var(--tms-section-intro-divider-color);
+  border-radius: 999px;
+}
+
+.tms-section-intro--layout-split .tms-section-intro__divider,
+.tms-section-intro--layout-offset .tms-section-intro__divider,
+.tms-section-intro--layout-rail .tms-section-intro__divider {
+  justify-self: center;
+  align-self: stretch;
+  width: var(--tms-section-intro-divider-size);
+  height: auto;
+}
+
+/* #endregion Divider */
+
+/* ------------------------------------------------------------------------
+ * 08. Layout: Stacked (base)
+ * ------------------------------------------------------------------------ */
+
+/* #region Stacked */
+
+/* The wrapper base is the stacked layout; only the divider variant differs. */
+
+.tms-section-intro--layout-stacked:where(.tms-section-intro--has-divider) {
+  grid-template-areas:
+    "h"
+    "d"
+    "b";
+}
+
+/* #endregion Stacked */
+
+/* ------------------------------------------------------------------------
+ * 09. Layout: Split (title | content)
+ * ------------------------------------------------------------------------ */
+
+/* #region Split */
+
+.tms-section-intro--layout-split {
+  grid-template-columns: minmax(0, var(--tms-section-intro-split)) minmax(0, 1fr);
+  grid-template-areas: "h b";
+  align-items: start;
+}
+
+.tms-section-intro--layout-split:where(.tms-section-intro--has-divider) {
+  grid-template-columns: minmax(0, var(--tms-section-intro-split)) auto minmax(0, 1fr);
+  grid-template-areas: "h d b";
+}
+
+.tms-section-intro--layout-split:where(.tms-section-intro--swap) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--tms-section-intro-split));
+  grid-template-areas: "b h";
+}
+
+.tms-section-intro--layout-split:where(.tms-section-intro--swap.tms-section-intro--has-divider) {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, var(--tms-section-intro-split));
+  grid-template-areas: "b d h";
+}
+
+/* #endregion Split */
+
+/* ------------------------------------------------------------------------
+ * 10. Layout: Offset (eyebrow column)
+ * ------------------------------------------------------------------------ */
+
+/* #region Offset */
+
+.tms-section-intro--layout-offset {
+  grid-template-columns: minmax(0, var(--tms-section-intro-offset-col)) minmax(0, 1fr);
+  grid-template-areas: "h b";
+  align-items: start;
+}
+
+.tms-section-intro--layout-offset:where(.tms-section-intro--has-divider) {
+  grid-template-columns: minmax(0, var(--tms-section-intro-offset-col)) auto minmax(0, 1fr);
+  grid-template-areas: "h d b";
+}
+
+.tms-section-intro--layout-offset:where(.tms-section-intro--swap) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--tms-section-intro-offset-col));
+  grid-template-areas: "b h";
+}
+
+.tms-section-intro--layout-offset:where(.tms-section-intro--swap.tms-section-intro--has-divider) {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, var(--tms-section-intro-offset-col));
+  grid-template-areas: "b d h";
+}
+
+/* Optical alignment: the lone eyebrow tracks the title cap line. */
+
+.tms-section-intro--layout-offset .tms-section-intro__head {
+  padding-top: 0.3em;
+}
+
+/* #endregion Offset */
+
+/* ------------------------------------------------------------------------
+ * 11. Layout: Row (title + inline actions)
+ * ------------------------------------------------------------------------ */
+
+/* #region Row */
+
+.tms-section-intro--layout-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "h b";
+  align-items: end;
+}
+
+.tms-section-intro--layout-row:where(.tms-section-intro--has-divider) {
+  grid-template-areas:
+    "h b"
+    "d d";
+}
+
+/* #endregion Row */
+
+/* ------------------------------------------------------------------------
+ * 12. Layout: Rail (vertical eyebrow)
+ * ------------------------------------------------------------------------ */
+
+/* #region Rail */
+
+.tms-section-intro--layout-rail {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: "h b";
+  align-items: start;
+}
+
+.tms-section-intro--layout-rail:where(.tms-section-intro--has-divider) {
+  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-areas: "h d b";
+}
+
+.tms-section-intro--layout-rail .tms-section-intro__eyebrow {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* Counter-rotate the icon so it stays upright inside the rotated eyebrow. */
+
+.tms-section-intro--layout-rail .tms-section-intro__eyebrow-icon {
+  transform: rotate(180deg);
+}
+
+/* #endregion Rail */
+
+/* ------------------------------------------------------------------------
+ * 13. Empty-group fallbacks
+ * ------------------------------------------------------------------------ */
+
+/* #region EmptyGroups */
+
+/* When a whole group is empty the grid drops its track — no phantom gaps. */
+
+.tms-section-intro--no-head {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "b";
+}
+
+.tms-section-intro--no-head:where(.tms-section-intro--has-divider) {
+  grid-template-areas:
+    "d"
+    "b";
+}
+
+.tms-section-intro--no-body {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "h";
+}
+
+.tms-section-intro--no-body:where(.tms-section-intro--has-divider) {
+  grid-template-areas:
+    "h"
+    "d";
+}
+
+/* A lone divider in a single-column grid is always horizontal. */
+
+.tms-section-intro--no-head .tms-section-intro__divider,
+.tms-section-intro--no-body .tms-section-intro__divider {
+  justify-self: stretch;
+  align-self: auto;
+  width: auto;
+  height: var(--tms-section-intro-divider-size);
+}
+
+/* #endregion EmptyGroups */
+
+/* ------------------------------------------------------------------------
+ * 14. Frames (lines, outline, panel, blueprint)
+ * ------------------------------------------------------------------------ */
+
+/* #region Frames */
+
+.tms-section-intro--frame-line-top {
+  padding-top: 2rem;
+  border-top: var(--tms-section-intro-border-width) solid var(--tms-section-intro-border-color);
+}
+
+.tms-section-intro--frame-line-bottom {
+  padding-bottom: 2rem;
+  border-bottom: var(--tms-section-intro-border-width) solid var(--tms-section-intro-border-color);
+}
+
+.tms-section-intro--frame-outline {
+  padding: 2.5rem;
+  border: var(--tms-section-intro-border-width) solid var(--tms-section-intro-border-color);
+  border-radius: 1rem;
+}
+
+.tms-section-intro--frame-panel {
+  padding: 2.5rem;
+  background-color: var(--tms-surface-color, #f7f8fa);
+  border-radius: 1rem;
+}
+
+.tms-section-intro--frame-blueprint {
+  padding: 2.5rem;
+  border: var(--tms-section-intro-border-width) solid var(--tms-section-intro-border-color);
+}
+
+/* Blueprint corner ticks — a small crosshair centered on each corner. */
+
+.tms-section-intro .tms-section-intro__tick {
+  position: absolute;
+  z-index: 1;
+  width: var(--tms-section-intro-tick-size);
+  height: var(--tms-section-intro-tick-size);
+  color: var(--tms-section-intro-border-color);
+  pointer-events: none;
+}
+
+.tms-section-intro .tms-section-intro__tick::before,
+.tms-section-intro .tms-section-intro__tick::after {
+  content: "";
+  position: absolute;
+  background-color: currentColor;
+}
+
+.tms-section-intro .tms-section-intro__tick::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: var(--tms-section-intro-border-width);
+  transform: translateY(-50%);
+}
+
+.tms-section-intro .tms-section-intro__tick::after {
+  top: 0;
+  left: 50%;
+  width: var(--tms-section-intro-border-width);
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.tms-section-intro .tms-section-intro__tick--tl {
+  top: calc(var(--tms-section-intro-tick-size) / -2);
+  left: calc(var(--tms-section-intro-tick-size) / -2);
+}
+
+.tms-section-intro .tms-section-intro__tick--tr {
+  top: calc(var(--tms-section-intro-tick-size) / -2);
+  right: calc(var(--tms-section-intro-tick-size) / -2);
+}
+
+.tms-section-intro .tms-section-intro__tick--bl {
+  bottom: calc(var(--tms-section-intro-tick-size) / -2);
+  left: calc(var(--tms-section-intro-tick-size) / -2);
+}
+
+.tms-section-intro .tms-section-intro__tick--br {
+  bottom: calc(var(--tms-section-intro-tick-size) / -2);
+  right: calc(var(--tms-section-intro-tick-size) / -2);
+}
+
+/* #endregion Frames */
+
+/* ------------------------------------------------------------------------
+ * 15. Responsive (stack collapses, mobile polish)
+ * ------------------------------------------------------------------------ */
+
+/* #region Responsive */
+
+@media (max-width: 1024px) {
+  .tms-section-intro--stack-md {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "h"
+      "b";
+  }
+
+  .tms-section-intro--stack-md:where(.tms-section-intro--has-divider) {
+    grid-template-areas:
+      "h"
+      "d"
+      "b";
+  }
+
+  .tms-section-intro--stack-md:where(.tms-section-intro--no-head) {
+    grid-template-areas: "b";
+  }
+
+  .tms-section-intro--stack-md:where(.tms-section-intro--no-head.tms-section-intro--has-divider) {
+    grid-template-areas:
+      "d"
+      "b";
+  }
+
+  .tms-section-intro--stack-md:where(.tms-section-intro--no-body) {
+    grid-template-areas: "h";
+  }
+
+  .tms-section-intro--stack-md:where(.tms-section-intro--no-body.tms-section-intro--has-divider) {
+    grid-template-areas:
+      "h"
+      "d";
+  }
+
+  .tms-section-intro--stack-md .tms-section-intro__divider {
+    justify-self: stretch;
+    align-self: auto;
+    width: auto;
+    height: var(--tms-section-intro-divider-size);
+  }
+
+  .tms-section-intro--stack-md .tms-section-intro__eyebrow {
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+
+  .tms-section-intro--stack-md .tms-section-intro__head {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .tms-section-intro--stack-sm {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "h"
+      "b";
+  }
+
+  .tms-section-intro--stack-sm:where(.tms-section-intro--has-divider) {
+    grid-template-areas:
+      "h"
+      "d"
+      "b";
+  }
+
+  .tms-section-intro--stack-sm:where(.tms-section-intro--no-head) {
+    grid-template-areas: "b";
+  }
+
+  .tms-section-intro--stack-sm:where(.tms-section-intro--no-head.tms-section-intro--has-divider) {
+    grid-template-areas:
+      "d"
+      "b";
+  }
+
+  .tms-section-intro--stack-sm:where(.tms-section-intro--no-body) {
+    grid-template-areas: "h";
+  }
+
+  .tms-section-intro--stack-sm:where(.tms-section-intro--no-body.tms-section-intro--has-divider) {
+    grid-template-areas:
+      "h"
+      "d";
+  }
+
+  .tms-section-intro--stack-sm .tms-section-intro__divider {
+    justify-self: stretch;
+    align-self: auto;
+    width: auto;
+    height: var(--tms-section-intro-divider-size);
+  }
+
+  .tms-section-intro--stack-sm .tms-section-intro__eyebrow {
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+
+  .tms-section-intro--stack-sm .tms-section-intro__head {
+    padding-top: 0;
+  }
+
+  .tms-section-intro--frame-outline,
+  .tms-section-intro--frame-panel,
+  .tms-section-intro--frame-blueprint {
+    padding: 1.75rem;
+  }
+}
+
+@media (max-width: 575px) {
+  .tms-section-intro--layout-stacked .tms-section-intro__actions,
+  .tms-section-intro--stack-md .tms-section-intro__actions,
+  .tms-section-intro--stack-sm .tms-section-intro__actions {
+    width: 100%;
+  }
+
+  .tms-section-intro--layout-stacked .tms-section-intro__actions .tms-section-intro__button,
+  .tms-section-intro--stack-md .tms-section-intro__actions .tms-section-intro__button,
+  .tms-section-intro--stack-sm .tms-section-intro__actions .tms-section-intro__button {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+/* #endregion Responsive */
+
+/* ------------------------------------------------------------------------
+ * 16. Accessibility (focus, reduced motion)
+ * ------------------------------------------------------------------------ */
+
+/* #region Accessibility */
+
+.tms-section-intro .tms-section-intro__button:focus-visible {
+  outline: 2px solid var(--tms-primary-color, #2563eb);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-section-intro--eyebrow-dot .tms-section-intro__eyebrow::before {
+    animation: none;
+    box-shadow: none;
+  }
+
+  /* !important required to override Elementor-injected inline animation styles. */
+  .tms-section-intro,
+  .tms-section-intro * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* #endregion Accessibility */

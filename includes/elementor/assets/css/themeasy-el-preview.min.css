@@ -1,0 +1,225 @@
+/*!
+ * Themeasy — Elementor Preview (Canvas)
+ *
+ * Styles injected into the Elementor preview iframe to adjust the editing
+ * canvas for Themeasy Global Sections Templates, megamenu templates, and custom
+ * editor helper elements (container info badges, balloon tooltips).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Page Template
+ * 02. Header Builder
+ * 03. Editor Helpers
+ * 04. Themeasy Library
+ * 05. Motion Failsafe
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Page Template
+ * ------------------------------------------------------------------------ */
+
+/* #region Global Sections Template */
+
+.themeasy-sections-template,
+.themeasy-megamenu-template {
+  --_canvas-c1: #e8e8e8;
+  --_canvas-c2: #d8d8d8;
+  --_canvas-size: 20px;
+  background-color: var(--_canvas-c1);
+  background-image:
+    linear-gradient(45deg, var(--_canvas-c2) 25%, transparent 25%, transparent 75%, var(--_canvas-c2) 75%),
+    linear-gradient(45deg, var(--_canvas-c2) 25%, transparent 25%, transparent 75%, var(--_canvas-c2) 75%);
+  background-size: var(--_canvas-size) var(--_canvas-size);
+  background-position: 0 0, calc(var(--_canvas-size) / 2) calc(var(--_canvas-size) / 2);
+  overflow-x: hidden
+}
+
+.themeasy-sections-template.elementor-editor-active .elementor-add-section:not(.elementor-dragging-on-child) .elementor-add-section-inner,
+.themeasy-megamenu-template.elementor-editor-active .elementor-add-section:not(.elementor-dragging-on-child) .elementor-add-section-inner {
+  background-color: #fff;
+  border: 2px dashed #d0d0d0;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgb(0 0 0 / .08)
+}
+
+.themeasy-sections-template .elementor-element.elementor-widget-empty,
+.themeasy-megamenu-template .elementor-element.elementor-widget-empty {
+  min-height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgb(0 0 0 / .08)
+}
+
+/* #endregion Global Sections Template */
+
+/* ------------------------------------------------------------------------
+ * 02. Header Builder
+ * ------------------------------------------------------------------------ */
+
+/* #region Header Builder */
+
+body:not(.themeasy-sections-template) .tms-e-navbar--desktop {
+	pointer-events: none;
+}
+
+.themeasy-sections-template .tms-e-navbar--mobile {
+  width: 100% !important;
+  max-width: 600px !important;
+	margin: 2rem auto !important;
+	display: var(--display) !important;
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.themeasy-sections-template .tms-e-offcanvas {
+	position: relative !important;
+	z-index: var(--z-index) !important;
+	width: 100% !important;
+	max-width: 600px !important;
+	height: 100% !important;
+	min-height: 700px !important;
+	margin: 2rem auto !important;
+	display: var(--display) !important;
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  overflow-y: initial !important;
+  transform: none !important;
+  visibility: visible !important;
+	pointer-events: auto !important;
+}
+
+/* "Pin From This Row" is frontend-only (Fixed/Smart never pin the canvas), so
+ * mark where the pinned area starts. An inset shadow rather than a positioned
+ * pseudo-element: the megamenu context fix can force the row to
+ * position: static. A marker outside any navbar does nothing on the frontend,
+ * so it gets a warning tone instead. */
+.themeasy-sections-template .tms-e-sticky-start {
+  box-shadow: inset 0 3px 0 #5b60d8;
+}
+
+/* The mobile navbar is framed as a card on this canvas (rule above) — keep
+ * that shadow when the navbar itself carries the marker. */
+.themeasy-sections-template .tms-e-navbar--mobile.tms-e-sticky-start {
+  box-shadow: inset 0 3px 0 #5b60d8, rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.themeasy-sections-template .tms-e-sticky-start:not(.tms-e-navbar):not(.tms-e-navbar *) {
+  box-shadow: inset 0 3px 0 #e2a03f;
+}
+
+/* #endregion Header Builder */
+
+/* ------------------------------------------------------------------------
+ * 03. Editor Helpers
+ * ------------------------------------------------------------------------ */
+
+/* #region Editor Helpers */
+
+.tms-e-container-info {
+  width: fit-content !important
+}
+
+.tms-e-container-info::after {
+  top: 1px !important
+}
+
+.tms-e-container-info span {
+  padding: 0 10px;
+  white-space: nowrap;
+  font-weight: 500
+}
+
+.tms-e-balloon {
+  position: absolute;
+  left: calc(100% + 20px);
+  width: 100%;
+  max-width: 180px;
+  padding: .5rem .75rem;
+  border-radius: 4px;
+  background-color: #5b60d8;
+  box-shadow: #0c0d0e 5px 5px 0;
+  pointer-events: none
+}
+
+.tms-e-balloon::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #5b60d8
+}
+
+.tms-e-balloon__notice {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: .5px;
+  color: #fff;
+  user-select: none
+}
+
+.tms-e-balloon__notice span {
+  text-decoration: underline
+}
+
+/* #endregion Editor Helpers */
+
+/* ------------------------------------------------------------------------
+ * 04. Themeasy Library
+ * ------------------------------------------------------------------------ */
+
+/* #region Themeasy Library */
+
+.elementor-editor-active .elementor-add-section-area-button.themeasy-library-add-button {
+  padding: 10px;
+}
+
+.elementor-editor-active .elementor-add-section-area-button.themeasy-library-add-button:hover {
+  color: #5b60d8;
+}
+
+/* #endregion Themeasy Library */
+
+/* ------------------------------------------------------------------------
+ * 05. Motion Failsafe
+ * ------------------------------------------------------------------------ */
+
+/* #region Motion Failsafe */
+
+/*
+ * A Themeasy widget must never sit invisible on the editing canvas.
+ *
+ * The entrance families ship a `tms-animation--hidden` guard (opacity: 0 in
+ * effects.min.css) that the frontend engines strip once they play. On the
+ * canvas that reveal comes from MotionRuntime in themeasy-el-preview.min.js —
+ * so if the JS ever fails to reach an element, picking an animation would make
+ * the widget disappear rather than animate. This file only ever loads inside
+ * the preview iframe, so it flips the resting state to visible there.
+ *
+ * NOT !important, deliberately: GSAP writes inline styles, so the animation
+ * still plays from its real starting values. The `body` prefix wins on
+ * specificity alone (0,2,1 / 0,3,1), so stylesheet order cannot break it.
+ */
+body .tms-text-animation.tms-animation--hidden,
+body .tms-block-animation.tms-animation--hidden,
+body .tms-animation.tms-animation--hidden .tms-animation__target,
+body .tms-animation.tms-animation--hidden > .elementor-element,
+body .tms-animation.tms-animation--hidden > .e-con-inner > .elementor-element {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* #endregion Motion Failsafe */
