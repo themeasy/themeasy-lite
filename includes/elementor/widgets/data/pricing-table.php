@@ -1092,6 +1092,7 @@ class PricingTable extends Widget_Base {
               'type' => Controls_Manager::COLOR,
               'selectors' => [
                 '{{WRAPPER}} .tms-button' => 'background-color: {{VALUE}}',
+                '{{WRAPPER}} .tms-button.tms-button--brutalist::after' => 'background-color: {{VALUE}}',
               ],
               'condition' => [
                 'button_style!' => ['simple', 'outline', 'gradient', 'gradient-outline', 'duocolor-outline'],
@@ -1208,6 +1209,7 @@ class PricingTable extends Widget_Base {
               'type' => Controls_Manager::COLOR,
               'selectors' => [
                 '{{WRAPPER}} .tms-button:hover' => 'background-color: {{VALUE}}',
+                '{{WRAPPER}} .tms-button.tms-button--brutalist:hover::after' => 'background-color: {{VALUE}}',
               ],
               'condition' => [
                 'button_style!' => ['simple', 'gradient', 'gradient-outline'],
@@ -2150,6 +2152,12 @@ class PricingTable extends Widget_Base {
         ? window.Themeasy.sanitizeInlineHtml
         : _.escape;
 
+      // Scheme guard for every href below. The regex lives in exactly one
+      // place; the fallback fails closed rather than duplicating it.
+      var safeUrl = ( window.Themeasy && window.Themeasy.safeUrl )
+        ? window.Themeasy.safeUrl
+        : function () { return ''; };
+
       // ------------------------------------------------------------------------
       // Settings.
       // ------------------------------------------------------------------------
@@ -2309,7 +2317,8 @@ class PricingTable extends Widget_Base {
             var buttonIconAlignment = item.button_icon_alignment || 'right';
             var linkType            = item.link_type || '';
             var link                = item.link || {};
-            var linkUrl             = ( link && link.url ) ? link.url : '#';
+            // A blocked (or unset) URL falls back to the inert '#'.
+            var linkUrl             = safeUrl( ( link && link.url ) || '' ) || '#';
 
             // Per-item card classes (clone base to avoid accumulation).
             var itemCardClasses   = cardClasses.slice();

@@ -202,9 +202,13 @@ final class Entitlement {
   }
 
   /**
-   * Whether the SaaS Agency plan is active (white-label + agency tools).
+   * Whether the SaaS Agency plan is active, including trial: Pro plus the White
+   * Label.
    *
-   * 'agency' is the top plan, so the $exact flag is moot here (nothing is higher).
+   * By exact name, like every plan read here (see is_full_offer_plan()): the
+   * SDK appends a plan missing from the cached list at the END, above Agency, so
+   * a positional read ($exact = false) would let that plan pass as Agency.
+   * Guarded by tests/white-label-drift.php (backlog #272).
    *
    * @return bool
    */
@@ -287,6 +291,41 @@ final class Entitlement {
     $fs = self::fs();
 
     return ( $fs && null !== self::own_license( $fs ) ) ? (string) $fs->get_account_url() : '';
+  }
+
+  /**
+   * The CSS classes of a link that opens the SDK's license activation dialog,
+   * or '' when this build takes no license key (the Lite).
+   *
+   * The SDK puts its own "Activate License" link on plugins.php only, and
+   * core/licensing.php strips it on a Themeasy theme, so the Themeasy page
+   * carries a link of its own (backlog #271). Pair it with
+   * print_license_activation_dialog() on the same page.
+   *
+   * @return string
+   */
+  public static function license_activation_trigger_class(): string {
+    $fs = self::fs();
+
+    return ( $fs && $fs->is_premium() ) ? 'activate-license-trigger ' . $fs->get_unique_affix() : '';
+  }
+
+  /**
+   * Print the SDK's license activation dialog (hook it on admin_footer).
+   *
+   * The SDK registers the dialog's AJAX handler on every admin screen, so the
+   * dialog activates a key wherever it is printed (measured on the Themeasy
+   * page, backlog #271). _add_license_activation_dialog_box() is public but
+   * SDK-internal (leading underscore), like _get_license() below.
+   *
+   * @return void
+   */
+  public static function print_license_activation_dialog(): void {
+    $fs = self::fs();
+
+    if ( $fs && $fs->is_premium() ) {
+      $fs->_add_license_activation_dialog_box();
+    }
   }
 
   /**

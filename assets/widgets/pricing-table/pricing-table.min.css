@@ -59,6 +59,16 @@
   margin-bottom: calc(3rem + 45px);
 }
 
+/* Stacked cards: the bar sits 45px ABOVE its card, and only the toggle row
+   reserved that room. When the cards wrap (columns < plans, e.g. one per row
+   on a phone) the bar covered the bottom of the card above it
+   (pricing/graphite-seat-tiers, 2026-10-01, backlog #300). The grid spaces
+   its tracks with `gap`, and row-gap only exists between wrapped lines — a
+   single desktop row is unchanged. */
+.tms-pricing-table:not(.tms-grid-border):has(.tms-vertical-label--top-filled) [class*="row-cols"] {
+  row-gap: calc(var(--bs-gutter-y) + 45px);
+}
+
 .tms-pricing-table .tms-price-toggle__field .form-label {
   margin: 0;
   font-size: 110%;

@@ -6,7 +6,9 @@
  * (widgets-only) build the page is a Getting Started guide first (the free
  * widgets, how to reach them in Elementor, help), with the upgrade after it
  * (backlog #267), and the Lite build tells a buyer how to swap it for the
- * Themeasy plugin (backlog #268); it also showcases the template library. The full
+ * Themeasy plugin (backlog #268), while the premium build without a license
+ * opens the SDK's license activation dialog from a "Plugin license" block
+ * (backlog #271); it also showcases the template library. The full
  * settings panel is premium (Settings_Loader); to avoid registering the menu
  * twice, this loader stands down on the full offer with a Themeasy theme
  * active — the Pro admin then owns the menu. On any other theme that admin
@@ -17,6 +19,10 @@
  * as its only admin surface (backlog #262), with its own copy: the license is
  * active, the upgrade goes to the full offer, and the license is managed on
  * the Themeasy Hub.
+ *
+ * Below a paid plan the page says what each plan above it adds: Widgets (on
+ * Free), Pro, and Agency, which is Pro plus the White Label and names where the
+ * brand changes (launch runbook S12, decisions O2-b and C4-b).
  *
  * Ships in BOTH builds (no premium marker): the premium build keeps it inert
  * on the full offer (can_use_premium() true → Settings_Loader owns the menu);
@@ -57,6 +63,20 @@ class Upgrade_Page {
 
   /** Where a plugin-plan buyer downloads the premium build (the Freemius customer portal). */
   private const CUSTOMER_PORTAL_URL = 'https://users.freemius.com';
+
+  /**
+   * Widgets per plan, as the editor registers them: the Widgets plan, and the
+   * full offer with a Themeasy theme and on any other theme, where the
+   * WooCommerce widgets and the two cart widgets stay out (they need the theme's
+   * WooCommerce runtime). The copy names them in both builds, and the Free build
+   * has no Pro tree to count, so they are numbers here:
+   * tests/widgets-plan-drift.php recounts them from the widget trees.
+   */
+  private const WIDGETS_PLAN_COUNT = 87;
+
+  private const FULL_OFFER_COUNT = 128;
+
+  private const FULL_OFFER_ANY_THEME_COUNT = 119;
 
   /**
    * Initialize the minimal Free admin.
@@ -173,6 +193,12 @@ class Upgrade_Page {
 
     // Free: the page opens on how to use the free widgets; the upgrade follows.
     $is_free = !$is_full_offer && !$is_widgets_plan;
+
+    // The Agency White Label rebrands the hero, as it does the Pro admin's top
+    // bar: on another theme this page is the Agency's Themeasy menu (backlog
+    // #272). Both filters default to Themeasy when that layer is off.
+    $brand_name = (string) apply_filters( 'themeasy/brand/name', 'Themeasy' );
+    $brand_logo = (string) apply_filters( 'themeasy/brand/logo_url', '' );
     ?>
     <div class="themeasy-admin themeasy-admin--dark-mode">
 
@@ -181,28 +207,87 @@ class Upgrade_Page {
 
           <div class="themeasy-admin__hero">
             <div class="themeasy-admin__brand">
-              <?php echo self::logo_svg(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted bundled SVG.?>
+              <?php if ( '' !== $brand_logo ) : ?>
+                <img src="<?php echo esc_url( $brand_logo ); ?>" alt="<?php echo esc_attr( $brand_name ); ?>" />
+              <?php else : ?>
+                <?php echo self::logo_svg(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted bundled SVG.?>
+              <?php endif; ?>
             </div>
             <?php if ( $is_full_offer ) : ?>
               <h1 class="themeasy-admin__title">
-                <?php esc_html_e( 'Your Themeasy license is active', 'themeasy-lite' ); ?>
+                <?php
+                printf(
+                  /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+                  esc_html__( 'Your %s license is active', 'themeasy-lite' ),
+                  esc_html( $brand_name )
+                );
+                ?>
               </h1>
               <p class="themeasy-admin__lead">
-                <?php esc_html_e( 'The Pro widgets and Themeasy Motion work in this theme. The theme builder, global sections, the settings panel, and the WooCommerce and Contact Form 7 integrations need a Themeasy theme: activate one to use them.', 'themeasy-lite' ); ?>
+                <?php
+                printf(
+                  esc_html(
+                    /* translators: %s: number of widgets. */
+                    _n(
+                      '%s widget and Themeasy Motion work in this theme.',
+                      '%s widgets and Themeasy Motion work in this theme.',
+                      self::FULL_OFFER_ANY_THEME_COUNT,
+                      'themeasy-lite'
+                    )
+                  ),
+                  esc_html( number_format_i18n( self::FULL_OFFER_ANY_THEME_COUNT ) )
+                );
+                echo ' ';
+                printf(
+                  esc_html(
+                    /* translators: %s: number of widgets. */
+                    _n(
+                      'A Themeasy theme adds the rest of your license: the theme builder, global sections, container controls, the settings panel, the WooCommerce and Contact Form 7 integrations, and the WooCommerce widgets, for %s widget in all.',
+                      'A Themeasy theme adds the rest of your license: the theme builder, global sections, container controls, the settings panel, the WooCommerce and Contact Form 7 integrations, and the WooCommerce widgets, for %s widgets in all.',
+                      self::FULL_OFFER_COUNT,
+                      'themeasy-lite'
+                    )
+                  ),
+                  esc_html( number_format_i18n( self::FULL_OFFER_COUNT ) )
+                );
+                ?>
               </p>
             <?php elseif ( $is_widgets_plan ) : ?>
               <h1 class="themeasy-admin__title">
                 <?php esc_html_e( 'Themeasy Widgets is active', 'themeasy-lite' ); ?>
               </h1>
               <p class="themeasy-admin__lead">
-                <?php esc_html_e( 'Your license unlocks the Pro content widgets and Themeasy Motion, in any theme. Upgrade to Pro for the complete site toolkit: the theme builder, global sections, the settings panel, every widget category, WooCommerce, and the living template library.', 'themeasy-lite' ); ?>
+                <?php
+                printf(
+                  esc_html(
+                    /* translators: %s: number of widgets. */
+                    _n(
+                      'Your license unlocks %s widget, the free ones plus the Pro content widgets, and Themeasy Motion, in any theme.',
+                      'Your license unlocks %s widgets, the free ones plus the Pro content widgets, and Themeasy Motion, in any theme.',
+                      self::WIDGETS_PLAN_COUNT,
+                      'themeasy-lite'
+                    )
+                  ),
+                  esc_html( number_format_i18n( self::WIDGETS_PLAN_COUNT ) )
+                );
+                echo ' ';
+                esc_html_e( 'Pro adds the complete site toolkit, and Agency adds White Label to Pro.', 'themeasy-lite' );
+                ?>
               </p>
             <?php else : ?>
               <h1 class="themeasy-admin__title">
                 <?php esc_html_e( 'Welcome to Themeasy', 'themeasy-lite' ); ?>
               </h1>
               <p class="themeasy-admin__lead">
-                <?php esc_html_e( 'Free Elementor widgets that work in any theme, with no license to activate. Here is how to start building with them.', 'themeasy-lite' ); ?>
+                <?php
+                // The Lite cannot take a key; the premium build without one can,
+                // in the Plugin license block right below.
+                if ( Entitlement::is_lite_build() ) {
+                  esc_html_e( 'Free Elementor widgets that work in any theme, with no license to activate. Here is how to start building with them.', 'themeasy-lite' );
+                } else {
+                  esc_html_e( 'Free Elementor widgets that work in any theme. Bought a plan? Activate its license below. Otherwise, here is how to start building with the free widgets.', 'themeasy-lite' );
+                }
+                ?>
               </p>
             <?php endif; ?>
             <div class="themeasy-admin__actions">
@@ -231,6 +316,9 @@ class Upgrade_Page {
           </div>
 
           <?php if ( $is_free ) : ?>
+            <?php if ( !Entitlement::is_lite_build() ) : ?>
+              <?php self::render_plugin_license(); ?>
+            <?php endif; ?>
             <?php self::render_getting_started(); ?>
             <?php if ( Entitlement::is_lite_build() ) : ?>
               <?php self::render_already_purchased(); ?>
@@ -242,7 +330,7 @@ class Upgrade_Page {
               <?php esc_html_e( 'The Template Library', 'themeasy-lite' ); ?>
             </h2>
             <p class="themeasy-admin__section-lead">
-              <?php esc_html_e( 'Import ready-made, fully editable page and section templates — copy, paste, and customize. The library keeps growing.', 'themeasy-lite' ); ?>
+              <?php esc_html_e( 'Ready-made, fully editable page and section templates that insert into the Elementor editor in one click. The library keeps growing.', 'themeasy-lite' ); ?>
             </p>
 
             <div class="themeasy-admin__grid">
@@ -262,12 +350,12 @@ class Upgrade_Page {
               ];
 
               foreach ( $templates as $template ) :
-                $is_free = 'free' === $template['tier'];
+                $is_free_template = 'free' === $template['tier'];
                 ?>
-                <div class="themeasy-admin__card themeasy-admin__card--<?php echo esc_attr( $is_free ? 'free' : 'pro' ); ?>" aria-hidden="true">
+                <div class="themeasy-admin__card themeasy-admin__card--<?php echo esc_attr( $is_free_template ? 'free' : 'pro' ); ?>" aria-hidden="true">
                   <img class="themeasy-admin__card-image" src="<?php echo esc_url( TMS_URL . 'admin/assets/img/library/' . $template['image'] ); ?>" alt="" loading="lazy" />
                   <span class="themeasy-admin__badge">
-                    <?php echo $is_free ? esc_html__( 'Free', 'themeasy-lite' ) : esc_html__( 'Pro', 'themeasy-lite' ); ?>
+                    <?php echo $is_free_template ? esc_html__( 'Free', 'themeasy-lite' ) : esc_html__( 'Pro', 'themeasy-lite' ); ?>
                   </span>
                 </div>
               <?php endforeach; ?>
@@ -287,7 +375,16 @@ class Upgrade_Page {
                 [
                   [
                     'icon' => 'feature-widgets.svg',
-                    'text' => __( 'Pro content widgets — text, media, elements, blocks, sliders, and data', 'themeasy-lite' ),
+                    'text' => sprintf(
+                      /* translators: %s: number of widgets. */
+                      _n(
+                        '%s widget — the free ones plus the Pro content widgets: text, media, elements, blocks, sliders, and data',
+                        '%s widgets — the free ones plus the Pro content widgets: text, media, elements, blocks, sliders, and data',
+                        self::WIDGETS_PLAN_COUNT,
+                        'themeasy-lite'
+                      ),
+                      number_format_i18n( self::WIDGETS_PLAN_COUNT )
+                    ),
                   ],
                   [
                     'icon' => 'feature-motion.svg',
@@ -318,12 +415,30 @@ class Upgrade_Page {
               self::render_feature_list(
                 [
                   [
+                    'icon' => 'feature-themes.svg',
+                    'text' => __( 'Every Themeasy theme — the whole collection, and each new one', 'themeasy-lite' ),
+                  ],
+                  [
                     'icon' => 'feature-theme-builder.svg',
                     'text' => __( 'Theme builder — custom headers, footers, and global sections', 'themeasy-lite' ),
                   ],
                   [
                     'icon' => 'feature-widgets.svg',
-                    'text' => __( 'Every widget category — header, post, site, footer, WooCommerce, mega menu', 'themeasy-lite' ),
+                    'text' => sprintf(
+                      /* translators: 1: number of widgets with a Themeasy theme, 2: number of widgets in any other theme. */
+                      _n(
+                        'Every widget category — header, post, site, footer, WooCommerce, mega menu: %1$s widget with a Themeasy theme, %2$s in any other theme',
+                        'Every widget category — header, post, site, footer, WooCommerce, mega menu: %1$s widgets with a Themeasy theme, %2$s in any other theme',
+                        self::FULL_OFFER_COUNT,
+                        'themeasy-lite'
+                      ),
+                      number_format_i18n( self::FULL_OFFER_COUNT ),
+                      number_format_i18n( self::FULL_OFFER_ANY_THEME_COUNT )
+                    ),
+                  ],
+                  [
+                    'icon' => 'feature-containers.svg',
+                    'text' => __( 'Container controls — sticky columns, scroll and hover animations, and background effects', 'themeasy-lite' ),
                   ],
                   [
                     'icon' => 'feature-settings.svg',
@@ -335,22 +450,50 @@ class Upgrade_Page {
                   ],
                   [
                     'icon' => 'feature-library.svg',
-                    'text' => __( 'The living template library — copy, paste, and customize', 'themeasy-lite' ),
+                    'text' => __( 'The Pro templates of the Themeasy Library, inserted in one click', 'themeasy-lite' ),
                   ],
                   [
                     'icon' => 'feature-support.svg',
-                    'text' => __( 'Priority support', 'themeasy-lite' ),
+                    'text' => __( 'Support through the Themeasy help desk', 'themeasy-lite' ),
                   ],
                 ]
               );
               ?>
               <?php if ( $needs_themeasy_theme ) : ?>
                 <p class="themeasy-admin__section-lead">
-                  <?php esc_html_e( 'The theme builder, global sections, and settings panel run on a Themeasy theme. The widgets work in any theme.', 'themeasy-lite' ); ?>
+                  <?php esc_html_e( 'The theme builder, global sections, container controls, settings panel, and WooCommerce features run on a Themeasy theme, and every Themeasy theme comes with Pro. The other widgets work in any theme.', 'themeasy-lite' ); ?>
                 </p>
               <?php endif; ?>
               <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $upgrade_url ); ?>">
                 <?php echo esc_html( $is_widgets_plan ? __( 'Upgrade to Pro', 'themeasy-lite' ) : __( 'See Pricing', 'themeasy-lite' ) ); ?>
+              </a>
+            </div>
+
+            <div class="themeasy-admin__features">
+              <h2 class="themeasy-admin__section-title">
+                <?php esc_html_e( 'Themeasy Agency', 'themeasy-lite' ); ?>
+              </h2>
+              <p class="themeasy-admin__section-lead">
+                <?php esc_html_e( 'Everything in Pro, plus White Label: your brand in place of Themeasy\'s, for the sites you build for clients.', 'themeasy-lite' ); ?>
+              </p>
+              <?php
+              // Exactly where the White Label rebrands today (decision C4-b): the
+              // rest of the editor (the Themeasy Motion sections) is backlog #282.
+              self::render_feature_list(
+                [
+                  [
+                    'icon' => 'feature-white-label.svg',
+                    'text' => __( 'Your brand in the WordPress admin — the plugin\'s menu, page headers, and row on the Plugins screen', 'themeasy-lite' ),
+                  ],
+                  [
+                    'icon' => 'feature-editor.svg',
+                    'text' => __( 'Your brand in the Elementor editor — the widget categories, the template library, and the icon library tabs', 'themeasy-lite' ),
+                  ],
+                ]
+              );
+              ?>
+              <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $upgrade_url ); ?>">
+                <?php echo esc_html( $is_widgets_plan ? __( 'Upgrade to Agency', 'themeasy-lite' ) : __( 'Get Themeasy Agency', 'themeasy-lite' ) ); ?>
               </a>
             </div>
           <?php endif; ?>
@@ -438,6 +581,45 @@ class Upgrade_Page {
         );
         ?>
       </p>
+    </div>
+    <?php
+  }
+
+  /**
+   * Print the premium build's "Plugin license" block (backlog #271): where a
+   * plugin-plan buyer (Widgets, Pro, Agency) activates the key, on any theme.
+   * The SDK's own link lives on plugins.php only, and core/licensing.php strips
+   * it on a Themeasy theme. On such a theme the copy keeps a theme buyer's key
+   * out of the dialog: it goes in the theme wizard and unlocks the plugin by
+   * itself (M2).
+   *
+   * @return void
+   */
+  private static function render_plugin_license(): void {
+    $trigger = Entitlement::license_activation_trigger_class();
+
+    if ( '' === $trigger ) {
+      return;
+    }
+
+    // The SDK's dialog opens over this page and prints its own stylesheet.
+    add_action( 'admin_footer', [Entitlement::class, 'print_license_activation_dialog'] );
+    ?>
+    <div class="themeasy-admin__start" aria-labelledby="themeasy-admin-license-title">
+      <h2 id="themeasy-admin-license-title" class="themeasy-admin__section-title">
+        <?php esc_html_e( 'Plugin license', 'themeasy-lite' ); ?>
+      </h2>
+      <p class="themeasy-admin__section-lead">
+        <?php esc_html_e( 'Bought Themeasy Widgets, Pro, or Agency? Activate the license key from your purchase email to unlock your plan on this site.', 'themeasy-lite' ); ?>
+      </p>
+      <?php if ( current_theme_supports( 'themeasy-compatible' ) ) : ?>
+        <p class="themeasy-admin__section-lead">
+          <?php esc_html_e( 'Bought a Themeasy theme? Its license key goes in Appearance > Theme Setup, not here: the theme license unlocks this plugin on its own.', 'themeasy-lite' ); ?>
+        </p>
+      <?php endif; ?>
+      <a class="themeasy-admin__button button button-primary button-hero <?php echo esc_attr( $trigger ); ?>" href="#">
+        <?php esc_html_e( 'Activate License', 'themeasy-lite' ); ?>
+      </a>
     </div>
     <?php
   }

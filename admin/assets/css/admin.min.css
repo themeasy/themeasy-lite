@@ -273,6 +273,13 @@ body #wpfooter {
   color: var(--themeasy-heading-color);
 }
 
+/* The Agency White Label logo (backlog #272). */
+.themeasy-admin__brand img {
+  width: auto;
+  max-width: 100%;
+  height: 40px;
+}
+
 .themeasy-admin__title {
   margin: 1.5rem 0;
   font-size: 1.75rem;

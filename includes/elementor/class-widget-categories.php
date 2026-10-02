@@ -53,77 +53,92 @@ class Widget_Categories {
    * @return array<string, array{category_slug: string, admin_label: string, editor_label: string, requires_woo: bool}>
    */
   private static function definitions(): array {
+    // The Agency White Label renames the brand (backlog #272); Themeasy by default.
+    $brand = self::brand_name();
+
     return [
       'text' => [
         'category_slug' => 'themeasy_text_category',
         'admin_label' => __( 'Text & Typography', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Text & Typography', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Text & Typography', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
       'media' => [
         'category_slug' => 'themeasy_media_category',
         'admin_label' => __( 'Images & Media', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Images & Media', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Images & Media', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
       'elements' => [
         'category_slug' => 'themeasy_elements_category',
         'admin_label' => __( 'Elements', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Elements', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Elements', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
       'blocks' => [
         'category_slug' => 'themeasy_blocks_category',
         'admin_label' => __( 'Blocks & Cards', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Blocks & Cards', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Blocks & Cards', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
       'showcase' => [
         'category_slug' => 'themeasy_showcase_category',
         'admin_label' => __( 'Sliders & Showcase', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Sliders & Showcase', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Sliders & Showcase', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
       'data' => [
         'category_slug' => 'themeasy_data_category',
         'admin_label' => __( 'Data & Conversion', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Data & Conversion', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Data & Conversion', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
       'post' => [
         'category_slug' => 'themeasy_post_category',
         'admin_label' => __( 'Post & Portfolio', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Post & Portfolio', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Post & Portfolio', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
       'woocommerce' => [
         'category_slug' => 'themeasy_woocommerce_category',
         'admin_label' => __( 'WooCommerce', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — WooCommerce', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — WooCommerce', 'themeasy-lite' ), $brand ),
         'requires_woo' => true,
       ],
       'header' => [
         'category_slug' => 'themeasy_header_category',
         'admin_label' => __( 'Header', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Header', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Header', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
       'footer' => [
         'category_slug' => 'themeasy_footer_category',
         'admin_label' => __( 'Footer', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Footer', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Footer', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
       'site' => [
         'category_slug' => 'themeasy_site_category',
         'admin_label' => __( 'Site Utilities', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Site Utilities', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Site Utilities', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
       'megamenu' => [
         'category_slug' => 'themeasy_megamenu_category',
         'admin_label' => __( 'Megamenu', 'themeasy-lite' ),
-        'editor_label' => __( 'Themeasy — Megamenu', 'themeasy-lite' ),
+        /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+        'editor_label' => sprintf( __( '%s — Megamenu', 'themeasy-lite' ), $brand ),
         'requires_woo' => false,
       ],
     ];
@@ -135,7 +150,19 @@ class Widget_Categories {
    * @return string
    */
   public static function free_editor_label(): string {
-    return __( 'Themeasy — Essentials', 'themeasy-lite' );
+    /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+    return sprintf( __( '%s — Essentials', 'themeasy-lite' ), self::brand_name() );
+  }
+
+  /**
+   * The brand the editor labels carry: Themeasy, or the Agency's White Label
+   * name (themeasy/brand/name, backlog #272). Plain text: Elementor prints a
+   * category title as HTML, and the White Label stores it sanitized.
+   *
+   * @return string
+   */
+  private static function brand_name(): string {
+    return (string) apply_filters( 'themeasy/brand/name', 'Themeasy' );
   }
 
   /**

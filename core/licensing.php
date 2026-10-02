@@ -115,8 +115,10 @@ if ( !function_exists( 'themeasy_fs' ) ) {
       // Themeasy theme the license flow lives in the theme's setup wizard + the
       // Hub (M2: the plugin goes premium via the licensed theme), so the link is
       // a confusing dead-end there — strip it whenever a Themeasy theme is
-      // active OR the site is already entitled. Priority 100 so it runs after
-      // Freemius has added the link.
+      // active OR the site is already entitled. A plugin-plan buyer on a
+      // Themeasy theme activates from the Themeasy page instead, whose "Plugin
+      // license" block opens the same SDK dialog (backlog #271). Priority 100 so
+      // it runs after Freemius has added the link.
       add_filter(
         'plugin_action_links_' . plugin_basename( dirname( __DIR__ ) . '/themeasy.php' ),
         static function ( $links ) {
@@ -170,6 +172,15 @@ if ( !function_exists( 'themeasy_fs' ) ) {
 
       delete_option( 'themeasy_pending_license' );
 
+      // The key is an opaque secret, and Freemius keys carry ?, +, %, @ and #:
+      // sanitize_text_field() would strip a %xx run or a tag and hand the SDK a
+      // different key. Validate the shape instead (printable ASCII, 8-128 chars,
+      // the themeasy-library License_Gate::clean_key() rule) and pass the key
+      // through byte for byte; anything else is dropped (backlog #270).
+      if ( !preg_match( '/\A[\x21-\x7E]{8,128}\z/', $key ) ) {
+        return;
+      }
+
       $fs = function_exists( 'themeasy_fs' ) ? themeasy_fs() : null;
 
       if ( !$fs || $fs->is_registered() ) {
@@ -177,7 +188,7 @@ if ( !function_exists( 'themeasy_fs' ) ) {
       }
 
       try {
-        $fs->activate_migrated_license( sanitize_text_field( $key ) );
+        $fs->activate_migrated_license( $key );
       } catch ( \Throwable $e ) {
         unset( $e );
       }

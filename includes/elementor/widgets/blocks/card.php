@@ -506,15 +506,16 @@ class Card extends Widget_Base {
         ]
       );
 
-      $this->add_control(
+      $this->add_responsive_control(
         'title_line_clamp',
         [
           'label' => esc_html__( 'Line Clamp', 'themeasy-lite' ),
+          'description' => esc_html__( '0 = no clamp (the phone default).', 'themeasy-lite' ),
           'type' => Controls_Manager::SLIDER,
           'size_units' => ['u'],
           'range' => [
             'u' => [
-              'min' => 1,
+              'min' => 0,
               'max' => 6,
               'step' => 1,
             ],
@@ -523,8 +524,12 @@ class Card extends Widget_Base {
             'unit' => 'u',
             'size' => 2,
           ],
+          'mobile_default' => [
+            'unit' => 'u',
+            'size' => 0,
+          ],
           'selectors' => [
-            '{{WRAPPER}} .tms-card .tms-card__title' => 'display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: {{SIZE}};',
+            '{{WRAPPER}} .tms-card .tms-card__title' => '--tms-line-clamp: {{SIZE}}; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: var(--tms-line-clamp);',
           ],
         ]
       );
@@ -562,15 +567,16 @@ class Card extends Widget_Base {
         ]
       );
 
-      $this->add_control(
+      $this->add_responsive_control(
         'description_line_clamp',
         [
           'label' => esc_html__( 'Line Clamp', 'themeasy-lite' ),
+          'description' => esc_html__( '0 = no clamp (the phone default).', 'themeasy-lite' ),
           'type' => Controls_Manager::SLIDER,
           'size_units' => ['u'],
           'range' => [
             'u' => [
-              'min' => 1,
+              'min' => 0,
               'max' => 6,
               'step' => 1,
             ],
@@ -579,8 +585,12 @@ class Card extends Widget_Base {
             'unit' => 'u',
             'size' => 3,
           ],
+          'mobile_default' => [
+            'unit' => 'u',
+            'size' => 0,
+          ],
           'selectors' => [
-            '{{WRAPPER}} .tms-card .tms-card__description' => 'display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: {{SIZE}};',
+            '{{WRAPPER}} .tms-card .tms-card__description' => '--tms-line-clamp: {{SIZE}}; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: var(--tms-line-clamp);',
           ],
         ]
       );
@@ -828,6 +838,7 @@ class Card extends Widget_Base {
               'type' => Controls_Manager::COLOR,
               'selectors' => [
                 '{{WRAPPER}} .tms-button' => 'background-color: {{VALUE}};',
+                '{{WRAPPER}} .tms-button.tms-button--brutalist::after' => 'background-color: {{VALUE}};',
               ],
               'condition' => [
                 'button_style!' => ['simple', 'outline', 'gradient', 'gradient-outline', 'duocolor-outline'],
@@ -957,6 +968,7 @@ class Card extends Widget_Base {
               'type' => Controls_Manager::COLOR,
               'selectors' => [
                 '{{WRAPPER}} .tms-button:hover' => 'background-color: {{VALUE}};',
+                '{{WRAPPER}} .tms-button.tms-button--brutalist:hover::after' => 'background-color: {{VALUE}};',
               ],
               'condition' => [
                 'button_style!' => ['simple', 'gradient', 'gradient-outline'],
@@ -1390,6 +1402,12 @@ class Card extends Widget_Base {
         ? window.Themeasy.sanitizeInlineHtml
         : _.escape;
 
+      // Scheme guard for every href below. The regex lives in exactly one
+      // place; the fallback fails closed rather than duplicating it.
+      var safeUrl = ( window.Themeasy && window.Themeasy.safeUrl )
+        ? window.Themeasy.safeUrl
+        : function () { return ''; };
+
       // ------------------------------------------------------------------------
       // Settings.
       // ------------------------------------------------------------------------
@@ -1410,7 +1428,8 @@ class Card extends Widget_Base {
 
       // Link.
       var link    = settings.link || {};
-      var linkUrl = ( link && link.url ) ? link.url : '#';
+      // A blocked (or unset) URL falls back to the inert '#'.
+      var linkUrl = safeUrl( ( link && link.url ) || '' ) || '#';
 
       // ------------------------------------------------------------------------
       // Wrapper classes + attributes.

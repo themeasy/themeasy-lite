@@ -58,9 +58,9 @@ No. Themeasy Lite ships no animation library, and a widget's scripts are enqueue
 
 == Screenshots ==
 
-1. The Themeasy Lite widget category in the Elementor editor.
-2. Building a page with the free content widgets.
-3. Per-widget design controls.
+1. Editing the Section Intro widget: an eyebrow with an icon, a title with accent words, a description and a button.
+2. The Pricing Table widget, with a monthly/yearly price toggle and a check or a cross for each feature.
+3. The free widgets in the Themeasy — Essentials category of the Elementor editor.
 
 == External services ==
 

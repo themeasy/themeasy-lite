@@ -94,6 +94,12 @@
   right: auto;
   left: 50%;
   transform: translateX(-50%);
+  /* With left: 50% an absolute box shrink-fits into the HALF of the image
+     right of its anchor, so a one-line caption wrapped into a narrow column
+     whose tracked uppercase spilled past the plate (pages/landing/clay-ritual
+     at 375px: 148px plate on a 295px image, backlog #301). Size to the text,
+     capped by the max-width above. */
+  width: max-content;
 }
 
 .tms-image .tms-image__img {
@@ -411,7 +417,11 @@
 	position: relative;
 	z-index: 1;
 	width: fit-content;
+	/* Never wider than the parent; a second button wraps when both don't fit
+	   (backlog #283: two CTAs overflowed every phone by 20-30px). */
+	max-width: 100%;
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: flex-start;
 	align-items: center;
 	gap: 1.5rem;
@@ -521,6 +531,8 @@
 .tms-button .tms-button__icon {
 	position: relative;
 	z-index: 1;
+	/* A squeezed button shrank its icon to 0px wide (backlog #295). */
+	flex-shrink: 0;
 	color: currentColor;
 	font-size: inherit;
 	line-height: 1;

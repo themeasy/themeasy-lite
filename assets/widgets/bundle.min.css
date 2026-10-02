@@ -252,6 +252,15 @@
   background-color: var(--tms-border-color);
 }
 
+/* Phones: 40px of rule beside a counter and a date left the label ~80px, and
+   tour cities broke mid-word ("Amst/erda/m", landing/neon-static at 375px,
+   backlog #302). A 16px floor still reads as a rule. */
+@media (max-width: 767px) {
+  .tms-icon-list .tms-icon-list__line {
+    flex-basis: 16px;
+  }
+}
+
 /* Only rows that carry a rule: elsewhere a long label still overflows as before. */
 .tms-icon-list .tms-icon-list__item:has(.tms-icon-list__line) .tms-icon-list__label {
   min-width: 0;

@@ -910,6 +910,47 @@ function themeasy_carousel_stage_padding_control(): array {
 }
 
 /**
+ * `global` argument of a Typography group whose default look is a Text Display
+ * preset (backlog #273).
+ *
+ * The `tms-display-1..8` presets are Kit globals that only Typography_Sync
+ * writes: with the full offer on a Themeasy theme, on a save of the Themeasy
+ * settings. The setup wizard and the demo import save none, so a new Themeasy
+ * site has no preset until that first save, and a Kit keeps them after a theme
+ * switch or a downgrade (the sync never deletes). So the active Kit is asked,
+ * once per request. A default that points at a missing global shows in the
+ * editor as an active global named "undefined", with nothing to pick (measured
+ * on Hello, 2026-10-01).
+ *
+ * An empty array behaves exactly like no `global` argument: Elementor merges it
+ * into the popover's own `['active' => true]`.
+ *
+ * @param int $level Text Display level, 1 (the largest) to 8.
+ * @return array
+ * @since 1.0.0
+ */
+function themeasy_display_typography_global( int $level ): array {
+  static $kit_ids = null;
+
+  if ( null === $kit_ids ) {
+    $kit_ids = [];
+    $plugin = class_exists( '\Elementor\Plugin' ) ? \Elementor\Plugin::$instance : null;
+    $kit = isset( $plugin->kits_manager ) ? $plugin->kits_manager->get_active_kit() : null;
+    $custom = $kit ? $kit->get_settings( 'custom_typography' ) : [];
+
+    foreach ( is_array( $custom ) ? $custom : [] as $entry ) {
+      if ( is_array( $entry ) && !empty( $entry['_id'] ) ) {
+        $kit_ids[(string) $entry['_id']] = true;
+      }
+    }
+  }
+
+  $id = 'tms-display-' . $level;
+
+  return isset( $kit_ids[$id] ) ? ['default' => 'globals/typography?id=' . $id] : [];
+}
+
+/**
  * Carries a saved pagination shadow over to the Default / Custom / None select.
  *
  * Post Grid, Archive Results and Product Grid used to expose the pager shadow

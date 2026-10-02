@@ -60,6 +60,10 @@ function themeasy_register_ty_icon_tabs( array $tabs ): array {
     $manifest['libraries']
   );
 
+  // The manifest labels read "Themeasy — Feather"; the Agency White Label
+  // swaps the brand for its own (backlog #272). Themeasy by default.
+  $brand = (string) apply_filters( 'themeasy/brand/name', 'Themeasy' );
+
   foreach ( $libraries as $library => $data ) {
     $library = (string) $library;
     $dir = (string) ( $data['dir'] ?? $library );
@@ -83,9 +87,14 @@ function themeasy_register_ty_icon_tabs( array $tabs ): array {
     // natively.
     $label_icon = (string) ( $data['label_icon'] ?? ( $data['icons'][0] ?? '' ) );
 
+    $label = (string) ( $data['label'] ?? $library );
+    if ( str_starts_with( $label, 'Themeasy — ' ) ) {
+      $label = $brand . substr( $label, strlen( 'Themeasy' ) );
+    }
+
     $tabs[$library] = [
       'name' => $library,
-      'label' => (string) ( $data['label'] ?? $library ),
+      'label' => $label,
       'labelIcon' => '' !== $label_icon ? $library . '-' . $label_icon : 'eicon-star',
       'prefix' => $library . '-',
       'displayPrefix' => '',

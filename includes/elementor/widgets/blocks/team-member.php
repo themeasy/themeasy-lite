@@ -953,7 +953,7 @@ class TeamMember extends Widget_Base {
         ]
       );
 
-      $this->add_control(
+      $this->add_responsive_control(
         'bio_line_clamp',
         [
           'label' => esc_html__( 'Line Clamp', 'themeasy-lite' ),
@@ -961,11 +961,12 @@ class TeamMember extends Widget_Base {
           'size_units' => ['u'],
           'range' => ['u' => ['min' => 0, 'max' => 8, 'step' => 1]],
           'default' => ['unit' => 'u', 'size' => 0],
+          'mobile_default' => ['unit' => 'u', 'size' => 0],
           'selectors' => [
             '{{WRAPPER}} .tms-team-member__bio'
-              => 'display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: {{SIZE}};',
+              => '--tms-line-clamp: {{SIZE}}; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: var(--tms-line-clamp);',
           ],
-          'description' => esc_html__( 'Set to 0 to disable line clamp.', 'themeasy-lite' ),
+          'description' => esc_html__( 'Set to 0 to disable line clamp (the phone default).', 'themeasy-lite' ),
         ]
       );
 

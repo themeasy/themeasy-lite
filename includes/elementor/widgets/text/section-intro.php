@@ -967,23 +967,16 @@ class SectionIntro extends Widget_Base {
         ]
       );
 
-      $title_typography_args = [
-        'name' => 'title_typography',
-        'label' => esc_html__( 'Typography', 'themeasy-lite' ),
-        'selector' => '{{WRAPPER}} .tms-section-intro__title',
-      ];
-
-      // The synced "Display 3" Kit preset is the default look where
-      // Typography_Sync runs, which is the full offer. The Free build and the
-      // Widgets plan have no Kit layer, so the global would dangle there.
-      // widgets-plan-drift-ok: a Kit global (Typography_Sync), not motion.
-      if ( \Themeasy\Core\Entitlement::can_use_premium() ) {
-        $title_typography_args['global'] = [
-          'default' => 'globals/typography?id=tms-display-3',
-        ];
-      }
-
-      $this->add_group_control( Group_Control_Typography::get_type(), $title_typography_args );
+      $this->add_group_control(
+        Group_Control_Typography::get_type(),
+        [
+          'name' => 'title_typography',
+          'label' => esc_html__( 'Typography', 'themeasy-lite' ),
+          // Default look = the synced "Display 3" Kit preset, if the Kit has it; detach or switch in the popover.
+          'global' => themeasy_display_typography_global( 3 ),
+          'selector' => '{{WRAPPER}} .tms-section-intro__title',
+        ]
+      );
 
       $this->add_responsive_control(
         'title_max_width',

@@ -164,9 +164,18 @@ class Library_Panel {
    * @return array<string,string>
    */
   private function strings(): array {
+    // The Agency White Label renames the brand (backlog #272); Themeasy by
+    // default. The modal writes these as text (textContent, setAttribute), so the
+    // name is not HTML-escaped: esc_html() would print "&amp;" in "Smith & Co".
+    $library = sprintf(
+      /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+      __( '%s Library', 'themeasy-lite' ),
+      (string) apply_filters( 'themeasy/brand/name', 'Themeasy' )
+    );
+
     return [
-      'launch' => esc_html__( 'Themeasy Library', 'themeasy-lite' ),
-      'title' => esc_html__( 'Themeasy Library', 'themeasy-lite' ),
+      'launch' => $library,
+      'title' => $library,
       'searchPlaceholder' => esc_html__( 'Search templates...', 'themeasy-lite' ),
       'allCategories' => esc_html__( 'All categories', 'themeasy-lite' ),
       /* translators: %1$s: group tab name (e.g. Pages, Blocks). */

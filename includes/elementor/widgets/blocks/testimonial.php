@@ -284,7 +284,14 @@ class Testimonial extends Widget_Base {
         [
           'show_label' => false,
           'type' => Controls_Manager::RAW_HTML,
-          'raw' => esc_html__( 'You can use custom icons for the quote and star rating. If you do not select any icon, the default icons will be used. Quote glyphs live only in the Themeasy — Feather library; the Solar libraries have none.', 'themeasy-lite' ),
+          // The Agency White Label renames the icon library (backlog #272).
+          'raw' => esc_html(
+            sprintf(
+              /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+              __( 'You can use custom icons for the quote and star rating. If you do not select any icon, the default icons will be used. Quote glyphs live only in the %s — Feather library; the Solar libraries have none.', 'themeasy-lite' ),
+              (string) apply_filters( 'themeasy/brand/name', 'Themeasy' )
+            )
+          ),
           'content_classes' => 'elementor-control-field-description no-margin',
         ]
       );
@@ -798,16 +805,16 @@ class Testimonial extends Widget_Base {
         ]
       );
 
-      $this->add_control(
+      $this->add_responsive_control(
         'testimonial_text_line_clamp',
         [
           'label' => esc_html__( 'Line Clamp', 'themeasy-lite' ),
-          'description' => esc_html__( 'Maximum number of lines before the text is truncated.', 'themeasy-lite' ),
+          'description' => esc_html__( 'Maximum number of lines before the text is truncated. 0 = no clamp (the phone default).', 'themeasy-lite' ),
           'type' => Controls_Manager::SLIDER,
           'size_units' => ['u'],
           'range' => [
             'u' => [
-              'min' => 1,
+              'min' => 0,
               'max' => 6,
               'step' => 1,
             ],
@@ -816,8 +823,12 @@ class Testimonial extends Widget_Base {
             'unit' => 'u',
             'size' => 4,
           ],
+          'mobile_default' => [
+            'unit' => 'u',
+            'size' => 0,
+          ],
           'selectors' => [
-            '{{WRAPPER}} .tms-card .tms-profile-card__testimonial' => 'display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: {{SIZE}};',
+            '{{WRAPPER}} .tms-card .tms-profile-card__testimonial' => '--tms-line-clamp: {{SIZE}}; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: var(--tms-line-clamp);',
           ],
         ]
       );
