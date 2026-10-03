@@ -555,7 +555,7 @@ class Steps extends Widget_Base {
     $this->start_controls_section(
       'widget_animation_section',
         [
-          'label' => esc_html__( 'Themeasy Motion — Animation', 'themeasy-lite' ),
+          'label' => esc_html__( 'Motion — Animation', 'themeasy-lite' ),
           'tab' => Controls_Manager::TAB_ADVANCED,
         ]
     );

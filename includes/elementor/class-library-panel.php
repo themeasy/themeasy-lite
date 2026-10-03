@@ -20,6 +20,7 @@
 
 namespace Themeasy\Elementor;
 
+use Themeasy\Admin\Upgrade_Page;
 use Themeasy\Core\Entitlement;
 
 defined( 'ABSPATH' ) || exit;
@@ -133,8 +134,17 @@ class Library_Panel {
     // mirrors what the server will actually allow.
     $can_insert_pro = Entitlement::is_subscriber();
 
-    /** This filter is documented in admin/class-upgrade-page.php. */
-    $upgrade_url = (string) apply_filters( 'themeasy/upgrade_url', 'https://themeasy.co/pricing' );
+    // A locked card sells Pro, the plan of the Pro templates: its checkout for a
+    // Free site, in license-update mode for an admin whose install holds its own
+    // license (#287). A theme buyer (M2), or an editor on a plan of its own, gets
+    // the pricing page, and so does a subscriber, who sees no lock: the license
+    // key never sits in an editor page that cannot use it.
+    if ( !$can_insert_pro && ( !Entitlement::can_use_widgets() || ( Entitlement::has_own_license() && current_user_can( 'manage_options' ) ) ) ) {
+      $upgrade_url = Upgrade_Page::checkout_url( 'pro' );
+    } else {
+      /** This filter is documented in core/licensing.php. */
+      $upgrade_url = (string) apply_filters( 'themeasy/upgrade_url', 'https://themeasy.co/pricing' );
+    }
 
     /**
      * Filter the public template catalog base URL (library.themeasy.co).
@@ -152,6 +162,9 @@ class Library_Panel {
       'perPage' => self::PER_PAGE,
       'canInsertPro' => $can_insert_pro,
       'plan' => Entitlement::plan(),
+      // A Themeasy theme lays out full-page templates itself; on any other theme
+      // the insert may warn about the Page Layout (backlog #292).
+      'themeasyTheme' => current_theme_supports( 'themeasy-compatible' ),
       'upgradeUrl' => esc_url_raw( $upgrade_url ),
       'catalogUrl' => esc_url_raw( $catalog_url ),
       'i18n' => $this->strings(),
@@ -173,6 +186,17 @@ class Library_Panel {
       (string) apply_filters( 'themeasy/brand/name', 'Themeasy' )
     );
 
+    // Why an insert left widgets out (backlog #291): the editor registers only
+    // the site's plan, so the reason follows the plan. On the full offer a
+    // missing widget needs WooCommerce, Contact Form 7 or a Themeasy theme.
+    if ( Entitlement::can_use_premium() ) {
+      $left_out_reason = esc_html__( 'Left-out widgets need a plugin or theme this site does not have.', 'themeasy-lite' );
+    } elseif ( Entitlement::can_use_widgets() ) {
+      $left_out_reason = esc_html__( 'Left-out widgets need the Pro plan.', 'themeasy-lite' );
+    } else {
+      $left_out_reason = esc_html__( 'Left-out widgets need a paid plan.', 'themeasy-lite' );
+    }
+
     return [
       'launch' => $library,
       'title' => $library,
@@ -186,6 +210,11 @@ class Library_Panel {
       'insert' => esc_html__( 'Insert', 'themeasy-lite' ),
       'inserting' => esc_html__( 'Inserting...', 'themeasy-lite' ),
       'inserted' => esc_html__( 'Template inserted.', 'themeasy-lite' ),
+      'leftOutOne' => esc_html__( 'Template inserted, but 1 element was left out.', 'themeasy-lite' ),
+      /* translators: %1$s: number of elements left out of the inserted template. */
+      'leftOutMany' => esc_html__( 'Template inserted, but %1$s elements were left out.', 'themeasy-lite' ),
+      'leftOutReason' => $left_out_reason,
+      'fullWidthHint' => esc_html__( 'For full width, set Page Layout → Elementor Full Width.', 'themeasy-lite' ),
       'proBadge' => esc_html__( 'Pro', 'themeasy-lite' ),
       'freeBadge' => esc_html__( 'Free', 'themeasy-lite' ),
       'themeBadge' => esc_html__( 'Theme', 'themeasy-lite' ),

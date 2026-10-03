@@ -8,7 +8,8 @@
  * (backlog #267), and the Lite build tells a buyer how to swap it for the
  * Themeasy plugin (backlog #268), while the premium build without a license
  * opens the SDK's license activation dialog from a "Plugin license" block
- * (backlog #271); it also showcases the template library. The full
+ * (backlog #271), and says when the plugin's own license expired, with where to
+ * renew it (backlog #310); it also showcases the template library. The full
  * settings panel is premium (Settings_Loader); to avoid registering the menu
  * twice, this loader stands down on the full offer with a Themeasy theme
  * active — the Pro admin then owns the menu. On any other theme that admin
@@ -22,7 +23,9 @@
  *
  * Below a paid plan the page says what each plan above it adds: Widgets (on
  * Free), Pro, and Agency, which is Pro plus the White Label and names where the
- * brand changes (launch runbook S12, decisions O2-b and C4-b).
+ * brand changes (launch runbook S12, decisions O2-b and C4-b). A Pro license
+ * keeps the Agency block when its owner can upgrade that same license
+ * (backlog #309).
  *
  * Ships in BOTH builds (no premium marker): the premium build keeps it inert
  * on the full offer (can_use_premium() true → Settings_Loader owns the menu);
@@ -49,20 +52,28 @@ class Upgrade_Page {
   /** External Themeasy template library. */
   private const LIBRARY_URL = 'https://library.themeasy.co';
 
-  /** Themeasy pricing page. The Free build routes upgrades here (the site), not the SDK's in-WP pricing. */
-  private const PRICING_URL = 'https://themeasy.co/pricing';
+  /**
+   * The Freemius checkout of each plan, as the pricing page sells them: Widgets
+   * is the plugin alone (product 31006), Pro and Agency the bundle (31981, the
+   * plugin plus every Themeasy theme).
+   */
+  private const CHECKOUT_URLS = [
+    'widgets' => 'https://checkout.freemius.com/plugin/31006/plan/70021/',
+    'pro' => 'https://checkout.freemius.com/bundle/31981/plan/52465/',
+    'agency' => 'https://checkout.freemius.com/bundle/31981/plan/52629/',
+  ];
 
-  /** Themeasy Hub account, where a Widgets-plan buyer manages the license. */
-  private const HUB_ACCOUNT_URL = 'https://hub.themeasy.co/account';
+  /**
+   * The plugin's product in the Themeasy Hub: a plugin-plan buyer manages the
+   * license there (its key and sites), and the Lite's buyer downloads the plugin.
+   */
+  private const HUB_PRODUCT_URL = 'https://hub.themeasy.co/account/products/themeasy';
 
   /** The Themeasy themes, for a full-offer site on another theme. */
   private const THEMES_URL = 'https://themeasy.co';
 
   /** The Themeasy Help Center (the widgets' own help links point here too). */
   private const HELP_URL = 'https://themeasy.co/help-center';
-
-  /** Where a plugin-plan buyer downloads the premium build (the Freemius customer portal). */
-  private const CUSTOMER_PORTAL_URL = 'https://users.freemius.com';
 
   /**
    * Widgets per plan, as the editor registers them: the Widgets plan, and the
@@ -94,7 +105,92 @@ class Upgrade_Page {
     }
 
     add_action( 'admin_menu', [__CLASS__, 'register_menu'] );
+    add_action( 'load-' . self::SCREEN_ID, [__CLASS__, 'sync_license'] );
     add_action( 'admin_enqueue_scripts', [__CLASS__, 'enqueue_assets'] );
+  }
+
+  /**
+   * Re-sync the plugin's own license when this page opens, at most once a
+   * minute (Entitlement::sync_own_license()).
+   *
+   * The buyer comes back here from an upgrade in the checkout (backlog #287), and
+   * the SDK would only notice it on its daily sync. When the sync changes what
+   * the license unlocks, the page reloads, so the menus and the widgets boot on
+   * the new plan (the full offer on a Themeasy theme moves to the Pro admin).
+   *
+   * @return void
+   */
+  public static function sync_license(): void {
+    if ( !current_user_can( 'manage_options' ) ) {
+      return;
+    }
+
+    $offer = [Entitlement::can_use_widgets(), Entitlement::can_use_premium()];
+
+    if ( !Entitlement::sync_own_license() ) {
+      return;
+    }
+
+    if ( [Entitlement::can_use_widgets(), Entitlement::can_use_premium()] !== $offer ) {
+      wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) );
+      exit;
+    }
+  }
+
+  /**
+   * Where a plan's buy button goes.
+   *
+   * An install that holds its own license opens the checkout in license-update
+   * mode: Freemius upgrades that same license and ends the old subscription
+   * (backlog #287). Anyone else gets the plan's checkout, where the Widgets plan
+   * starts its 3-day trial, as on the pricing page (runbook S17).
+   *
+   * @param string $plan One of 'widgets', 'pro', 'agency'.
+   * @return string
+   */
+  public static function checkout_url( string $plan ): string {
+    $checkout = self::CHECKOUT_URLS[$plan] ?? self::CHECKOUT_URLS['pro'];
+    $upgrade = Entitlement::own_license_checkout_url( $checkout );
+
+    if ( '' !== $upgrade ) {
+      return $upgrade;
+    }
+
+    return 'widgets' === $plan ? add_query_arg( 'trial', 'paid', $checkout ) : $checkout;
+  }
+
+  /**
+   * The Agency upgrade of the install's own Pro license, or '' (backlog #309).
+   *
+   * License-update mode only: given the key, the Agency checkout upgrades the
+   * same Pro license with a prorated credit (measured in the sandbox). Without
+   * the key (another admin, a white-labeled license) a plain checkout would sell
+   * a second license, so a Pro site then gets no Agency button at all.
+   *
+   * @return string
+   */
+  public static function agency_license_update_url(): string {
+    if ( !Entitlement::is_pro() || Entitlement::is_agency() ) {
+      return '';
+    }
+
+    return Entitlement::own_license_checkout_url( self::CHECKOUT_URLS['agency'] );
+  }
+
+  /**
+   * Where a plugin-plan buyer manages the license: the plugin's product in the
+   * Themeasy Hub, from this page and from the Pro admin's Overview (backlogs
+   * #288, #305).
+   *
+   * @return string
+   */
+  public static function manage_license_url(): string {
+    /**
+     * Filter where a plugin-plan buyer manages the license.
+     *
+     * @param string $manage_url The plugin's product page in the Themeasy Hub.
+     */
+    return (string) apply_filters( 'themeasy/manage_license_url', self::HUB_PRODUCT_URL );
   }
 
   /**
@@ -161,9 +257,11 @@ class Upgrade_Page {
       return;
     }
 
-    // Upgrades route to the Themeasy site (not the SDK's in-WP pricing), keeping
-    // the buyer in the branded funnel. Filterable so the Hub can repoint it.
-    $upgrade_url = (string) apply_filters( 'themeasy/upgrade_url', self::PRICING_URL );
+    // The buy buttons open each plan's checkout (business-context §7), in
+    // license-update mode for an install that holds its own license (#287).
+    $widgets_url = self::checkout_url( 'widgets' );
+    $pro_url = self::checkout_url( 'pro' );
+    $agency_url = self::checkout_url( 'agency' );
 
     // The full offer reaches this page only on a theme without Themeasy support
     // (init() stands down otherwise): its license is active, and what it lacks is
@@ -173,19 +271,11 @@ class Upgrade_Page {
     $is_full_offer = Entitlement::can_use_premium();
     $is_widgets_plan = !$is_full_offer && Entitlement::can_use_widgets();
 
-    // A plugin-plan buyer manages the license in the SDK's Account page, the
-    // only place that can deactivate or change it today (the Hub cannot release
-    // a subscription's sites yet — backlog #262); anyone else in the Hub.
-    $account_url = Entitlement::own_license_account_url();
-
-    /**
-     * Filter where a Widgets-plan buyer manages the license.
-     *
-     * @param string $manage_url The SDK Account page for an install that holds
-     *                           its own license, else the Themeasy Hub account.
-     */
-    $manage_url = (string) apply_filters( 'themeasy/manage_license_url', '' !== $account_url ? $account_url : self::HUB_ACCOUNT_URL );
-    $manage_is_external = 0 !== strpos( $manage_url, admin_url() );
+    // A plugin license, on any plan, is managed in the Themeasy Hub: its key, its
+    // sites, and releasing them (backlogs #262, #288). A theme license (M2) has
+    // the theme wizard for that.
+    $has_manage_license = ( $is_full_offer || $is_widgets_plan ) && Entitlement::has_own_license();
+    $manage_url = self::manage_license_url();
 
     // Pro's site features (theme builder, global sections, settings panel) need
     // a Themeasy theme; its widgets work anywhere. Say so where it matters.
@@ -194,9 +284,19 @@ class Upgrade_Page {
     // Free: the page opens on how to use the free widgets; the upgrade follows.
     $is_free = !$is_full_offer && !$is_widgets_plan;
 
+    // An expired plugin license drops the site to Free, and the SDK detaches it:
+    // renewing it is not enough, the key has to be activated again in the Plugin
+    // license block (backlog #310). The Lite takes no key.
+    $is_expired = $is_free && !Entitlement::is_lite_build() && Entitlement::has_expired_license();
+
+    // A Pro license keeps the Agency block when its owner can upgrade that same
+    // license (backlog #309): $agency_url is then the license-update checkout.
+    $has_agency_upgrade = $is_full_offer && '' !== self::agency_license_update_url();
+
     // The Agency White Label rebrands the hero, as it does the Pro admin's top
     // bar: on another theme this page is the Agency's Themeasy menu (backlog
-    // #272). Both filters default to Themeasy when that layer is off.
+    // #272). Both filters default to Themeasy when that layer is off. A White
+    // Label name with no logo takes the logo's place as text (backlog #308).
     $brand_name = (string) apply_filters( 'themeasy/brand/name', 'Themeasy' );
     $brand_logo = (string) apply_filters( 'themeasy/brand/logo_url', '' );
     ?>
@@ -209,6 +309,8 @@ class Upgrade_Page {
             <div class="themeasy-admin__brand">
               <?php if ( '' !== $brand_logo ) : ?>
                 <img src="<?php echo esc_url( $brand_logo ); ?>" alt="<?php echo esc_attr( $brand_name ); ?>" />
+              <?php elseif ( 'Themeasy' !== $brand_name ) : ?>
+                <span class="themeasy-admin__brand-name"><?php echo esc_html( $brand_name ); ?></span>
               <?php else : ?>
                 <?php echo self::logo_svg(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted bundled SVG.?>
               <?php endif; ?>
@@ -274,6 +376,13 @@ class Upgrade_Page {
                 esc_html_e( 'Pro adds the complete site toolkit, and Agency adds White Label to Pro.', 'themeasy-lite' );
                 ?>
               </p>
+            <?php elseif ( $is_expired ) : ?>
+              <h1 class="themeasy-admin__title">
+                <?php esc_html_e( 'Your license expired', 'themeasy-lite' ); ?>
+              </h1>
+              <p class="themeasy-admin__lead">
+                <?php esc_html_e( 'This site is back on the free widgets. Renew the license in the Themeasy Hub, then activate it again below: a renewed license does not come back to this site on its own. If the dialog does not list it, choose Other and paste the key.', 'themeasy-lite' ); ?>
+              </p>
             <?php else : ?>
               <h1 class="themeasy-admin__title">
                 <?php esc_html_e( 'Welcome to Themeasy', 'themeasy-lite' ); ?>
@@ -295,17 +404,21 @@ class Upgrade_Page {
                 <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( self::THEMES_URL ); ?>" target="_blank" rel="noopener">
                   <?php esc_html_e( 'View Themeasy Themes', 'themeasy-lite' ); ?>
                 </a>
+              <?php elseif ( $is_expired ) : ?>
+                <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $manage_url ); ?>" target="_blank" rel="noopener">
+                  <?php esc_html_e( 'Renew License', 'themeasy-lite' ); ?>
+                </a>
               <?php elseif ( $is_free ) : ?>
                 <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( self::new_page_url() ); ?>">
                   <?php esc_html_e( 'Create a Page', 'themeasy-lite' ); ?>
                 </a>
               <?php else : ?>
-                <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $upgrade_url ); ?>">
-                  <?php echo esc_html( $is_widgets_plan ? __( 'Upgrade to Pro', 'themeasy-lite' ) : __( 'Compare Plans', 'themeasy-lite' ) ); ?>
+                <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $pro_url ); ?>">
+                  <?php esc_html_e( 'Upgrade to Pro', 'themeasy-lite' ); ?>
                 </a>
               <?php endif; ?>
-              <?php if ( $is_widgets_plan ) : ?>
-                <a class="themeasy-admin__button button button-outline button-hero" href="<?php echo esc_url( $manage_url ); ?>"<?php echo $manage_is_external ? ' target="_blank" rel="noopener"' : ''; ?>>
+              <?php if ( $has_manage_license ) : ?>
+                <a class="themeasy-admin__button button button-outline button-hero" href="<?php echo esc_url( $manage_url ); ?>" target="_blank" rel="noopener">
                   <?php esc_html_e( 'Manage License', 'themeasy-lite' ); ?>
                 </a>
               <?php endif; ?>
@@ -336,17 +449,17 @@ class Upgrade_Page {
             <div class="themeasy-admin__grid">
               <?php
               // Each card pairs a library thumbnail (admin/assets/img/library/,
-              // shipped in the Free build) with its tier badge. The thumbnails are
-              // temporary placeholders — drop in real template screenshots by
-              // overwriting the slot file (any web image format; update the
-              // extension here to match).
+              // shipped in the Free build) with its tier badge: real template
+              // screenshots, 1080x810 webp (admin.min.css holds that 4:3 ratio).
+              // Swap one by overwriting its slot file; another format needs the
+              // extension updated here.
               $templates = [
-                ['image' => 'template-1.svg', 'tier' => 'pro'],
-                ['image' => 'template-2.svg', 'tier' => 'pro'],
-                ['image' => 'template-3.svg', 'tier' => 'pro'],
-                ['image' => 'template-4.svg', 'tier' => 'free'],
-                ['image' => 'template-5.svg', 'tier' => 'free'],
-                ['image' => 'template-6.svg', 'tier' => 'pro'],
+                ['image' => 'template-1.webp', 'tier' => 'pro'],
+                ['image' => 'template-2.webp', 'tier' => 'pro'],
+                ['image' => 'template-3.webp', 'tier' => 'pro'],
+                ['image' => 'template-4.webp', 'tier' => 'pro'],
+                ['image' => 'template-5.webp', 'tier' => 'pro'],
+                ['image' => 'template-6.webp', 'tier' => 'pro'],
               ];
 
               foreach ( $templates as $template ) :
@@ -397,8 +510,11 @@ class Upgrade_Page {
                 ]
               );
               ?>
-              <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $upgrade_url ); ?>">
-                <?php esc_html_e( 'Get Themeasy Widgets', 'themeasy-lite' ); ?>
+              <p class="themeasy-admin__section-lead">
+                <?php esc_html_e( 'Card required. Billed yearly after 3 days unless you cancel.', 'themeasy-lite' ); ?>
+              </p>
+              <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $widgets_url ); ?>">
+                <?php esc_html_e( 'Start 3-day trial', 'themeasy-lite' ); ?>
               </a>
             </div>
           <?php endif; ?>
@@ -464,11 +580,13 @@ class Upgrade_Page {
                   <?php esc_html_e( 'The theme builder, global sections, container controls, settings panel, and WooCommerce features run on a Themeasy theme, and every Themeasy theme comes with Pro. The other widgets work in any theme.', 'themeasy-lite' ); ?>
                 </p>
               <?php endif; ?>
-              <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $upgrade_url ); ?>">
-                <?php echo esc_html( $is_widgets_plan ? __( 'Upgrade to Pro', 'themeasy-lite' ) : __( 'See Pricing', 'themeasy-lite' ) ); ?>
+              <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $pro_url ); ?>">
+                <?php echo esc_html( $is_widgets_plan ? __( 'Upgrade to Pro', 'themeasy-lite' ) : __( 'Get Themeasy Pro', 'themeasy-lite' ) ); ?>
               </a>
             </div>
+          <?php endif; ?>
 
+          <?php if ( !$is_full_offer || $has_agency_upgrade ) : ?>
             <div class="themeasy-admin__features">
               <h2 class="themeasy-admin__section-title">
                 <?php esc_html_e( 'Themeasy Agency', 'themeasy-lite' ); ?>
@@ -477,8 +595,8 @@ class Upgrade_Page {
                 <?php esc_html_e( 'Everything in Pro, plus White Label: your brand in place of Themeasy\'s, for the sites you build for clients.', 'themeasy-lite' ); ?>
               </p>
               <?php
-              // Exactly where the White Label rebrands today (decision C4-b): the
-              // rest of the editor (the Themeasy Motion sections) is backlog #282.
+              // Exactly where the White Label rebrands (decision C4-b): the rest of
+              // the editor carries no brand at all since backlog #282.
               self::render_feature_list(
                 [
                   [
@@ -492,8 +610,8 @@ class Upgrade_Page {
                 ]
               );
               ?>
-              <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $upgrade_url ); ?>">
-                <?php echo esc_html( $is_widgets_plan ? __( 'Upgrade to Agency', 'themeasy-lite' ) : __( 'Get Themeasy Agency', 'themeasy-lite' ) ); ?>
+              <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( $agency_url ); ?>">
+                <?php echo esc_html( $is_free ? __( 'Get Themeasy Agency', 'themeasy-lite' ) : __( 'Upgrade to Agency', 'themeasy-lite' ) ); ?>
               </a>
             </div>
           <?php endif; ?>
@@ -617,6 +735,13 @@ class Upgrade_Page {
           <?php esc_html_e( 'Bought a Themeasy theme? Its license key goes in Appearance > Theme Setup, not here: the theme license unlocks this plugin on its own.', 'themeasy-lite' ); ?>
         </p>
       <?php endif; ?>
+      <p class="themeasy-admin__section-lead">
+        <?php
+        // The SDK detaches an expired license from the install, and a renewal
+        // does not reattach it: the key has to be activated again (backlog #290).
+        esc_html_e( 'Renewed an expired license? Activate it again here.', 'themeasy-lite' );
+        ?>
+      </p>
       <a class="themeasy-admin__button button button-primary button-hero <?php echo esc_attr( $trigger ); ?>" href="#">
         <?php esc_html_e( 'Activate License', 'themeasy-lite' ); ?>
       </a>
@@ -646,10 +771,11 @@ class Upgrade_Page {
           <span class="themeasy-admin__feature-icon themeasy-admin__step" aria-hidden="true">1</span>
           <span class="themeasy-admin__feature-text">
             <?php
+            // The Hub links a purchase to the account that signs up with its email.
             printf(
-              /* translators: %s: link to the customer portal. */
-              esc_html__( 'Download Themeasy from the link in your purchase email, or from the %s.', 'themeasy-lite' ),
-              '<a href="' . esc_url( self::CUSTOMER_PORTAL_URL ) . '" target="_blank" rel="noopener">' . esc_html__( 'customer portal', 'themeasy-lite' ) . '</a>'
+              /* translators: %s: link to the Themeasy Hub. */
+              esc_html__( 'Download Themeasy from the link in your purchase email, or from the %s (sign up with the email you bought with).', 'themeasy-lite' ),
+              '<a href="' . esc_url( self::HUB_PRODUCT_URL ) . '" target="_blank" rel="noopener">' . esc_html__( 'Themeasy Hub', 'themeasy-lite' ) . '</a>'
             );
             ?>
           </span>

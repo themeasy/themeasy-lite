@@ -62,16 +62,22 @@ if ( !function_exists( 'themeasy_fs' ) ) {
       // The Upgrade/Pricing funnel routes to the Themeasy site, never the SDK's
       // in-WP pricing (owner decision). Hide the Freemius pricing page AND the
       // plugin-row upgrade link entirely; the branded Upgrade page (Upgrade_Page,
-      // Free build) owns the funnel and links out to the site. Consequence: the
-      // 3-day trial is started from the site/hosted checkout, not from wp-admin.
+      // Free build) owns the funnel and links out to the hosted checkouts.
+      // Consequence: the 3-day trial is started from the site/hosted checkout,
+      // not from wp-admin.
       $themeasy_fs->add_filter( 'is_pricing_page_visible', '__return_false' );
 
-      // Every SDK link to its pricing page (the Account page's Upgrade buttons)
-      // goes to the Themeasy site too. This filter is documented in
-      // admin/class-upgrade-page.php.
+      // Every SDK link to its pricing page (the hidden Account page's Upgrade
+      // buttons) goes to the Themeasy site too.
       $themeasy_fs->add_filter(
         'pricing_url',
         static function () {
+          /**
+           * Filter the Themeasy pricing page: where the SDK's pricing links go, and
+           * the Library's locks when they do not open a checkout.
+           *
+           * @param string $url The pricing page on the Themeasy site.
+           */
           return (string) apply_filters( 'themeasy/upgrade_url', 'https://themeasy.co/pricing' );
         }
       );
@@ -88,22 +94,16 @@ if ( !function_exists( 'themeasy_fs' ) ) {
       $themeasy_fs->add_filter( 'default_to_anonymous_feedback', '__return_true' );
 
       // License/account management lives on the Themeasy site + the Hub, never the
-      // SDK's in-WP screens (owner decision). Hide the SDK Pricing submenu item
-      // (mirrors the theme's theme_fs() config) and the Account one, with a single
-      // exception: an install that holds its OWN plugin license and no full offer
-      // (the Widgets plan) keeps the Account page under the Themeasy menu. Its
-      // buyer has no theme wizard, and the Hub cannot release a subscription's
-      // sites yet, so that page is the only place to deactivate or change the
-      // license (backlog #262). This hides menu items only — the SDK keeps working,
-      // so a SaaS subscriber's license still syncs.
+      // SDK's in-WP screens (owner decision). Hide the SDK Pricing and Account
+      // submenu items, as the theme's theme_fs() config does: the Hub shows a
+      // plugin subscription's key and sites and releases them, and the Themeasy
+      // page's "Manage License" links there on every plan (backlogs #262, #288).
+      // This hides menu items only — the SDK keeps working, so a SaaS
+      // subscriber's license still syncs.
       $themeasy_fs->add_filter(
         'is_submenu_visible',
         static function ( $is_visible, $menu_id ) {
-          if ( 'account' === $menu_id ) {
-            return \Themeasy\Core\Entitlement::has_own_license() && !\Themeasy\Core\Entitlement::can_use_premium();
-          }
-
-          return 'pricing' === $menu_id ? false : $is_visible;
+          return in_array( $menu_id, ['account', 'pricing'], true ) ? false : $is_visible;
         },
         10,
         2
@@ -183,7 +183,10 @@ if ( !function_exists( 'themeasy_fs' ) ) {
 
       $fs = function_exists( 'themeasy_fs' ) ? themeasy_fs() : null;
 
-      if ( !$fs || $fs->is_registered() ) {
+      // An install with its own license keeps it: the key would replace it. A
+      // registered one without a license (opted in, or its license released or
+      // expired) takes the key like an anonymous one (backlog #306).
+      if ( !$fs || \Themeasy\Core\Entitlement::has_own_license() ) {
         return;
       }
 
@@ -194,5 +197,34 @@ if ( !function_exists( 'themeasy_fs' ) ) {
       }
     },
     20
+  );
+
+  // Clear Elementor's caches when the entitlement level changes (backlog #289).
+  // The Element Cache stores a nested widget (Nested Tabs) and the containers as
+  // static HTML for up to 24 h, so after a downgrade the Pro markup keeps
+  // printing with no CSS or JS, and after an upgrade a cache built on the lower
+  // level hides it. Nothing announces the change, so the last level is kept in
+  // an option and the first request that sees a new one clears the caches (the
+  // element cache and the page CSS, rebuilt on demand), the Color_Sync idiom.
+  // elementor/init runs after the theme registered its M2 signal. Inert in the
+  // Free build (the level never leaves 'free'), so it stays unmarked.
+  add_action(
+    'elementor/init',
+    static function () {
+      if ( \Themeasy\Core\Entitlement::can_use_premium() ) {
+        $level = 'full';
+      } elseif ( \Themeasy\Core\Entitlement::can_use_widgets() ) {
+        $level = 'widgets';
+      } else {
+        $level = 'free';
+      }
+
+      if ( get_option( 'themeasy_entitlement_level' ) === $level ) {
+        return;
+      }
+
+      update_option( 'themeasy_entitlement_level', $level );
+      \Elementor\Plugin::instance()->files_manager->clear_cache();
+    }
   );
 }

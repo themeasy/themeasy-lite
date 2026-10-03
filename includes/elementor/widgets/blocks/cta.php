@@ -332,7 +332,7 @@ class Cta extends Widget_Base {
           'type' => Controls_Manager::TEXTAREA,
           'rows' => 2,
           'separator' => 'before',
-          'default' => esc_html__( 'Grow your business with Themeasy', 'themeasy-lite' ),
+          'default' => esc_html__( 'Ready to grow your business?', 'themeasy-lite' ),
           'placeholder' => esc_html__( 'Leave blank to hide', 'themeasy-lite' ),
           'dynamic' => ['active' => true],
         ]

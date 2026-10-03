@@ -422,7 +422,7 @@ class Library_Ajax {
         'ok' => false,
         'status' => 0,
         'code' => 'transport',
-        'message' => esc_html__( 'Could not reach the Themeasy Library. Please try again.', 'themeasy-lite' ),
+        'message' => esc_html__( 'Could not reach the template library. Please try again.', 'themeasy-lite' ),
         'data' => null,
       ];
     }
@@ -435,7 +435,7 @@ class Library_Ajax {
         'ok' => false,
         'status' => $status,
         'code' => 'http_' . $status,
-        'message' => esc_html__( 'The Themeasy Library returned an unexpected response.', 'themeasy-lite' ),
+        'message' => esc_html__( 'The template library returned an unexpected response.', 'themeasy-lite' ),
         'data' => $data,
       ];
     }

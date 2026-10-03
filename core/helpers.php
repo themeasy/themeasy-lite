@@ -529,7 +529,7 @@ function themeasy_register_motion_upsell_section( \Elementor\Controls_Stack $ele
   $element->start_controls_section(
     'themeasy_motion_upsell_section',
     [
-      'label' => esc_html__( 'Themeasy Motion', 'themeasy-lite' ),
+      'label' => esc_html__( 'Motion', 'themeasy-lite' ),
       'tab' => \Elementor\Controls_Manager::TAB_ADVANCED,
     ]
   );

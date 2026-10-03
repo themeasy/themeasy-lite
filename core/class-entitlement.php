@@ -270,7 +270,7 @@ final class Entitlement {
    *
    * A buyer of a plugin plan (Widgets, Pro, Agency) — as opposed to M2, where the
    * license belongs to the theme and is managed by the theme wizard and the Hub.
-   * Only such an install has a license to manage in the SDK's Account page.
+   * Only such an install has a plugin license to manage in the Themeasy Hub.
    *
    * @return bool
    */
@@ -281,16 +281,100 @@ final class Entitlement {
   }
 
   /**
-   * The SDK Account page URL of an install that holds its own license, or ''.
+   * Whether the plugin's own license expired (backlog #310).
    *
-   * Where a plugin-plan buyer manages the license (see has_own_license()).
+   * When a sync finds the license expired, the SDK detaches it from the install
+   * (the plan drops to free) and stores the sticky notice `license_expired`. Every
+   * SDK notice stays hidden (core/licensing.php), but the stored one is a plain
+   * read with no network. The SDK removes it when a license is activated,
+   * upgraded or extended on this install, so a renewal alone keeps it: the
+   * renewed license comes back only when its key is activated again.
    *
-   * @return string
+   * @return bool
    */
-  public static function own_license_account_url(): string {
+  public static function has_expired_license(): bool {
     $fs = self::fs();
 
-    return ( $fs && null !== self::own_license( $fs ) ) ? (string) $fs->get_account_url() : '';
+    if ( !$fs || !class_exists( 'FS_Admin_Notices', false ) ) {
+      return false;
+    }
+
+    return \FS_Admin_Notices::instance( $fs->get_slug() )->has_sticky( 'license_expired' );
+  }
+
+  /**
+   * A plan's checkout URL in license-update mode, for an install that holds its
+   * own license, or '' (no own license, or a user who cannot manage options).
+   *
+   * Given the license key, the Freemius checkout upgrades that same license with
+   * a prorated credit and ends its old subscription, where a plain checkout sells
+   * a second license and keeps billing the first (measured in the sandbox,
+   * backlog #287). The key is the license secret, so it follows the rule of the
+   * SDK's own Account page, which shows it only to the license's owner and never
+   * on a white-labeled license (templates/account.php): an agency's key on a
+   * client's site, an editor and a network's site admin never get the URL. They
+   * buy from the plain checkout.
+   *
+   * @param string $checkout_url A plan's Freemius checkout URL.
+   * @return string
+   */
+  public static function own_license_checkout_url( string $checkout_url ): string {
+    $fs = self::fs();
+    $license = $fs ? self::own_license( $fs ) : null;
+
+    if ( null === $license || empty( $license->secret_key ) || !current_user_can( 'manage_options' ) ) {
+      return '';
+    }
+
+    if ( is_multisite() && !is_super_admin() ) {
+      return '';
+    }
+
+    $user = $fs->get_user();
+
+    if ( !is_object( $user ) || (string) $user->id !== (string) $license->user_id ) {
+      return '';
+    }
+
+    if ( $fs->is_whitelabeled() || $fs->apply_filters( 'hide_license_key', false ) ) {
+      return '';
+    }
+
+    return add_query_arg( 'license_key', rawurlencode( (string) $license->secret_key ), $checkout_url );
+  }
+
+  /**
+   * Re-sync the install's own license with Freemius, at most once a minute.
+   *
+   * A plan change made off the site (an upgrade in the checkout, a site released
+   * in the Hub) reaches the SDK on its daily sync only, and the SDK Account page
+   * with its "Sync License" is hidden. _sync_cron() is the SDK's public
+   * scheduled-sync handler, the one the theme wizard runs when it opens.
+   *
+   * @return bool Whether a sync ran.
+   */
+  public static function sync_own_license(): bool {
+    $fs = self::fs();
+
+    if ( !$fs || null === self::own_license( $fs ) || false !== get_transient( 'themeasy_fs_license_sync' ) ) {
+      return false;
+    }
+
+    set_transient( 'themeasy_fs_license_sync', 1, MINUTE_IN_SECONDS );
+
+    try {
+      $fs->_sync_cron();
+    } catch ( \Throwable $e ) {
+      // A Freemius hiccup must never take the page down; the daily cron retries.
+      unset( $e );
+
+      return false;
+    }
+
+    self::$is_active = null;
+    self::$plan = null;
+
+    return true;
   }
 
   /**
