@@ -7,8 +7,10 @@
  * Freemius SDK (`themeasy_fs()`), which is the only runtime licensing authority
  * — the transitional legacy-theme fallback has been removed.
  *
- * This is the ONLY file that may reference `themeasy_fs()` — route every
- * entitlement question through here so the source stays swappable.
+ * Outside the SDK bootstrap (core/licensing.php, which defines it and consumes
+ * the wizard's key handoff) and the Free/premium set_basename() pair in
+ * themeasy.php, this is the ONLY file that may reference `themeasy_fs()`: route
+ * every entitlement question through here so the source stays swappable.
  *
  * Two paid offers (backlog #262):
  *  - can_use_widgets(): the widget layer — the Pro widgets of the content

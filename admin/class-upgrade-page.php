@@ -795,7 +795,7 @@ class Upgrade_Page {
         <li class="themeasy-admin__feature">
           <span class="themeasy-admin__feature-icon themeasy-admin__step" aria-hidden="true">3</span>
           <span class="themeasy-admin__feature-text">
-            <?php esc_html_e( 'Activate Themeasy: it deactivates Themeasy Lite for you. Then click Activate License on its row in Plugins and enter your license key.', 'themeasy-lite' ); ?>
+            <?php esc_html_e( 'Activate Themeasy: it deactivates Themeasy Lite for you. Then open Themeasy in the admin menu, click Activate License and enter your license key.', 'themeasy-lite' ); ?>
           </span>
         </li>
       </ol>

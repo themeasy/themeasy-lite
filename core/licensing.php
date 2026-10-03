@@ -164,6 +164,13 @@ if ( !function_exists( 'themeasy_fs' ) ) {
   add_action(
     'admin_init',
     static function () {
+      // Only an administrator's request takes the key: admin_init also runs on
+      // a guest's admin-ajax.php call (the cart count, Quick View), which would
+      // consume the option with no one there to own the activation.
+      if ( !current_user_can( 'manage_options' ) ) {
+        return;
+      }
+
       $key = get_option( 'themeasy_pending_license', '' );
 
       if ( '' === $key || !is_string( $key ) ) {

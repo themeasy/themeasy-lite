@@ -188,7 +188,8 @@ class Settings {
         return $s;
       case 'code_html':
         // Raw HTML (may include <script>, <noscript>, <meta>, etc.)
-        // Do NOT kses here; restrict via capability and kill-switch.
+        // Do NOT kses here: sanitize_settings() lets only a user with
+        // unfiltered_html change it, and the kill-switch can turn it off.
         $s = is_string( $value ) ? (string) $value : '';
         $s = str_replace( ["\r\n", "\r"], "\n", $s );
         if ( substr( $s, 0, 3 ) === "\xEF\xBB\xBF" ) { $s = substr( $s, 3 ); }
@@ -228,6 +229,23 @@ class Settings {
 
         // 1) Type-level sanitization
         $clean[$k] = self::sanitize_by_schema( $raw, $field, (string) $k );
+
+        // Raw code (CSS, JS, HTML) prints on every page as typed, so only a
+        // user who may post unfiltered HTML may change it: on a multisite, or
+        // with DISALLOW_UNFILTERED_HTML, an administrator cannot. The saved code
+        // stays, on a save and on a settings import alike.
+        if (
+          \in_array( $field['type'] ?? '', ['code_css', 'code_js', 'code_html'], true ) &&
+          !\current_user_can( 'unfiltered_html' ) &&
+          $clean[$k] !== ( $saved[$k] ?? ( $field['default'] ?? '' ) )
+        ) {
+          Admin_Notices::error(
+            \esc_html__( 'Custom code was not saved: your account cannot add unfiltered HTML on this site.', 'themeasy-lite' ),
+            'themeasy_unfiltered_html'
+          );
+          if ( isset( $saved[$k] ) ) { $clean[$k] = $saved[$k]; } else { unset( $clean[$k] ); }
+          continue;
+        }
 
         // 2) Normalization (trim for strings)
         if ( \is_string( $clean[$k] ) ) {

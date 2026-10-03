@@ -291,11 +291,14 @@ class SVG_Sanitizer {
     $to_update = [];
 
     foreach ( $node->attributes as $attr ) {
-      $attr_name = strtolower( $attr->name );
+      // The qualified name (xlink:href, xml:base): $attr->name is the local
+      // part alone, so an `xlink:href` would pass the href check as `href`, and
+      // removeAttribute() by that name would miss it. Removal goes by node.
+      $attr_name = strtolower( $attr->nodeName );
 
       // Block all event handlers.
       if ( str_starts_with( $attr_name, 'on' ) ) {
-        $to_remove[] = $attr->name;
+        $to_remove[] = $attr;
         continue;
       }
 
@@ -304,7 +307,7 @@ class SVG_Sanitizer {
       // is stripped to block script execution and external resource references.
       if ( in_array( $attr_name, ['href', 'xlink:href'], true ) ) {
         if ( !preg_match( '/^\s*#/', (string) $attr->value ) ) {
-          $to_remove[] = $attr->name;
+          $to_remove[] = $attr;
           continue;
         }
       }
@@ -318,7 +321,7 @@ class SVG_Sanitizer {
       }
 
       if ( !isset( $allowed_attrs[$attr_name] ) ) {
-        $to_remove[] = $attr->name;
+        $to_remove[] = $attr;
         continue;
       }
 
@@ -330,15 +333,15 @@ class SVG_Sanitizer {
         $clean_style = self::sanitize_style( (string) $attr->value );
 
         if ( '' === $clean_style ) {
-          $to_remove[] = $attr->name;
+          $to_remove[] = $attr;
         } else {
-          $to_update[$attr->name] = $clean_style;
+          $to_update[$attr->nodeName] = $clean_style;
         }
       }
     }
 
-    foreach ( $to_remove as $name ) {
-      $node->removeAttribute( $name );
+    foreach ( $to_remove as $attr ) {
+      $node->removeAttributeNode( $attr );
     }
 
     foreach ( $to_update as $name => $value ) {

@@ -54,7 +54,7 @@ function themeasy_register_ty_icon_tabs( array $tabs ): array {
 
   // Picker tab order — libraries missing from this list keep their manifest
   // position after it.
-  $tab_order = [ 'ty-feather', 'ty-solar-line', 'ty-solar-solid', 'ty-solar-duotone', 'ty-solar-broken' ];
+  $tab_order = ['ty-feather', 'ty-solar-line', 'ty-solar-solid', 'ty-solar-duotone', 'ty-solar-broken'];
   $libraries = array_merge(
     array_intersect_key( array_flip( $tab_order ), $manifest['libraries'] ),
     $manifest['libraries']

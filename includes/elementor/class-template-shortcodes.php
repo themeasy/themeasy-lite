@@ -61,7 +61,16 @@ class Template_Shortcodes {
     $template_id = absint( $args['id'] );
     $include_css = trim( $args['css'] );
 
-    if ( !$template_id || !get_post( $template_id ) ) {
+    $template = $template_id ? get_post( $template_id ) : null;
+
+    // Elementor templates only, published or readable by this user: an author
+    // who may write a shortcode must not print another author's draft, a
+    // private page or any other post through it.
+    if (
+      !$template ||
+      'elementor_library' !== $template->post_type ||
+      ( 'publish' !== $template->post_status && !current_user_can( 'read_post', $template_id ) )
+    ) {
       return '';
     }
 
