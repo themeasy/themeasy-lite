@@ -285,8 +285,8 @@ class Upgrade_Page {
     $is_free = !$is_full_offer && !$is_widgets_plan;
 
     // An expired plugin license drops the site to Free, and the SDK detaches it:
-    // renewing it is not enough, the key has to be activated again in the Plugin
-    // license block (backlog #310). The Lite takes no key.
+    // the renewed key has to be activated again in the Plugin license block, and
+    // the Widgets trial is not offered (backlogs #310, #319). The Lite takes no key.
     $is_expired = $is_free && !Entitlement::is_lite_build() && Entitlement::has_expired_license();
 
     // A Pro license keeps the Agency block when its owner can upgrade that same
@@ -475,7 +475,7 @@ class Upgrade_Page {
             </div>
           </div>
 
-          <?php if ( !$is_full_offer && !$is_widgets_plan ) : ?>
+          <?php if ( $is_free && !$is_expired ) : ?>
             <div class="themeasy-admin__features">
               <h2 class="themeasy-admin__section-title">
                 <?php esc_html_e( 'Themeasy Widgets', 'themeasy-lite' ); ?>

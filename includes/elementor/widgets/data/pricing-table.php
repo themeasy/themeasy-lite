@@ -111,6 +111,16 @@ class PricingTable extends Widget_Base {
       );
 
       $repeater->add_control(
+        'price_suffix_yearly',
+        [
+          'label' => esc_html__( 'Billing Period (Yearly)', 'themeasy-lite' ),
+          'description' => esc_html__( 'Shown instead of the Billing Period while the price toggle is on the yearly price. Leave empty to keep one text for both periods.', 'themeasy-lite' ),
+          'placeholder' => esc_html__( 'e.g. /year', 'themeasy-lite' ),
+          'type' => Controls_Manager::TEXT,
+        ]
+      );
+
+      $repeater->add_control(
         'yearly_price',
         [
           'label' => esc_html__( 'Yearly Price', 'themeasy-lite' ),
@@ -600,6 +610,186 @@ class PricingTable extends Widget_Base {
           'type' => Controls_Manager::COLOR,
           'selectors' => [
             '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active' => 'background-color: {{VALUE}}',
+          ],
+        ]
+      );
+
+      // Text, icons and button of the featured card. The background above
+      // could not go dark on its own: every text and button color was
+      // table-wide, so the ink of a light table had nowhere to be inverted on
+      // one dark card. Each selector adds the --active class to its table-wide
+      // twin, so it outranks it; all empty by default.
+
+      $this->add_control(
+        'featured_plan_name_text_color',
+        [
+          'label' => esc_html__( 'Plan Name Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-pricing-table__plan-name'
+              => 'color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_price_text_color',
+        [
+          'label' => esc_html__( 'Price Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active
+             .tms-pricing-table__price-wrapper .tms-pricing-table__price'
+              => 'color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_price_affix_text_color',
+        [
+          'label' => esc_html__( 'Currency & Billing Period Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active
+             .tms-pricing-table__price-wrapper .tms-pricing-table__affix-text'
+              => 'color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_features_list_text_color',
+        [
+          'label' => esc_html__( 'Features Text Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active
+             .tms-pricing-table__checklist .tms-pricing-table__checklist-text'
+              => 'color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_features_list_icon_color',
+        [
+          'label' => esc_html__( 'Features Icon Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-pricing-table__checklist svg'
+              => 'color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_features_list_icon_excluded_color',
+        [
+          'label' => esc_html__( 'Excluded Icon Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-pricing-table__checklist
+              svg.tms-pricing-table__checklist-icon--excluded' => 'color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_button_background_color',
+        [
+          'label' => esc_html__( 'Button Background', 'themeasy-lite' ),
+          'description' => esc_html__( 'Outranks the table-wide hover: set the featured hover too.', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button'
+              => 'background-color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_button_border_color',
+        [
+          'label' => esc_html__( 'Button Border Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button' => 'border-color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_button_text_color',
+        [
+          'label' => esc_html__( 'Button Text Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button .tms-button__text,
+             {{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button .tms-button__text > *'
+              => 'color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_button_icon_color',
+        [
+          'label' => esc_html__( 'Button Icon Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button .tms-button__icon,
+             {{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button svg' => 'color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_button_hover_background_color',
+        [
+          'label' => esc_html__( 'Button Hover Background', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button:hover'
+              => 'background-color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_button_hover_border_color',
+        [
+          'label' => esc_html__( 'Button Hover Border Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button:hover'
+              => 'border-color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_button_hover_text_color',
+        [
+          'label' => esc_html__( 'Button Hover Text Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button:hover .tms-button__text,
+             {{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button:hover .tms-button__text > *'
+              => 'color: {{VALUE}};',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'featured_button_hover_icon_color',
+        [
+          'label' => esc_html__( 'Button Hover Icon Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button:hover .tms-button__icon,
+             {{WRAPPER}} .tms-pricing-table__card.tms-pricing-table--active .tms-button:hover svg'
+              => 'color: {{VALUE}};',
           ],
         ]
       );
@@ -1946,12 +2136,14 @@ class PricingTable extends Widget_Base {
               $this->add_render_attribute( $link_key, 'role', 'button' );
             }
 
-            // Price printed on load — the chosen period, falling back to yearly
-            // when the plan has no monthly price (the monthly field is optional).
+            // Price printed on load — the chosen period, falling back to the other
+            // one when the plan leaves it empty: either field may be the only
+            // price a plan has, and a single price must still print.
             $initial_price = $item['yearly_price'] ?? '';
+            $monthly_price = $item['monthly_price'] ?? '';
 
-            if ( ! $starts_yearly && '' !== ( $item['monthly_price'] ?? '' ) ) {
-              $initial_price = $item['monthly_price'];
+            if ( '' !== $monthly_price && ( ! $starts_yearly || '' === $initial_price ) ) {
+              $initial_price = $monthly_price;
             }
 
             // Repeater setting keys.
@@ -1959,7 +2151,20 @@ class PricingTable extends Widget_Base {
             $plan_name_key = $this->get_repeater_setting_key( 'plan_name', 'pricing_table', $index );
             $price_prefix_key = $this->get_repeater_setting_key( 'price_prefix', 'pricing_table', $index );
             $yearly_price_key = $this->get_repeater_setting_key( 'yearly_price', 'pricing_table', $index );
-            $price_suffix_key = $this->get_repeater_setting_key( 'price_suffix', 'pricing_table', $index );
+            // Billing period: one text for both periods, unless the plan
+            // authors a yearly one and the toggle is there to swap them. The
+            // node edits inline the control whose text it is showing.
+            $price_suffix = $item['price_suffix'] ?? '';
+            $price_suffix_yearly = $item['price_suffix_yearly'] ?? '';
+            $swaps_suffix = $enable_price_toggle && '' !== $price_suffix_yearly;
+            $shows_yearly_suffix = $swaps_suffix && $starts_yearly;
+            $initial_suffix = $shows_yearly_suffix ? $price_suffix_yearly : $price_suffix;
+
+            $price_suffix_key = $this->get_repeater_setting_key(
+              $shows_yearly_suffix ? 'price_suffix_yearly' : 'price_suffix',
+              'pricing_table',
+              $index
+            );
             $button_label_key = $this->get_repeater_setting_key( 'button_label', 'pricing_table', $index );
 
             // Render attributes.
@@ -1988,6 +2193,17 @@ class PricingTable extends Widget_Base {
               'class',
               ['tms-pricing-table__billing', 'tms-pricing-table__affix-text']
             );
+
+            // The script swaps the text with the price, off these two values.
+            if ( $swaps_suffix ) {
+              $this->add_render_attribute(
+                $price_suffix_key,
+                [
+                  'data-yearly' => esc_attr( $price_suffix_yearly ),
+                  'data-monthly' => esc_attr( $price_suffix ),
+                ]
+              );
+            }
             $this->add_render_attribute( $button_label_key, 'class', 'tms-button__text' );
 
             // Inline editing attributes.
@@ -2040,7 +2256,7 @@ class PricingTable extends Widget_Base {
                       </span>
 
                       <span <?php $this->print_render_attribute_string( $price_suffix_key ); ?>>
-                        <?php echo esc_html( $item['price_suffix'] ?? '' ); ?>
+                        <?php echo esc_html( $initial_suffix ); ?>
                       </span>
                     </div>
                   </div><!-- /.tms-card__header -->
@@ -2337,17 +2553,29 @@ class PricingTable extends Widget_Base {
               ? window.Themeasy.renderIconMarkup( view, item.button_icon, null, { 'class': 'tms-button__icon', 'aria-hidden': 'true' } )
               : '';
 
-            // Price printed on load — the chosen period, falling back to yearly
-            // when the plan has no monthly price (the monthly field is optional).
+            // Price printed on load — the chosen period, falling back to the other
+            // one when the plan leaves it empty: either field may be the only
+            // price a plan has, and a single price must still print.
             var hasMonthly   = item.monthly_price !== '' && item.monthly_price !== undefined && item.monthly_price !== null;
-            var initialPrice = ( ! startsYearly && hasMonthly ) ? item.monthly_price : item.yearly_price;
+            var hasYearly    = item.yearly_price !== '' && item.yearly_price !== undefined && item.yearly_price !== null;
+            var initialPrice = ( hasMonthly && ( ! startsYearly || ! hasYearly ) ) ? item.monthly_price : item.yearly_price;
 
             // Repeater setting keys.
             var featuredBadgeTextKey = view.getRepeaterSettingKey( 'featured_badge_text', 'pricing_table', index );
             var planNameKey          = view.getRepeaterSettingKey( 'plan_name', 'pricing_table', index );
             var pricePrefixKey       = view.getRepeaterSettingKey( 'price_prefix', 'pricing_table', index );
             var yearlyPriceKey       = view.getRepeaterSettingKey( 'yearly_price', 'pricing_table', index );
-            var priceSuffixKey       = view.getRepeaterSettingKey( 'price_suffix', 'pricing_table', index );
+            // Billing period: same rule as render() — one text for both
+            // periods unless the plan authors a yearly one under the toggle.
+            var priceSuffix       = item.price_suffix || '';
+            var priceSuffixYearly = item.price_suffix_yearly || '';
+            var swapsSuffix       = enablePriceToggle && priceSuffixYearly !== '';
+            var showsYearlySuffix = swapsSuffix && startsYearly;
+            var initialSuffix     = showsYearlySuffix ? priceSuffixYearly : priceSuffix;
+
+            var priceSuffixKey       = view.getRepeaterSettingKey(
+              showsYearlySuffix ? 'price_suffix_yearly' : 'price_suffix', 'pricing_table', index
+            );
             var buttonLabelKey       = view.getRepeaterSettingKey( 'button_label', 'pricing_table', index );
 
             // Render attributes.
@@ -2368,6 +2596,13 @@ class PricingTable extends Widget_Base {
             view.addRenderAttribute( priceSuffixKey, 'class',
               [ 'tms-pricing-table__billing', 'tms-pricing-table__affix-text' ]
             );
+
+            if ( swapsSuffix ) {
+              view.addRenderAttribute( priceSuffixKey, {
+                'data-yearly': priceSuffixYearly,
+                'data-monthly': priceSuffix
+              } );
+            }
             view.addRenderAttribute( buttonLabelKey, 'class', 'tms-button__text' );
 
             // Inline editing attributes.
@@ -2411,7 +2646,7 @@ class PricingTable extends Widget_Base {
                         {{ groupPrice( initialPrice ) }}
                       </span>
                       <span {{{ view.getRenderAttributeString( priceSuffixKey ) }}}>
-                        {{ item.price_suffix }}
+                        {{ initialSuffix }}
                       </span>
                     </div>
                   </div><!-- /.tms-card__header -->

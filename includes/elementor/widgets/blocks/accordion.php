@@ -183,6 +183,9 @@ class Accordion extends Widget_Base {
         ]
       );
 
+      // The rule also zeroes the list rhythm of the title link (components.min.css reads
+      // --tms-accordion-rhythm), so the authored padding is the whole inset. It rides the
+      // padding rule to follow the breakpoint the padding is authored at. 0px, not 0: calc() reads it.
       $this->add_responsive_control(
         'item_padding',
         [
@@ -192,7 +195,7 @@ class Accordion extends Widget_Base {
           'size_units' => ['px', 'rem'],
           'separator' => 'before',
           'selectors' => [
-            '{{WRAPPER}} .tms-accordion .accordion-item' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+            '{{WRAPPER}} .tms-accordion .accordion-item' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}; --tms-accordion-rhythm: 0px;',
           ],
         ]
       );

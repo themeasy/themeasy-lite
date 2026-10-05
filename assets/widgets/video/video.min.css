@@ -40,6 +40,7 @@
   --tms-video-duration: 0.35s;
   --tms-video-play-size: 1.5rem;
   --tms-video-play-box: 2.6em;
+  --tms-video-play-cap: 40cqmin;
   --tms-video-play-blur: 10px;
   --tms-video-scrim-color: var(--tms-video-frame-bg);
   --tms-video-scrim-opacity: 0.5;
@@ -180,6 +181,27 @@
 .tms-video .tms-video__play-icon img {
   width: 1em;
   height: 1em;
+}
+
+/* Frame cap: an authored size knows nothing about the frame it lands on, and a
+   large button covered a phone-sized poster. The circle stops at 40% of the
+   frame's shorter side and the glyph at the share the default 2.6em circle
+   gives it, so the default pair shrinks as one. A size that already fits is
+   untouched, and a browser without container units keeps the authored size. */
+
+@supports (width: 1cqmin) {
+  .tms-video .tms-video__frame {
+    container-type: size;
+  }
+
+  .tms-video .tms-video__play {
+    width: min(var(--tms-video-play-box, 2.6em), var(--tms-video-play-cap));
+    height: min(var(--tms-video-play-box, 2.6em), var(--tms-video-play-cap));
+  }
+
+  .tms-video .tms-video__play-icon {
+    font-size: min(1em, calc(var(--tms-video-play-cap) / 2.6));
+  }
 }
 
 /* Pulse ring: radiates from the button edge, inviting the click. */

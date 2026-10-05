@@ -41,13 +41,26 @@
 
 /* #region Icon */
 
+/* The bare icon stays inline-level, so the inherited text-align still places
+   it. An inline-level box opens a line box, though: the widget measured the
+   body line instead of the icon (18px icon, 27px box) and the glyph sat on the
+   baseline, ~4px above the middle of a text beside it in a flex row (backlog
+   #321). With no line height on the widget and the wrapper aligned to the top
+   of the line, the line box is the icon's own box. The wrapper restarts the
+   line height, so the 0 never reaches a font glyph. */
+.elementor-widget-themeasy-icon {
+  line-height: 0;
+}
+
 .tms-icon-wrapper {
   width: 1em;
   height: 1em;
   font-size: 32px;
+  line-height: 1;
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  vertical-align: top;
   color: var(--tms-primary-color);
 }
 
@@ -792,6 +805,7 @@
 /* #region Image Marquee */
 
 .tms-image-marquee {
+  --tms-image-marquee-visible: 2;
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -804,6 +818,70 @@
   display: flex;
   gap: 1.5rem;
   will-change: transform;
+}
+
+/* A marquee that runs (--loop, speed above 0) keeps its columns at every width.
+   --tms-image-marquee-visible is how many tiles fit one screen: with more
+   columns than that, the track block is wider than the marquee instead of
+   stacking the tiles. The tile is sized from the marquee width, the track's own
+   100% until the script builds the loop and the px it measured after that
+   (--tms-image-marquee-width), so the row has its final shape before the script
+   runs. Reduced motion and speed 0 keep the stepped grid: nothing scrolls the
+   tiles past the screen edge into view there. */
+@media (prefers-reduced-motion: no-preference) {
+  .tms-image-marquee--loop .tms-image-marquee__content,
+  .tms-image-marquee--loop .tms-image-marquee__item {
+    flex: none;
+    width: 100%;
+  }
+
+  .tms-image-marquee--loop.tms-marquee--ready .tms-image-marquee__content,
+  .tms-image-marquee--loop.tms-marquee--ready .tms-image-marquee__item {
+    width: max-content;
+  }
+
+  .tms-image-marquee--loop .tms-image-marquee__item > [class*="row-cols"] {
+    --tms-image-marquee-fit: min(var(--tms-image-marquee-columns), var(--tms-image-marquee-visible));
+    display: grid;
+    grid-template-columns: repeat(
+      var(--tms-image-marquee-columns),
+      calc((var(--tms-image-marquee-width, 100%) - (var(--tms-image-marquee-fit) - 1) * var(--bs-gutter-x)) / var(--tms-image-marquee-fit))
+    );
+  }
+
+  .tms-image-marquee--loop .tms-image-marquee__item > [class*="row-cols"] > * {
+    width: auto;
+  }
+}
+
+@media (min-width: 576px) {
+  .tms-image-marquee {
+    --tms-image-marquee-visible: 4;
+  }
+}
+
+@media (min-width: 768px) {
+  .tms-image-marquee {
+    --tms-image-marquee-visible: 6;
+  }
+}
+
+@media (min-width: 992px) {
+  .tms-image-marquee {
+    --tms-image-marquee-visible: 8;
+  }
+}
+
+@media (min-width: 1200px) {
+  .tms-image-marquee {
+    --tms-image-marquee-visible: 10;
+  }
+}
+
+@media (min-width: 1400px) {
+  .tms-image-marquee {
+    --tms-image-marquee-visible: 12;
+  }
 }
 
 /* #endregion Image Marquee */

@@ -616,6 +616,20 @@ class LogoWall extends Widget_Base {
         ]
       );
 
+      // Same hover / focus pair as cell_background_hover_color; the stylesheet
+      // already transitions the wordmark's color.
+      $this->add_control(
+        'wordmark_hover_color',
+        [
+          'label' => esc_html__( 'Hover Text Color', 'themeasy-lite' ),
+          'type' => Controls_Manager::COLOR,
+          'selectors' => [
+            '{{WRAPPER}} .tms-logo-wall__item:hover .tms-logo-wall__wordmark,
+             {{WRAPPER}} .tms-logo-wall__item:focus-within .tms-logo-wall__wordmark' => 'color: {{VALUE}};',
+          ],
+        ]
+      );
+
       $this->add_group_control( // wordmark_typography
         Group_Control_Typography::get_type(),
         [

@@ -28,7 +28,7 @@ if ( !function_exists( 'themeasy_fs' ) ) {
 
     if ( !isset( $themeasy_fs ) ) {
       // Include the vendored Freemius SDK (lives at the plugin root, one level up from core/).
-      require_once dirname( __DIR__ ) . '/freemius/start.php';
+      require_once dirname( __DIR__ ) . '/vendor/freemius/start.php';
 
       $themeasy_fs = fs_dynamic_init( [
         'id' => '31006',

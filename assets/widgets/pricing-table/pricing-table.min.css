@@ -44,11 +44,18 @@
   flex: 1 1 auto;
 }
 
+/* The row hugs its content (fit-content) and is centered by the auto margins.
+   It may wrap: labels, switch and badge together can be wider than a phone's
+   content box (326px with a 13-letter badge against 320px), and a nowrap row
+   then left the container on the right. Capped at the container, what does
+   not fit drops to a second, centered line (backlog #318). */
 .tms-pricing-table .tms-price-toggle__field {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   width: fit-content;
+  max-width: 100%;
   margin: 0 auto 3.5rem;
   gap: 1rem;
 }
@@ -113,11 +120,12 @@
   line-height: 1;
 }
 
-/* No width floor here: the price reserves exactly the widest value its own two
-   periods can render (locked by the widget JS), so a "0" plan stays as narrow
-   as a "0". The nowrap is the safety net for that reserve: a price is a single
-   figure, so if the lock ever falls short (a webfont swapping in after the
-   measurement) it must overflow, never stack its digits onto a second line. */
+/* No width floor here: at rest the price is as wide as its own figure, so a "0"
+   plan stays as narrow as a "0". The widget JS holds a width only while the
+   number counts (the widest value of that count, with the figure centred in
+   it), and the nowrap is the safety net for that hold: a price is a single
+   figure, so if the hold ever falls short it must overflow, never stack its
+   digits onto a second line. */
 .tms-pricing-table .tms-pricing-table__price-wrapper .tms-pricing-table__price {
   margin: 0;
   text-align: center;
@@ -308,6 +316,15 @@
 
 /* Responsive collapse */
 @media (max-width: 991px) {
+  /* The plain label hangs 20px off the card's left edge, which is the page
+     margin once the cards stack: it folds into the card's padding, as the
+     shared Vertical Label rule asks. The base rule above outranked that rule
+     at every width (backlog #322). */
+  .tms-pricing-table .tms-vertical-label {
+    top: 10px;
+    left: 5px;
+  }
+
   .tms-pricing-table .tms-vertical-label.tms-vertical-label--filled {
     top: 0;
     left: 0;

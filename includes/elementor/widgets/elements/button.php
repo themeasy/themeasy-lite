@@ -642,8 +642,13 @@ class Button extends Widget_Base {
             'px' => ['min' => 0, 'max' => 1200, 'step' => 1],
             '%' => ['min' => 0, 'max' => 100, 'step' => 1],
           ],
+          // The group is shrink-to-fit, so the width lives on it and the button
+          // fills it: a percentage set on the button resolved against the
+          // button's own width and did nothing. The custom property only carries
+          // the placeholder: a rule without one is printed with the control empty.
           'selectors' => [
-            '{{WRAPPER}} .tms-button' => 'width: {{SIZE}}{{UNIT}};',
+            '{{WRAPPER}} .tms-button-group' => 'width: {{SIZE}}{{UNIT}};',
+            '{{WRAPPER}} .tms-button' => 'width: 100%; --tms-button-width: {{SIZE}}{{UNIT}};',
           ],
         ]
       );

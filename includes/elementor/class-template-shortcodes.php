@@ -59,7 +59,11 @@ class Template_Shortcodes {
     );
 
     $template_id = absint( $args['id'] );
-    $include_css = trim( $args['css'] );
+
+    // A real boolean for Elementor's $with_css: "false", "0", "no", "off" and an
+    // empty value switch the inline CSS off, any value that is not a boolean
+    // word keeps the default (on). A non-empty string was always truthy.
+    $include_css = filter_var( trim( $args['css'] ), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE ) ?? true;
 
     $template = $template_id ? get_post( $template_id ) : null;
 

@@ -204,10 +204,18 @@
   height: 100%;
 }
 
+/* The card owns the whole text inset: the component's 1rem plus the 1.75rem its
+ * body adds everywhere else, moved here so the Padding control (which paints
+ * the card) replaces the inset instead of stacking on the body's share. */
 .tms-steps .tms-steps__item .tms-steps__content .tms-card {
+  padding: 2.75rem;
   border-radius: var(--tms-radius-md, 1rem);
   box-shadow: 0 10px 10px 0 rgba(0, 0, 0, 0.05);
   background: var(--tms-bg-color, #ffffff);
+}
+
+.tms-steps .tms-steps__item .tms-steps__content .tms-card__body {
+  padding: 0;
 }
 
 .tms-steps.tms-steps--outline .tms-steps__item .tms-steps__content .tms-card {
