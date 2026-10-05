@@ -1022,6 +1022,13 @@
 	cursor: pointer;
 }
 
+/* The underline of a link inside the label (an acceptance's "terms of use").
+   Transparent until the Form widget's label color paints it: the link takes
+   that color too, and the line is what still tells it apart (backlog #350). */
+.tms-form .form-check-label a {
+	border-bottom: 1px solid transparent;
+}
+
 .tms-form .form-check-input {
 	width: 20px;
 	min-width: 20px;
