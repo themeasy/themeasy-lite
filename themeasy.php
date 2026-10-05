@@ -5,7 +5,6 @@
  * Description:        Free Elementor content widgets and design controls that work with any WordPress theme.
  * Version:            1.0.1
  * Requires at least:  6.8
- * Tested up to:       7.1
  * Requires PHP:       7.4
  * Requires Plugins:   elementor
  * Author:             Themeasy
