@@ -5,17 +5,15 @@
  * Pre-enqueues every Themeasy widget's get_style_depends() CSS for the
  * above-the-fold Elementor documents that render on the current request, so
  * those handles print render-blocking in <head> instead of being late-printed
- * near </body>.
+ * near </body>, which shows as a Flash of Unstyled Content.
  *
- * Without this, widgets inside Global Sections (rendered on theme body hooks
- * such as tbase_header / tbase_main_top, after wp_enqueue_scripts and after
- * Elementor's own style pass) enqueue their CSS too late and cause a Flash of
- * Unstyled Content. The breadcrumbs widget is the worst case: it sits at the
- * very top of the page yet its CSS loads last.
+ * The document scanned here is the page itself. A document rendered outside
+ * the main content (on a theme body hook, after wp_enqueue_scripts and after
+ * Elementor's own style pass) joins through the `themeasy/fouc/document_ids`
+ * filter.
  *
  * This pass covers the structural widget CSS only. The per-element settings CSS
- * (Elementor post-{id}.css) is handled separately, and for the header it is
- * already preloaded in modules__premium_only/global-sections/enqueue-assets.php.
+ * (Elementor post-{id}.css) is handled by Elementor.
  *
  * @package Themeasy\Elementor
  * @since 1.0.0
@@ -74,126 +72,28 @@ add_action( 'wp_enqueue_scripts', 'themeasy_preload_widget_styles', 11 );
 /**
  * Gather the above-the-fold Elementor document IDs that render on this request.
  *
- * "Above the fold" here means every region that paints at or near the top of
- * the viewport, so its CSS must be render-blocking in <head>:
- *  - site-wide top: header, before-header, before-content;
- *  - companion sidebars (their top sits beside the first screen of content);
- *  - the post/page entry intro: entry_thumbnail (featured image) + entry_header
- *    (title / meta / taxonomy — typically the LCP element), context-scoped;
- *  - the archive / search listing (the main content on those views), or the
- *    Product Archive section on a product archive;
- *  - the Summary section on a product page (Global Sections → Product);
- *  - the main queried document on singular views.
- *
- * Intentionally excluded (left to load lazily, no visible FOUC): footer,
- * before-footer, entry_footer, comments. Add them per-template via the
- * `themeasy/fouc/document_ids` filter if ever needed.
- *
- * The global-section template tags are guarded with function_exists() so this
- * file degrades gracefully when the Global Sections module is not loaded. The
- * context guards (is_singular / is_page / is_search / is_archive) mirror the
- * module's own render scoping in Action::register_hooks, so we never preload
- * CSS for a slot that will not render in the current context.
+ * "Above the fold" means every region that paints at or near the top of the
+ * viewport, so its CSS must be render-blocking in <head>. Here that is the main
+ * queried document on singular views.
  *
  * @return int[] Unique, positive document IDs.
  */
 function themeasy_get_render_bound_document_ids(): array {
   $ids = [];
 
-  // Site-wide single-slot top regions, plus the companion sidebars.
-  $single_slot_tags = [
-    'themeasy_get_header_id',
-    'themeasy_get_before_content_id',
-    'themeasy_get_sidebar_left_id',
-    'themeasy_get_sidebar_right_id',
-  ];
-
-  foreach ( $single_slot_tags as $tag ) {
-    if ( function_exists( $tag ) ) {
-      $id = $tag();
-
-      if ( $id ) {
-        $ids[] = (int) $id;
-      }
-    }
-  }
-
-  // Multi-slot before-header (returns a flat array|false of IDs).
-  if ( function_exists( 'themeasy_get_before_header_id' ) ) {
-    $slot = themeasy_get_before_header_id();
-
-    if ( is_array( $slot ) ) {
-      foreach ( $slot as $id ) {
-        if ( $id ) {
-          $ids[] = (int) $id;
-        }
-      }
-    }
-  }
-
-  // Singular views: the main queried document + the entry intro overrides
-  // (featured image and header), scoped to post vs page like the module does.
   if ( is_singular() ) {
     $queried_id = (int) get_queried_object_id();
 
     if ( $queried_id ) {
       $ids[] = $queried_id;
     }
-
-    if ( is_singular( 'post' ) && function_exists( 'themeasy_get_post_id' ) ) {
-      $get_override_id = 'themeasy_get_post_id';
-    } elseif ( is_page() && function_exists( 'themeasy_get_page_id' ) ) {
-      $get_override_id = 'themeasy_get_page_id';
-    } else {
-      $get_override_id = '';
-    }
-
-    if ( $get_override_id ) {
-      foreach ( ['entry_thumbnail', 'entry_header'] as $override ) {
-        $id = $get_override_id( $override );
-
-        if ( $id ) {
-          $ids[] = (int) $id;
-        }
-      }
-    }
-
-    // A product page's Summary section is its top region (gallery + summary);
-    // the product lists below it stay out.
-    if ( function_exists( 'themeasy_wc_get_product_section_id' ) ) {
-      $id = themeasy_wc_get_product_section_id( 'summary' );
-
-      if ( $id ) {
-        $ids[] = $id;
-      }
-    }
-  }
-
-  // Archive / search listing — the above-the-fold content on those views. A
-  // product archive (shop, product taxonomies, product search) renders its
-  // Product Archive section when one matches (tms-archive-section.php), and
-  // never an Archive Loop or Search Results section.
-  if ( function_exists( 'themeasy_get_archive_id' ) ) {
-    if ( function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() ) ) {
-      $id = function_exists( 'themeasy_wc_get_archive_section_id' ) ? themeasy_wc_get_archive_section_id() : false;
-    } elseif ( is_search() ) {
-      $id = themeasy_get_archive_id( 'search_results' );
-    } elseif ( is_archive() || is_home() ) {
-      $id = themeasy_get_archive_id( 'archive' );
-    } else {
-      $id = false;
-    }
-
-    if ( $id ) {
-      $ids[] = (int) $id;
-    }
   }
 
   /**
    * Filter the set of documents scanned for FOUC preloading.
    *
-   * Escape hatch to add below-the-fold sections (e.g. footer, comments) or to
-   * drop specific documents per template.
+   * Add the documents a template renders outside the main content (a header,
+   * a sidebar, a footer), or drop specific documents per template.
    *
    * @param int[] $ids Document IDs.
    */
@@ -311,7 +211,7 @@ function themeasy_enqueue_widget_style_depends( array $widget_types ): void {
 
   foreach ( $widget_types as $type ) {
     // Native Elementor widgets are handled by Elementor itself.
-    if ( !str_starts_with( $type, 'themeasy-' ) ) {
+    if ( 0 !== strpos( $type, 'themeasy-' ) ) {
       continue;
     }
 

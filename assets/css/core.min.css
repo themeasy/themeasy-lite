@@ -578,9 +578,8 @@ html:has(> body.tms-scroll-locked) {
  * Layout: make layout-based Themeasy widgets fill the container width.
  * These widgets behave as structural blocks inside Elementor Containers.
  *
- * Widget layout, not container tooling: it lives in this Free, global sheet so
- * every build and every plan gets it — the Free build and the Widgets plan load
- * no container bundle (backlog #262).
+ * Widget layout, not container tooling: it lives in this global sheet, which
+ * every page loads (backlog #262).
  */
 .elementor-widget-themeasy-accordion,
 .elementor-widget-themeasy-archive-results,

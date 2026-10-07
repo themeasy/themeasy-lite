@@ -1,10 +1,8 @@
 /*!
  * Themeasy — Free Admin CSS
  *
- * Styles for the Free build's Upgrade/Welcome page (Upgrade_Page). Independent
- * of the premium panel's admin.min.css: it carries only the shared --themeasy-*
- * color tokens plus a clean base for the upgrade page. This is a starting
- * scaffold — extend it when finalizing the Free page design.
+ * Styles for the Themeasy page (Welcome_Page): the shared --themeasy-* color
+ * tokens plus the page's own layout.
  *
  * @author Themeasy
  * @link https://themeasy.co
@@ -273,14 +271,14 @@ body #wpfooter {
   color: var(--themeasy-heading-color);
 }
 
-/* The Agency White Label logo (backlog #272). */
+/* The brand logo. */
 .themeasy-admin__brand img {
   width: auto;
   max-width: 100%;
   height: 40px;
 }
 
-/* A White Label name with no logo, in the logo's 40px slot (backlog #308). */
+/* A brand name with no logo, in the logo's 40px slot. */
 .themeasy-admin__brand-name {
   display: inline-block;
   font-size: 1.5rem;

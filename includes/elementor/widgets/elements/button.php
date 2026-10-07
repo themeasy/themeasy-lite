@@ -3,9 +3,8 @@
  * Themeasy Elementor Widget: Button
  *
  * A customizable button widget with multiple styles (solid, outline, gradient,
- * brutalist, duocolor), icon support, scroll text animations, and entrance /
- * hover motion. The visual structure is pure CSS (consumed from the shared
- * component stylesheet); JavaScript only layers optional motion.
+ * brutalist, duocolor) and icon support. The visual structure is pure CSS
+ * (consumed from the shared component stylesheet).
  *
  * The link can either point at a URL or open a video in a modal, handed to the
  * shared lightbox module (GLightbox) through the `glightbox` class.
@@ -22,7 +21,6 @@ use Elementor\Controls_Manager;
 use Elementor\Group_Control_Background;
 use Elementor\Group_Control_Typography;
 use Elementor\Widget_Base;
-use Themeasy\Core\Entitlement;
 
 /**
  * Responsible for registering controls and rendering the widget.
@@ -95,23 +93,6 @@ class Button extends Widget_Base {
           ],
         ]
       );
-
-      // The hidden label only feeds the scroll text animation, which is Pro.
-      if ( Entitlement::can_use_widgets() ) {
-        $this->add_control(
-          'button_hidden_label',
-          [
-            'label' => esc_html__( 'Hidden Label', 'themeasy-lite' ),
-            'description' => esc_html__( 'This hidden label is used for scroll text animations.', 'themeasy-lite' ),
-            'type' => Controls_Manager::TEXT,
-            'default' => esc_html__( 'Call to Action', 'themeasy-lite' ),
-            'placeholder' => esc_html__( 'Type your text here', 'themeasy-lite' ),
-            'dynamic' => [
-              'active' => true,
-            ],
-          ]
-        );
-      }
 
       $this->add_control(
         'button_icon',
@@ -250,27 +231,6 @@ class Button extends Widget_Base {
           ],
         ]
       );
-
-      // Scroll text runs on the core GSAP engine: Pro only.
-      if ( Entitlement::can_use_widgets() ) {
-        $this->add_control(
-          'button_scroll_text',
-          [
-            'label' => esc_html__( 'Scroll Text Animation', 'themeasy-lite' ),
-            'description' => esc_html__( 'Choose the scroll text animation for the button hover effect.', 'themeasy-lite' ),
-            'type' => Controls_Manager::SELECT,
-            'default' => '',
-            'options' => [
-              '' => esc_html__( 'None', 'themeasy-lite' ),
-              'vertical' => esc_html__( 'Vertical', 'themeasy-lite' ),
-              'horizontal' => esc_html__( 'Horizontal', 'themeasy-lite' ),
-            ],
-            'condition' => [
-              'button_style!' => ['simple', 'duocolor', 'duocolor-outline'],
-            ],
-          ]
-        );
-      }
 
       // ---- Colors ----
       $this->add_control(
@@ -646,9 +606,12 @@ class Button extends Widget_Base {
           // fills it: a percentage set on the button resolved against the
           // button's own width and did nothing. The custom property only carries
           // the placeholder: a rule without one is printed with the control empty.
+          // `min-width: 0` lifts the shared 130px floor (components.min.css) in
+          // the same declaration, or a width below it shrinks the group and
+          // leaves the button overflowing it (same reason as the Form button).
           'selectors' => [
             '{{WRAPPER}} .tms-button-group' => 'width: {{SIZE}}{{UNIT}};',
-            '{{WRAPPER}} .tms-button' => 'width: 100%; --tms-button-width: {{SIZE}}{{UNIT}};',
+            '{{WRAPPER}} .tms-button' => 'width: 100%; min-width: 0; --tms-button-width: {{SIZE}}{{UNIT}};',
           ],
         ]
       );
@@ -688,159 +651,9 @@ class Button extends Widget_Base {
     $this->end_controls_section();
 
     // ------------------------------------------------------------------------
-    // Advanced sections: Themeasy Motion (Pro — the engines run on GSAP, which
-    // the Free build neither ships nor loads).
+    // Advanced section: Motion.
     // ------------------------------------------------------------------------
-    if ( Entitlement::can_use_widgets() ) {
-      $this->register_motion_controls();
-    } else {
-      themeasy_register_motion_upsell_section( $this );
-    }
-  }
-
-  /**
-   * Register the Themeasy Motion sections (Advanced tab).
-   *
-   * Pro only: the motion engines run on GSAP, which the Free build neither
-   * ships nor loads (backlog #253). register_controls() calls this when the
-   * site is entitled and registers the upsell section otherwise.
-   *
-   * @return void
-   */
-  private function register_motion_controls() {
-    // ------------------------------------------------------------------------
-    // Advanced section: Entrance Animation
-    // ------------------------------------------------------------------------
-    $this->start_controls_section(
-      'widget_animation_section',
-        [
-          'label' => esc_html__( 'Motion — Animation', 'themeasy-lite' ),
-          'tab' => Controls_Manager::TAB_ADVANCED,
-        ]
-    );
-
-      $this->add_control(
-        'button_animation',
-        [
-          'label' => esc_html__( 'Entrance Animation', 'themeasy-lite' ),
-          'type' => Controls_Manager::SELECT,
-          'default' => '',
-          'options' => themeasy_get_animation_options( 'block' ),
-        ]
-      );
-
-      $this->add_control(
-        'button_animation_duration',
-        [
-          'label' => esc_html__( 'Duration', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 1],
-          'condition' => ['button_animation!' => ''],
-        ]
-      );
-
-      $this->add_control(
-        'button_animation_delay',
-        [
-          'label' => esc_html__( 'Delay', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 0],
-          'condition' => ['button_animation!' => ''],
-        ]
-      );
-
-    $this->end_controls_section();
-
-    // ------------------------------------------------------------------------
-    // Advanced section: Hover Interactions
-    // ------------------------------------------------------------------------
-    $this->start_controls_section(
-      'widget_hover_section',
-        [
-          'label' => esc_html__( 'Motion — Hover Interactions', 'themeasy-lite' ),
-          'tab' => Controls_Manager::TAB_ADVANCED,
-        ]
-    );
-
-      $this->add_control(
-        'button_hover_animation',
-        [
-          'label' => esc_html__( 'Hover Animation', 'themeasy-lite' ),
-          'type' => Controls_Manager::SELECT,
-          'default' => '',
-          'options' => themeasy_get_animation_options( 'hover' ),
-        ]
-      );
-
-      $this->add_control(
-        'cursor_text',
-        [
-          'label' => esc_html__( 'Cursor Text', 'themeasy-lite' ),
-          'label_block' => false,
-          'type' => Controls_Manager::TEXT,
-          'default' => esc_html__( 'VIEW', 'themeasy-lite' ),
-          'placeholder' => esc_html__( 'Type your text here', 'themeasy-lite' ),
-          'dynamic' => [
-            'active' => true,
-          ],
-          'condition' => [
-            'button_hover_animation' => 'viewCursor',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'cursor_text_width',
-        [
-          'label' => esc_html__( 'Width', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['px'],
-          'range' => [
-            'px' => ['min' => 30, 'max' => 300, 'step' => 5],
-          ],
-          'default' => ['size' => 100, 'unit' => 'px'],
-          'selectors' => [
-            '.tms-cursor-interaction' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}}; margin-top: calc(-{{SIZE}}{{UNIT}} / 2); margin-left: calc(-{{SIZE}}{{UNIT}} / 2);',
-          ],
-          'condition' => [
-            'button_hover_animation' => 'viewCursor',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'cursor_text_background_color',
-        [
-          'label' => esc_html__( 'Background Color', 'themeasy-lite' ),
-          'type' => Controls_Manager::COLOR,
-          'selectors' => [
-            '.tms-cursor-interaction' => 'background-color: {{VALUE}}',
-          ],
-          'condition' => [
-            'button_hover_animation' => 'viewCursor',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'cursor_text_color',
-        [
-          'label' => esc_html__( 'Text Color', 'themeasy-lite' ),
-          'type' => Controls_Manager::COLOR,
-          'selectors' => [
-            '.tms-cursor-interaction' => 'color: {{VALUE}}',
-          ],
-          'condition' => [
-            'button_hover_animation' => 'viewCursor',
-          ],
-        ]
-      );
-
-    $this->end_controls_section();
+    themeasy_register_motion_upsell_section( $this );
   }
 
   /**
@@ -851,21 +664,13 @@ class Button extends Widget_Base {
   protected function render() {
     $settings = $this->get_settings_for_display();
 
-    // Themeasy Motion is Pro. Without it the motion settings read as empty, so
-    // saved values (a template, a site back from premium) emit no markup: the
-    // hidden guard would leave the button invisible with no engine to reveal it.
-    $motion = Entitlement::can_use_widgets();
-
     // ------------------------------------------------------------------------
     // Settings.
     // ------------------------------------------------------------------------
     $button_label = $settings['button_label'] ?? '';
-    $button_hidden_label = $settings['button_hidden_label'] ?? '';
     $button_icon = is_array( $settings['button_icon'] ?? null ) ? $settings['button_icon'] : [];
     $button_style = $settings['button_style'] ?? 'solid-fill';
     $button_icon_align = $settings['button_icon_alignment'] ?? 'right';
-    $button_scroll_text = $motion ? ( $settings['button_scroll_text'] ?? '' ) : '';
-    $is_scroll_text = in_array( $button_scroll_text, ['vertical', 'horizontal'], true );
     $is_duocolor = in_array( $button_style, ['duocolor', 'duocolor-outline'], true );
 
     // Link type. A video needs a resolved URL before it earns the lightbox
@@ -896,43 +701,10 @@ class Button extends Widget_Base {
       $button_classes[] = 'tms-button--' . $button_style;
     }
 
-    // Scroll text animation (only for the validated vertical/horizontal values).
-    if ( $is_scroll_text ) {
-      $button_classes[] = 'tms-' . $button_scroll_text . '-scroll-text';
-    }
-
     // Video lightbox. The shared lightbox module auto-binds GLightbox to this
     // class on the frontend (it deliberately no-ops in the editor preview).
     if ( $is_video ) {
       $button_classes[] = 'glightbox';
-    }
-
-    // Entrance animation.
-    $animation = $motion ? ( $settings['button_animation'] ?? '' ) : '';
-    $duration = $settings['button_animation_duration']['size'] ?? '1.2';
-    $delay = $settings['button_animation_delay']['size'] ?? '0';
-
-    if ( $animation ) {
-      $wrapper_classes[] = 'tms-block-animation';
-      $wrapper_classes[] = 'tms-animation--on-view';
-      $wrapper_classes[] = 'tms-animation--hidden';
-
-      $wrapper_atts['tms-block-animation'] = $animation;
-      $wrapper_atts['duration'] = $duration;
-      $wrapper_atts['delay'] = $delay;
-    }
-
-    // Hover animation.
-    $hover_animation = $motion ? ( $settings['button_hover_animation'] ?? '' ) : '';
-
-    if ( $hover_animation ) {
-      $wrapper_classes[] = 'tms-hover-animation';
-      $wrapper_atts['tms-hover-animation'] = $hover_animation;
-      $button_classes[] = 'tms-animation__target';
-
-      if ( 'viewCursor' === $hover_animation ) {
-        $wrapper_atts['tms-cursor-text'] = sanitize_text_field( $settings['cursor_text'] ?? 'VIEW' );
-      }
     }
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
@@ -990,10 +762,6 @@ class Button extends Widget_Base {
     <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
       <a <?php $this->print_render_attribute_string( 'button_link' ); ?>>
 
-        <?php if ( $is_scroll_text ) : ?>
-          <span class="tms-scroll-text--visible">
-        <?php endif; ?>
-
         <span <?php $this->print_render_attribute_string( 'button_label' ); ?>>
           <?php echo wp_kses( $button_label, themeasy_get_kses_allowed_tags() ); ?>
         </span>
@@ -1006,20 +774,6 @@ class Button extends Widget_Base {
           <?php else : ?>
             <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
           <?php endif; ?>
-        <?php endif; ?>
-
-        <?php if ( $is_scroll_text ) : ?>
-          </span><!-- /.tms-scroll-text--visible -->
-
-          <span class="tms-scroll-text--hidden">
-            <span class="tms-button__text">
-              <?php echo wp_kses( $button_hidden_label, themeasy_get_kses_allowed_tags() ); ?>
-            </span>
-
-            <?php if ( $icon_html ) : ?>
-              <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
-            <?php endif; ?>
-          </span><!-- /.tms-scroll-text--hidden -->
         <?php endif; ?>
 
       </a><!-- /.tms-button -->
@@ -1035,10 +789,6 @@ class Button extends Widget_Base {
   protected function content_template() {
     ?>
     <#
-      // Themeasy Motion is Pro (render() parity): without it the motion
-      // settings read as empty.
-      var motion = <?php echo Entitlement::can_use_widgets() ? 'true' : 'false'; ?>;
-
       // User text reaches raw {{{ }}} output: sanitize with kses parity.
       var sanitizeInline = ( window.Themeasy && window.Themeasy.sanitizeInlineHtml )
         ? window.Themeasy.sanitizeInlineHtml
@@ -1048,11 +798,8 @@ class Button extends Widget_Base {
       // Settings.
       // ------------------------------------------------------------------------
       var buttonLabel       = sanitizeInline( settings.button_label || '' );
-      var buttonHiddenLabel = sanitizeInline( settings.button_hidden_label || '' );
       var buttonStyle       = settings.button_style || 'solid-fill';
       var buttonIconAlign   = settings.button_icon_alignment || 'right';
-      var buttonScrollText  = motion ? ( settings.button_scroll_text || '' ) : '';
-      var isScrollText      = [ 'vertical', 'horizontal' ].indexOf( buttonScrollText ) !== -1;
       var isDuocolor        = [ 'duocolor', 'duocolor-outline' ].indexOf( buttonStyle ) !== -1;
 
       // content_template() has no esc_url(): every interpolated href goes
@@ -1095,44 +842,10 @@ class Button extends Widget_Base {
         buttonClasses.push( 'tms-button--' + buttonStyle );
       }
 
-      // Scroll text animation.
-      if ( buttonScrollText ) {
-        buttonClasses.push( 'tms-' + buttonScrollText + '-scroll-text' );
-      }
-
       // Video lightbox. The class is cosmetic in the editor — the lightbox
       // module no-ops in the preview so the widget stays selectable.
       if ( isVideo ) {
         buttonClasses.push( 'glightbox' );
-      }
-
-      // Entrance animation.
-      var animation = motion ? ( settings.button_animation || '' ) : '';
-      var duration  = ( settings.button_animation_duration && settings.button_animation_duration.size )
-        ? settings.button_animation_duration.size
-        : '1.2';
-      var delay = ( settings.button_animation_delay && settings.button_animation_delay.size )
-        ? settings.button_animation_delay.size
-        : '0';
-
-      if ( animation ) {
-        wrapperClasses.push( 'tms-block-animation', 'tms-animation--on-view', 'tms-animation--hidden' );
-        wrapperAtts['tms-block-animation'] = animation;
-        wrapperAtts['duration']            = duration;
-        wrapperAtts['delay']               = delay;
-      }
-
-      // Hover animation.
-      var hoverAnimation = motion ? ( settings.button_hover_animation || '' ) : '';
-
-      if ( hoverAnimation ) {
-        wrapperClasses.push( 'tms-hover-animation' );
-        wrapperAtts['tms-hover-animation'] = hoverAnimation;
-        buttonClasses.push( 'tms-animation__target' );
-
-        if ( hoverAnimation === 'viewCursor' ) {
-          wrapperAtts['tms-cursor-text'] = settings.cursor_text || 'VIEW';
-        }
       }
 
       var wrapperClassStr = wrapperClasses.filter( Boolean ).join( ' ' );
@@ -1168,10 +881,6 @@ class Button extends Widget_Base {
     <div class="{{ wrapperClassStr }}" {{{ Themeasy.htmlAttributes( wrapperAtts ) }}}>
       <a {{{ Themeasy.htmlAttributes( linkAtts ) }}}>
 
-        <# if ( isScrollText ) { #>
-          <span class="tms-scroll-text--visible">
-        <# } #>
-
         <span {{{ view.getRenderAttributeString( 'button_label' ) }}}>
           {{{ buttonLabel }}}
         </span>
@@ -1184,18 +893,6 @@ class Button extends Widget_Base {
           <# } else { #>
             {{{ iconMarkup }}}
           <# } #>
-        <# } #>
-
-        <# if ( isScrollText ) { #>
-          </span><!-- /.tms-scroll-text--visible -->
-
-          <span class="tms-scroll-text--hidden">
-            <span class="tms-button__text">{{{ buttonHiddenLabel }}}</span>
-
-            <# if ( iconMarkup ) { #>
-              {{{ iconMarkup }}}
-            <# } #>
-          </span><!-- /.tms-scroll-text--hidden -->
         <# } #>
 
       </a><!-- /.tms-button -->

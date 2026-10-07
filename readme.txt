@@ -19,6 +19,7 @@ Whether you run a blog, a portfolio, or a small business site, Themeasy Lite giv
 
 = Free Elementor widgets, Design tools, on any theme =
 
+* 18 widgets: Section Intro, Blockquote, Image, Video, Button, Icon, Icon List, Divider, Social Profiles, Card, Call to Action, Team Member, Testimonial, Logo Wall, Accordion, Steps, Pricing Table and Business Hours
 * A consistent set of design controls across every widget
 * Lightweight by design — no animation library, and a widget's scripts load only on pages that use it
 * SVG-safe icon handling
@@ -26,7 +27,7 @@ Whether you run a blog, a portfolio, or a small business site, Themeasy Lite giv
 
 = Optional upgrade =
 
-Themeasy Lite is fully functional on its own; the free widgets above never expire. Three paid plans add more, and each one is optional:
+Themeasy Lite is fully functional on its own, and its widgets never expire. Three paid plans add more, and each one is optional:
 
 * **Themeasy Widgets:** the Pro content widgets (text, media, elements, blocks, sliders and data) and Themeasy Motion (entrance, hover, text and scroll animations, on the free widgets too), in any theme.
 * **Themeasy Pro:** everything in Widgets, plus the header, footer, post, site and mega menu widgets in any theme, the Pro templates of the Themeasy Library, and the Themeasy themes. With a Themeasy theme active, it also adds the theme builder, global sections, the settings panel, the WooCommerce widgets and features (variation swatches and more), and the Contact Form 7 form widget and styling.
@@ -54,7 +55,7 @@ Yes. The widgets are built for Elementor — the free Elementor plugin is enough
 
 = Will it slow down my site? =
 
-No. Themeasy Lite ships no animation library, and a widget's scripts are enqueued only on pages where that widget is actually used. A small shared stylesheet loads site-wide.
+No. Themeasy Lite ships no animation library, and a widget's own styles and scripts are enqueued only on pages where that widget is actually used. Its shared base styles load on every page: the design tokens, the layout and component styles the widgets build on, and a copy of Bootstrap's CSS scoped to the Themeasy widgets.
 
 == Screenshots ==
 
@@ -64,11 +65,11 @@ No. Themeasy Lite ships no animation library, and a widget's scripts are enqueue
 
 == External services ==
 
-Themeasy Lite uses the services below, and each one only after an action by a site administrator (the Themeasy Library and Freemius) or by a visitor (the video services).
+Themeasy Lite uses the services below. The Themeasy Library and Freemius are contacted only after an action by a site administrator. The video services are contacted when a visitor plays a video and, in the one case described under YouTube, when a page with a Video widget loads.
 
 Themeasy Library (Themeasy): the Elementor editor gets a Themeasy button that opens a library of ready-made templates. Nothing is sent until you click it. While the library is open, your site's server requests the catalog from cms.themeasy.co: the categories and tags, the list of templates with the category, tag and search words you choose, and, when you insert a template, its content. WordPress adds your site's address to each request (its standard User-Agent header). Your browser loads the template preview images from the addresses the catalog returns, and an inserted template may use images hosted on cms.themeasy.co until you replace them. Terms of service: https://themeasy.co/terms - Privacy policy: https://themeasy.co/privacy
 
-Freemius: Themeasy Lite includes the Freemius SDK, which handles the licenses of the paid Themeasy plans. It runs in anonymous mode: it sends nothing on its own, and the plugin works the same whether you ever connect it or not. It contacts api.freemius.com in two cases only. (1) Opt in: the plugin's row on the Plugins screen has an "Opt In" link. If you opt in, the SDK sends your WordPress user's name and email address, the site's address, title and language, the WordPress and PHP versions, the plugin's version and state (active, deactivated or uninstalled) and, unless you turn it off on the opt-in screen, the names and versions of your plugins and themes. It then keeps that data up to date about once a day, until you click "Opt Out" in the same place. (2) Deactivation feedback: when you deactivate the plugin, an optional form asks why. If you answer, the answer is sent when you delete the plugin, with an anonymous ID instead of your site's details. If you untick the form's "Anonymous feedback" box, your answer opts the site in, as in (1). Terms of service: https://freemius.com/terms/ - Privacy policy: https://freemius.com/privacy/
+Freemius: Themeasy Lite includes the Freemius SDK. The paid Themeasy plans are sold through Freemius; in this plugin the SDK only offers the opt-in and the deactivation feedback form described here. It runs in anonymous mode: it sends nothing on its own, and the plugin works the same whether you ever connect it or not. It contacts api.freemius.com in two cases only. (1) Opt in: the plugin's row on the Plugins screen has an "Opt In" link. If you opt in, the SDK sends your WordPress user's name and email address, the site's address, title and language, the WordPress and PHP versions, the plugin's version and state (active, deactivated or uninstalled) and, unless you turn it off on the opt-in screen, the names and versions of your plugins and themes. It then keeps that data up to date about once a day, until you click "Opt Out" in the same place. (2) Deactivation feedback: when you deactivate the plugin, an optional form asks why. If you answer, the answer is sent when you delete the plugin, with an anonymous ID instead of your site's details. If you untick the form's "Anonymous feedback" box, your answer opts the site in, as in (1). Terms of service: https://freemius.com/terms/ - Privacy policy: https://freemius.com/privacy/
 
 YouTube (Google): with a YouTube source and no custom poster image, the Video widget makes the visitor's browser load the video thumbnail from i.ytimg.com when the page loads. When the visitor presses play, the video loads from youtube-nocookie.com (YouTube's privacy-enhanced mode). When a visitor opens a YouTube video in the lightbox (Button or Video widget), the browser loads YouTube's player script from www.youtube.com and plays the video from youtube-nocookie.com. These requests send the video ID and the visitor's IP address and browser details to Google. Terms of service: https://www.youtube.com/t/terms - Privacy policy: https://policies.google.com/privacy
 

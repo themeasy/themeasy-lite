@@ -298,11 +298,16 @@
   min-width: 0;
 }
 
-/* Tag filter bar. */
+/* Tag filter bar. The module prints the most-used tags only; the cap (three
+ * rows of pills, then the bar scrolls) is what keeps any tag list from
+ * squeezing the grid below it out of the modal (backlog #357). */
 .themeasy-library__tags {
   display: flex;
+  flex: 0 0 auto;
   flex-wrap: wrap;
   gap: 8px;
+  max-height: 126px;
+  overflow-y: auto;
   padding: 14px 18px;
   border-block-end: var(--e-a-border, 1px solid #d5d8dc);
 }

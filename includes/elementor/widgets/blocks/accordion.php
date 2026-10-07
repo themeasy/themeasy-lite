@@ -51,9 +51,8 @@ class Accordion extends Widget_Base {
     return ['themeasy-bundle'];
   }
 
-  // Collapse runs on Bootstrap's data-api. The premium core bundle happens to
-  // load Bootstrap on every page, but the Free build has no core JS, so the
-  // Accordion asks for it itself.
+  // Collapse runs on Bootstrap's data-api, and nothing else loads Bootstrap's
+  // script, so the Accordion asks for it itself.
   public function get_script_depends() {
     return ['themeasy-bootstrap'];
   }

@@ -5,7 +5,7 @@
  * Displays a testimonial card with person image, name, occupation info, an
  * optional company logo, testimonial text, star rating, and optional quote
  * icons. Supports horizontal, vertical and split (large portrait beside a
- * featured quote) layouts plus entrance and hover motion.
+ * featured quote) layouts.
  *
  * @package Themeasy
  * @since 1.0.0
@@ -23,7 +23,6 @@ use Elementor\Group_Control_Css_Filter;
 use Elementor\Group_Control_Typography;
 use Elementor\Utils;
 use Elementor\Widget_Base;
-use Themeasy\Core\Entitlement;
 
 /**
  * Responsible for registering controls and rendering the widget.
@@ -279,19 +278,16 @@ class Testimonial extends Widget_Base {
         ]
       );
 
+      $icons_brand = 'Themeasy';
+      /* translators: %s: the brand name (Themeasy by default). */
+      $icons_note = __( 'You can use custom icons for the quote and star rating. If you do not select any icon, the default icons will be used. Quote glyphs live in the %s — Feather library.', 'themeasy-lite' );
+
       $this->add_control(
         'icons_note_content',
         [
           'show_label' => false,
           'type' => Controls_Manager::RAW_HTML,
-          // The Agency White Label renames the icon library (backlog #272).
-          'raw' => esc_html(
-            sprintf(
-              /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
-              __( 'You can use custom icons for the quote and star rating. If you do not select any icon, the default icons will be used. Quote glyphs live only in the %s — Feather library; the Solar libraries have none.', 'themeasy-lite' ),
-              (string) apply_filters( 'themeasy/brand/name', 'Themeasy' )
-            )
-          ),
+          'raw' => esc_html( sprintf( $icons_note, $icons_brand ) ),
           'content_classes' => 'elementor-control-field-description no-margin',
         ]
       );
@@ -1111,95 +1107,9 @@ class Testimonial extends Widget_Base {
     $this->end_controls_section();
 
     // ------------------------------------------------------------------------
-    // Advanced sections: Themeasy Motion (Pro — the engines run on GSAP, which
-    // the Free build neither ships nor loads).
+    // Advanced section: Motion.
     // ------------------------------------------------------------------------
-    if ( Entitlement::can_use_widgets() ) {
-      $this->register_motion_controls();
-    } else {
-      themeasy_register_motion_upsell_section( $this );
-    }
-  }
-
-  /**
-   * Register the Themeasy Motion sections (Advanced tab).
-   *
-   * Pro only: the motion engines run on GSAP, which the Free build neither
-   * ships nor loads (backlog #253). register_controls() calls this when the
-   * site is entitled and registers the upsell section otherwise.
-   *
-   * @return void
-   */
-  private function register_motion_controls() {
-    // ------------------------------------------------------------------------
-    // Advanced section: Entrance Animation
-    // ------------------------------------------------------------------------
-    $this->start_controls_section(
-      'widget_animation_section',
-        [
-          'label' => esc_html__( 'Motion — Animation', 'themeasy-lite' ),
-          'tab' => Controls_Manager::TAB_ADVANCED,
-        ]
-    );
-
-      $this->add_control(
-        'widget_animation',
-        [
-          'label' => esc_html__( 'Entrance Animation', 'themeasy-lite' ),
-          'type' => Controls_Manager::SELECT,
-          'default' => '',
-          'options' => themeasy_get_animation_options( 'block' ),
-        ]
-      );
-
-      $this->add_control(
-        'widget_animation_duration',
-        [
-          'label' => esc_html__( 'Duration', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 1],
-          'condition' => ['widget_animation!' => ''],
-        ]
-      );
-
-      $this->add_control(
-        'widget_animation_delay',
-        [
-          'label' => esc_html__( 'Delay', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 0],
-          'condition' => ['widget_animation!' => ''],
-        ]
-      );
-
-    $this->end_controls_section();
-
-    // ------------------------------------------------------------------------
-    // Advanced section: Hover Interactions
-    // ------------------------------------------------------------------------
-    $this->start_controls_section(
-      'widget_hover_section',
-        [
-          'label' => esc_html__( 'Motion — Hover Interactions', 'themeasy-lite' ),
-          'tab' => Controls_Manager::TAB_ADVANCED,
-        ]
-    );
-
-      $this->add_control(
-        'widget_hover_animation',
-        [
-          'label' => esc_html__( 'Hover Animation', 'themeasy-lite' ),
-          'type' => Controls_Manager::SELECT,
-          'default' => '',
-          'options' => themeasy_get_animation_options( 'hover' ),
-        ]
-      );
-
-    $this->end_controls_section();
+    themeasy_register_motion_upsell_section( $this );
   }
 
   /**
@@ -1209,12 +1119,6 @@ class Testimonial extends Widget_Base {
    */
   protected function render() {
     $settings = $this->get_settings_for_display();
-
-    // Themeasy Motion is Pro (GSAP — backlog #253). Without it the motion
-    // settings read as empty, so saved values (a template, a site back from
-    // premium) emit no markup: the hidden guard would leave the widget
-    // invisible with no engine to reveal it.
-    $motion = Entitlement::can_use_widgets();
 
     // ------------------------------------------------------------------------
     // Settings.
@@ -1281,27 +1185,6 @@ class Testimonial extends Widget_Base {
     // Editor preview: keep motion static so it never fights the canvas.
     if ( themeasy_is_elementor_editor() ) {
       $wrapper_classes[] = 'tms-testimonial--static';
-    }
-
-    // Entrance animation.
-    $block_animation = $motion ? ( $settings['widget_animation'] ?? '' ) : '';
-
-    if ( $block_animation ) {
-      $wrapper_classes[] = 'tms-block-animation';
-      $wrapper_classes[] = 'tms-animation--on-view';
-      $wrapper_classes[] = 'tms-animation--hidden';
-
-      $wrapper_atts['tms-block-animation'] = $block_animation;
-      $wrapper_atts['duration'] = $settings['widget_animation_duration']['size'] ?? '1';
-      $wrapper_atts['delay'] = $settings['widget_animation_delay']['size'] ?? '0';
-    }
-
-    // Hover animation.
-    $hover_animation = $motion ? ( $settings['widget_hover_animation'] ?? '' ) : '';
-
-    if ( $hover_animation ) {
-      $wrapper_classes[] = 'tms-hover-animation';
-      $wrapper_atts['tms-hover-animation'] = $hover_animation;
     }
 
     $profile_card_classes = ['tms-profile-card', 'tms-card', 'tms-animation__target'];
@@ -1439,10 +1322,6 @@ class Testimonial extends Widget_Base {
   protected function content_template() {
     ?>
     <#
-      // Themeasy Motion is Pro (render() parity): without it the motion
-      // settings read as empty.
-      var motion = <?php echo Entitlement::can_use_widgets() ? 'true' : 'false'; ?>;
-
       // ------------------------------------------------------------------------
       // Settings.
       // ------------------------------------------------------------------------
@@ -1488,29 +1367,6 @@ class Testimonial extends Widget_Base {
       // ------------------------------------------------------------------------
       var wrapperClasses = [ 'tms-testimonial', 'tms-testimonial--static' ];
       var wrapperAtts    = {};
-
-      // Entrance animation.
-      var blockAnimation = motion ? ( settings.widget_animation || '' ) : '';
-
-      if ( blockAnimation ) {
-        wrapperClasses.push( 'tms-block-animation', 'tms-animation--on-view', 'tms-animation--hidden' );
-
-        wrapperAtts['tms-block-animation'] = blockAnimation;
-        wrapperAtts['duration'] = ( settings.widget_animation_duration && settings.widget_animation_duration.size )
-          ? settings.widget_animation_duration.size
-          : '1';
-        wrapperAtts['delay'] = ( settings.widget_animation_delay && settings.widget_animation_delay.size )
-          ? settings.widget_animation_delay.size
-          : '0';
-      }
-
-      // Hover animation.
-      var hoverAnimation = motion ? ( settings.widget_hover_animation || '' ) : '';
-
-      if ( hoverAnimation ) {
-        wrapperClasses.push( 'tms-hover-animation' );
-        wrapperAtts['tms-hover-animation'] = hoverAnimation;
-      }
 
       var profileCardClasses = [ 'tms-profile-card', 'tms-card', 'tms-animation__target' ];
 

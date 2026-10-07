@@ -1,5 +1,5 @@
 /*!
- * GLightbox 3.6.12 (https://biati-digital.github.io/glightbox/)
+ * GLightbox 3.3.1 (https://biati-digital.github.io/glightbox/)
  * Copyright 2024 Biati Digital
  * Licensed under MIT (https://github.com/biati-digital/glightbox/blob/master/LICENSE.md)
  */

@@ -26,14 +26,3 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
 FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Solar Icons (ty-solar-line / ty-solar-solid / ty-solar-duotone /
-ty-solar-broken — premium builds only)
-----------------------------------------------------------------
-"Solar Icon Set" by 480 Design.
-Source: https://www.figma.com/community/file/1166831539721848736/solar-icons-set
-License: Creative Commons Attribution 4.0 International (CC BY 4.0) —
-https://creativecommons.org/licenses/by/4.0/
-Modifications: recolored to currentColor (duotone opacity preserved) and
-exported as individual SVG files via the @iconify-json/solar dataset
-(https://www.npmjs.com/package/@iconify-json/solar, v1.2.5).

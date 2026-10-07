@@ -3,21 +3,18 @@
  * Themeasy Library — server-side proxy to the backstage catalog.
  *
  * The in-editor panel never talks to cms.themeasy.co directly: the catalog is a
- * cross-origin host and, more importantly, the /content gate is unlocked with a
- * Freemius license SECRET that must never reach the browser. So the browser calls
- * these same-origin admin-ajax endpoints (nonce + capability checked) and this
- * class proxies to the frozen `themeasy-lib/v1` REST server-to-server, attaching
- * the license proof in request HEADERS (Phase 2). It also shields the editor from
- * CORS and adds a thin cache layer (fresh TTL + a day-long last-good fallback)
- * over the public list endpoints, retrying transient upstream failures once.
+ * cross-origin host. So the browser calls these same-origin admin-ajax
+ * endpoints (nonce + capability checked) and this class proxies to the frozen
+ * `themeasy-lib/v1` REST server-to-server. It also shields the editor from CORS
+ * and adds a thin cache layer (fresh TTL + a day-long last-good fallback) over
+ * the public list endpoints, retrying transient upstream failures once.
  *
  * Theme-bundled templates (Library_Local) are merged into the listing/categories
- * responses and served by the insert endpoint from local JSON — no proxying, no
- * gating: the local library works offline by design (business-context, Path B).
+ * responses and served by the insert endpoint from local JSON, with no
+ * proxying: the local library works offline by design (business-context, Path B).
  *
- * Ships in BOTH builds (no premium marker): the panel is a Free funnel surface
- * that inserts `free` templates and locks `pro` behind an upgrade CTA. The Pro
- * gate is enforced at runtime (Entitlement) and ultimately by the backstage 403.
+ * The backstage serves a `free` template to anyone and answers 403 for a `pro`
+ * one.
  *
  * @package Themeasy\Elementor
  * @since 1.0.0
@@ -167,20 +164,16 @@ class Library_Ajax {
   /**
    * Fetch a template's Elementor export payload for one-click insertion.
    *
-   * The backstage gates `pro` templates: this proxy attaches the install's
-   * Freemius license proof in REQUEST HEADERS (server-side — the secret never
-   * touches the browser) and relays the verdict. A free site carries no proof, so
-   * the backstage returns 200 for `free` and 403 for `pro`. The payload is never
-   * cached (it is per-license and gated).
+   * The backstage returns 200 for a `free` template and 403 for a `pro` one,
+   * and this proxy relays the verdict. The payload is never cached.
    *
    * @return void
    */
   public function handle_insert(): void {
     $this->guard();
 
-    // Theme-bundled template: served straight from the theme's local JSON —
-    // never proxied, never license-gated (the local library ships with the
-    // theme and works offline; there is nothing to revoke).
+    // Theme-bundled template: served straight from the theme's local JSON,
+    // never proxied (the local library ships with the theme and works offline).
     $source = isset( $_POST['source'] ) ? sanitize_key( wp_unslash( $_POST['source'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guard() verifies the nonce.
 
     if ( 'theme' === $source ) {
@@ -200,16 +193,7 @@ class Library_Ajax {
       );
     }
 
-    // License proof travels in headers only — a secret in a URL leaks to logs and
-    // caches. Empty for a free site; the backstage then gates `pro` with a 403.
-    $proof = \Themeasy\Core\Entitlement::library_license_proof();
-    $headers = [];
-    if ( $proof['id'] > 0 && '' !== $proof['key'] ) {
-      $headers['X-Themeasy-License-Id'] = (string) $proof['id'];
-      $headers['X-Themeasy-License-Key'] = $proof['key'];
-    }
-
-    $result = $this->request( '/templates/' . $id . '/content', [], $headers );
+    $result = $this->request( '/templates/' . $id . '/content' );
 
     if ( 403 === $result['status'] ) {
       wp_send_json_error(
@@ -386,12 +370,11 @@ class Library_Ajax {
   /**
    * Perform a server-to-server GET against the backstage REST.
    *
-   * @param string                   $path    REST path under the frozen namespace.
-   * @param array<string,string|int> $query   Query parameters.
-   * @param array<string,string>     $headers Extra request headers (e.g. license proof).
+   * @param string                   $path  REST path under the frozen namespace.
+   * @param array<string,string|int> $query Query parameters.
    * @return array{ok:bool,status:int,code:string,message:string,data:mixed}
    */
-  private function request( string $path, array $query = [], array $headers = [] ): array {
+  private function request( string $path, array $query = [] ): array {
     $url = self::rest_base() . $path;
     if ( !empty( $query ) ) {
       // add_query_arg url-encodes values itself (urlencode_deep), so the array
@@ -400,9 +383,11 @@ class Library_Ajax {
       $url = add_query_arg( $query, $url );
     }
 
+    $headers = ['Accept' => 'application/json'];
+
     $args = [
       'timeout' => 12,
-      'headers' => array_merge( ['Accept' => 'application/json'], $headers ),
+      'headers' => $headers,
     ];
 
     $response = wp_remote_get( $url, $args );
@@ -456,7 +441,7 @@ class Library_Ajax {
    * Resolve the backstage origin (cms.themeasy.co), validated.
    *
    * Order: THEMEASY_LIBRARY_ORIGIN constant -> legacy THEMEASY_LIBRARY_URL ->
-   * tbase/library_url filter -> default. Production accepts only HTTPS on a
+   * themeasy/library_url filter -> default. Production accepts only HTTPS on a
    * themeasy.co host (the inserted JSON lands in the user's document, so the
    * source must be trusted). A WP_DEBUG escape hatch allows a plain-host
    * http(s) override for a LocalWP cms during dev.
@@ -486,7 +471,7 @@ class Library_Ajax {
      *
      * @param string $base Backstage origin URL.
      */
-    $base = (string) apply_filters( 'tbase/library_url', $base );
+    $base = (string) apply_filters( 'themeasy/library_url', $base );
     $base = untrailingslashit( esc_url_raw( $base ) );
 
     if ( preg_match( '#^https://([a-z0-9-]+\.)*themeasy\.co$#i', $base ) ) {

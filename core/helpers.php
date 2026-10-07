@@ -20,507 +20,21 @@ defined( 'ABSPATH' ) || exit;
  * @return string
  */
 function themeasy_get_asset_version(): string {
-  return defined( 'TMS_VER' ) ? TMS_VER : '1.0.0';
+  return defined( 'THEMEASY_VER' ) ? THEMEASY_VER : '1.0.0';
 }
 
 // ==============================
-// INTEGRATIONS
+// MOTION
 // ==============================
 
 /**
- * Retrieve a Themeasy Admin setting.
- *
- * Friendly wrapper around \Themeasy\Admin\Settings::get().
- * Provides a consistent API for templates, widgets, and frontend logic.
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * @param string $key     Setting key (as registered in Settings schema).
- * @param mixed  $default Optional. Default value if not found.
- * @return mixed Setting value or default.
- */
-function themeasy_get_setting( string $key, $default = null ) {
-  return \Themeasy\Admin\Settings::get( $key, $default );
-}
-
-/**
- * The document whose Elementor Page Settings drive the current view.
- *
- * The queried post on a singular view. On a product archive rendered by a
- * Product Archive section (Global Sections), that section: it stands in for
- * the page there, so its Page Layout, variants and header options apply.
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * @return int Post ID, or 0 when the view has no Page Settings.
- */
-function themeasy_get_page_settings_id(): int {
-  if ( is_singular() ) {
-    return (int) get_queried_object_id();
-  }
-
-  return function_exists( 'themeasy_wc_get_archive_section_id' ) ? themeasy_wc_get_archive_section_id() : 0;
-}
-
-/**
- * Retrieve a per-page setting stored by Elementor's Page Settings.
- *
- * Reads from the `_elementor_page_settings` post meta of the document that
- * drives the view (themeasy_get_page_settings_id()). Returns $default when
- * there is none or when the key is absent, so callers can treat the result as
- * a tri-state "Inherit / value" override.
- *
- * Neutral to Elementor's runtime — works as a plain WP meta read, so it stays
- * safe to call from Core modules that may load before Elementor.
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * @param string $key     Page Setting control ID.
- * @param mixed  $default Optional. Default value if not found.
- * @return mixed Setting value or default.
- */
-function themeasy_get_page_setting( string $key, $default = null ) {
-  $post_id = themeasy_get_page_settings_id();
-  if ( !$post_id ) {
-    return $default;
-  }
-
-  $settings = get_post_meta( $post_id, '_elementor_page_settings', true );
-  if ( !is_array( $settings ) || !array_key_exists( $key, $settings ) ) {
-    return $default;
-  }
-
-  return $settings[$key];
-}
-
-/**
- * Retrieve the active Page Variant slugs for a post.
- *
- * Page Variants are per-page traits derived from Elementor Page Settings
- * (Dark Mode today, more in the future) and mirrored to the
- * `_themeasy_page_variants` post meta on save. Used by Global Sections
- * display rules to target groups of pages by trait.
- *
- * Accepts an explicit $post_id for cross-post queries. With $post_id = 0
- * (default), falls back to the document that drives the view — the same
- * resolution as themeasy_get_page_setting() (themeasy_get_page_settings_id()).
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * @param int $post_id Optional. Defaults to the document that drives the view.
- * @return array<int,string> List of active variant slugs (e.g. ['dark']).
- */
-function themeasy_get_page_variants( int $post_id = 0 ): array {
-  if ( 0 === $post_id ) {
-    $post_id = themeasy_get_page_settings_id();
-  }
-
-  if ( !$post_id ) {
-    return [];
-  }
-
-  // Only when Global Sections booted: `false` keeps the class autoloader from
-  // loading (and building its class map for) a module the boot left out.
-  if ( !class_exists( '\Themeasy\Global_Sections\Page_Variants', false ) ) {
-    return [];
-  }
-
-  return \Themeasy\Global_Sections\Page_Variants::get_for_post( $post_id );
-}
-
-/**
- * Returns a list of registered WordPress menus.
- *
- * Useful for select dropdowns in Elementor widgets.
- *
- * @return array Associative array of menu slug => name.
- */
-function themeasy_get_registered_menus(): array {
-  $menus = wp_get_nav_menus();
-
-  if ( empty( $menus ) || is_wp_error( $menus ) ) {
-    return [
-      '' => esc_html__( 'No menus found. Please create one in Appearance > Menus.', 'themeasy-lite' ),
-    ];
-  }
-
-  $options = ['' => esc_html__( 'Select a Menu', 'themeasy-lite' )];
-
-  foreach ( $menus as $menu ) {
-    if ( !empty( $menu->name ) ) {
-      $options[$menu->slug] = $menu->name;
-    }
-  }
-
-  return $options;
-}
-
-/**
- * Normalizes a URL path for comparison (decoded, leading slash, no trailing slash).
- *
- * @param string $path Raw path.
- * @return string Normalized path.
- */
-function themeasy_normalize_menu_path( string $path ): string {
-  return '/' . trim( rawurldecode( $path ), '/' );
-}
-
-/**
- * Whether a manually authored menu URL points at the page being displayed.
- *
- * Registered menus get their active state from WordPress; manual items have only
- * their URL, so it is matched against the current request: same host, same path,
- * and any query args the item declares must be in the request (a plain-permalink
- * link such as `?page_id=12` shares its path with every other page). Anchor-only
- * links (one-page menus) are never current, and a link to the site root — the path
- * every plain-permalink request carries — is current on the front page only.
- *
- * Shared by the Menu and Mobile Menu widgets.
- *
- * @param string $url Authored item URL.
- * @return bool
- */
-function themeasy_is_current_menu_url( string $url ): bool {
-  $url = trim( $url );
-
-  if ( $url === '' || strpos( $url, '#' ) === 0 ) {
-    return false;
-  }
-
-  $item = wp_parse_url( $url );
-
-  if ( !is_array( $item ) ) {
-    return false;
-  }
-
-  // Off-site links are never current.
-  if ( !empty( $item['host'] ) ) {
-    $home_host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-
-    if ( strcasecmp( $item['host'], $home_host ) !== 0 ) {
-      return false;
-    }
-  }
-
-  $request = isset( $_SERVER['REQUEST_URI'] )
-    ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) )
-    : '';
-  $current = wp_parse_url( $request );
-  $current = is_array( $current ) ? $current : [];
-
-  $item_path = themeasy_normalize_menu_path( $item['path'] ?? '' );
-
-  if ( $item_path !== themeasy_normalize_menu_path( $current['path'] ?? '' ) ) {
-    return false;
-  }
-
-  // A bare link to the site root only marks the front page itself.
-  if ( empty( $item['query'] ) ) {
-    $home_path = themeasy_normalize_menu_path( (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH ) );
-
-    return $item_path === $home_path ? is_front_page() : true;
-  }
-
-  // An item carrying query args only matches when the request carries them too.
-  parse_str( $item['query'], $item_args );
-  parse_str( $current['query'] ?? '', $current_args );
-
-  foreach ( $item_args as $key => $value ) {
-    if ( !isset( $current_args[$key] ) || $current_args[$key] !== $value ) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * Retrieves categories for a specific post type (post, portfolio, product).
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * @param string       $post_type   Post type to fetch categories for.
- * @param bool         $full_data   Whether to return full category objects.
- * @param array        $custom_args Custom args (only valid for 'product').
- * @return array|false List of categories or false on error.
- */
-function themeasy_get_categories( string $post_type, bool $full_data = false, array $custom_args = [] ) {
-  $taxonomy_map = [
-    'post' => 'category',
-    'portfolio' => 'portfolio-category',
-    'product' => 'product_cat',
-  ];
-
-  if ( !isset( $taxonomy_map[$post_type] ) ) {
-    return false;
-  }
-
-  $args = [
-    'taxonomy' => $taxonomy_map[$post_type],
-    'orderby' => 'name',
-    'order' => 'ASC',
-  ];
-
-  // Only allow custom args override for product post type.
-  if ( $post_type === 'product' && is_array( $custom_args ) ) {
-    $args = array_merge( $args, $custom_args );
-  }
-
-  $terms = get_categories( $args );
-  if ( empty( $terms ) || is_wp_error( $terms ) ) {
-    return false;
-  }
-
-  if ( $full_data ) {
-    return $terms;
-  }
-
-  $list = [];
-  foreach ( $terms as $term ) {
-    $list[esc_attr( $term->term_id )] = esc_html( $term->name );
-  }
-
-  return $list;
-}
-
-/**
- * Resolve the primary term a post declares for a taxonomy.
- *
- * WordPress has no native concept of a primary term, so the value is read from
- * the post meta written by the major SEO plugins (Yoast SEO, Rank Math and
- * SEOPress). The filter lets any other source take over.
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * @param int    $post_id  Post ID owning the terms.
- * @param string $taxonomy Taxonomy slug.
- * @return int Term ID, or 0 when the post declares no primary term.
- */
-function themeasy_get_primary_term_id( int $post_id, string $taxonomy ): int {
-  $primary_term_id = 0;
-
-  if ( $post_id > 0 && '' !== $taxonomy ) {
-    // Yoast SEO and Rank Math both store it per taxonomy.
-    $meta_keys = [
-      '_yoast_wpseo_primary_' . $taxonomy,
-      'rank_math_primary_' . $taxonomy,
-    ];
-
-    // SEOPress only supports a primary category, under a fixed key.
-    if ( 'category' === $taxonomy ) {
-      $meta_keys[] = '_seopress_robots_primary_cat';
-    }
-
-    foreach ( $meta_keys as $meta_key ) {
-      $stored = absint( get_post_meta( $post_id, $meta_key, true ) );
-
-      if ( $stored ) {
-        $primary_term_id = $stored;
-        break;
-      }
-    }
-  }
-
-  /**
-   * Filters the primary term ID resolved for a post.
-   *
-   * @param int    $primary_term_id Resolved term ID (0 when none was found).
-   * @param int    $post_id         Post being rendered.
-   * @param string $taxonomy        Taxonomy slug being resolved.
-   */
-  return absint( apply_filters( 'themeasy/primary_term_id', $primary_term_id, $post_id, $taxonomy ) );
-}
-
-/**
- * Pick the term a post leads with, out of an already fetched term list.
- *
- * Used wherever a single term stands for the post (card badges, meta rows).
- * Falls back to the first usable term when the post declares no primary term,
- * or when the primary term is not part of the given list.
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * @param int    $post_id  Post ID owning the terms.
- * @param mixed  $terms    Term list to choose from; anything but a non-empty array yields null.
- * @param string $taxonomy Optional. Taxonomy slug; derived from the list when empty.
- * @return \WP_Term|null Chosen term, or null when the list holds no usable term.
- */
-function themeasy_get_primary_term( int $post_id, $terms, string $taxonomy = '' ) {
-  if ( !is_array( $terms ) || empty( $terms ) ) {
-    return null;
-  }
-
-  $usable = [];
-
-  foreach ( $terms as $term ) {
-    if ( $term instanceof \WP_Term && $term->term_id ) {
-      $usable[] = $term;
-    }
-  }
-
-  if ( empty( $usable ) ) {
-    return null;
-  }
-
-  if ( '' === $taxonomy ) {
-    $taxonomy = (string) $usable[0]->taxonomy;
-  }
-
-  $primary_term_id = themeasy_get_primary_term_id( $post_id, $taxonomy );
-
-  if ( $primary_term_id ) {
-    foreach ( $usable as $term ) {
-      if ( $primary_term_id === (int) $term->term_id ) {
-        return $term;
-      }
-    }
-  }
-
-  return $usable[0];
-}
-
-// ==============================
-// ANIMATIONS
-// ==============================
-
-/**
- * Returns a list of animation options based on the animation type.
- *
- * Used in Elementor controls to populate animation dropdowns.
- *
- * @param string $type Animation type: text, block, reveal, hover, slider, menu, submenu.
- * @return array Associative array of animation keys and labels.
- */
-function themeasy_get_animation_options( string $type ): array {
-  $type = trim( strtolower( $type ) );
-
-  switch ( $type ) {
-    case 'text':
-      return [
-        '' => 'None',
-        'cascading' => 'Cascading',
-        'elastic' => 'Elastic',
-        'blurIn' => 'Blur In',
-        'blurReveal' => 'Blur Reveal',
-        'fadeIn' => 'Fade In',
-        'fadeInUp' => 'Fade In Up',
-        'fadeRandom' => 'Fade Random',
-        'zoomIn' => 'Zoom In',
-        'zoomInUp' => 'Zoom In Up',
-        'popIn' => 'Pop In',
-        'slideInUp' => 'Slide In Up',
-        'slideInLeft' => 'Slide In Left',
-        'slideInRight' => 'Slide In Right',
-        'sliding' => 'Sliding',
-        // The 'typing' key is a staggered opacity fade with an ease-in curve, not a
-        // typewriter — the label names the curve so it stops promising a caret.
-        // The typewriter effect lives in the dedicated Typed Text widget.
-        'typing' => 'Fade In Slow',
-        'flipping' => 'Flipping',
-        'twirl' => 'Twirl',
-        'bounce' => 'Bounce',
-        'scrollFade' => 'Scroll Fade',
-      ];
-
-    case 'block':
-      return [
-        '' => 'None',
-        'blurIn' => 'Blur In',
-        'blurReveal' => 'Blur Reveal',
-        'fadeIn' => 'Fade In',
-        'fadeInUp' => 'Fade In Up',
-        'zoomIn' => 'Zoom In',
-        'zoomInUp' => 'Zoom In Up',
-        'popIn' => 'Pop In',
-        'slideInUp' => 'Slide In Up',
-        'slideInLeft' => 'Slide In Left',
-        'slideInRight' => 'Slide In Right',
-        'bounce' => 'Bounce',
-      ];
-
-    case 'reveal':
-      return [
-        '' => 'None',
-        'slideRight' => 'Slide Right',
-        'slideLeft' => 'Slide Left',
-        'zoomInRight' => 'Zoom In Right',
-        'zoomOutRight' => 'Zoom Out Right',
-        'horizontal' => 'Center — Horizontal',
-        'vertical' => 'Center — Vertical',
-        'diagonalTopRight' => 'Diagonal — Top Right',
-      ];
-
-    case 'hover':
-      return [
-        '' => 'None',
-        'float' => 'Float',
-        'slideUp' => 'Slide Up',
-        'slideUpElastic' => 'Slide Up Elastic',
-        'zoomIn' => 'Zoom In',
-        'zoomInElastic' => 'Zoom In Elastic',
-        'pulse' => 'Pulse',
-        'flip' => 'Flip',
-        'flipX' => 'Flip X',
-        'tilt' => 'Tilt',
-        'bounce' => 'Bounce',
-        'wobble' => 'Wobble',
-        'skew' => 'Skew',
-        'glitch' => 'Glitch',
-        'rotate3D' => 'Rotate 3D',
-        'magnetic' => 'Magnetic',
-        'viewCursor' => 'View Cursor',
-      ];
-
-    case 'slider':
-      return [
-        'slideInLeft' => 'Slide In Left',
-        'zoomIn' => 'Zoom In',
-        'zoomOut' => 'Zoom Out',
-        'blurIn' => 'Blur In',
-      ];
-
-    case 'menu':
-      return [
-        '' => 'None',
-        'fadeIn' => 'Fade In',
-        'fadeInUp' => 'Fade In Up',
-        'zoomIn' => 'Zoom In',
-        'zoomInUp' => 'Zoom In Up',
-        'blurIn' => 'Blur In',
-      ];
-
-    case 'submenu':
-      return [
-        '' => 'None',
-        'fadeIn' => 'Fade In',
-        'fadeInUp' => 'Fade In Up',
-        'zoomIn' => 'Zoom In',
-        'zoomInUp' => 'Zoom In Up',
-        'blurIn' => 'Blur In',
-        'slideDown' => 'Slide Down',
-      ];
-
-    default:
-      return [];
-  }
-}
-
-/**
- * Register the Themeasy Motion upsell section on a Free widget.
+ * Register the Motion section of a widget's Advanced tab: a note that says
+ * where the animations live.
  *
  * Themeasy Motion (entrance, hover, text and loop animations, scroll text,
- * draw-on) runs on GSAP, which the Free build must neither ship nor load: its
- * license is not GPL-compatible (backlog #253). A Free widget registers its
- * motion controls only when Entitlement::can_use_widgets() and calls this
- * otherwise, so the Advanced tab says where the effects live instead of
- * silently losing them.
+ * draw-on) runs on GSAP, which the build hosted on wordpress.org neither ships
+ * nor loads: the GSAP license is not GPL-compatible (backlog #253). So the
+ * Advanced tab says where the effects live instead of silently lacking them.
  *
  * @param \Elementor\Controls_Stack $element The widget registering its controls.
  * @return void
@@ -778,144 +292,12 @@ function themeasy_add_external_link_rel( $element, string $key, array $link ): v
 }
 
 /**
- * Builds a CSS url() token from an Elementor MEDIA control value.
- *
- * Never bind a MEDIA control's {{URL}} into a control's `selectors` array.
- * Elementor only re-derives the URL safely when the value carries an attachment
- * id; the built-in "Insert from URL" flow leaves the id empty, and
- * Control_Base_Multiple::get_style_value() then returns the raw string, which is
- * spliced into the generated per-post stylesheet unescaped. A crafted value
- * closes the declaration and injects arbitrary CSS for anyone who can edit the
- * page (confirmed against text-marquee, 2026-07-19). Resolve it here instead and
- * emit the result as an inline style.
- *
- * The double-quoted token is the safe shape: esc_url_raw() strips `"` (the only
- * character able to break out of it), while the `(`/`)`/`;` it does preserve are
- * inert inside a quoted CSS string. An unquoted url() token would NOT be safe.
- *
- * @param mixed  $media Elementor MEDIA control value ( ['id' => int, 'url' => string] ).
- * @param string $size  Registered image size used for the attachment lookup.
- * @return string A `url("…")` token, or '' when no usable image is set.
- * @since 1.0.0
- */
-function themeasy_media_css_url( $media, string $size = 'full' ): string {
-  if ( !is_array( $media ) ) {
-    return '';
-  }
-
-  $attachment_id = absint( $media['id'] ?? 0 );
-
-  $url = $attachment_id
-    ? (string) wp_get_attachment_image_url( $attachment_id, $size )
-    : esc_url_raw( (string) ( $media['url'] ?? '' ) );
-
-  if ( '' === $url ) {
-    return '';
-  }
-
-  return 'url("' . $url . '")';
-}
-
-/**
- * Collapses an Elementor responsive control into the
- * "desktop,laptop,tablet,mobile" CSV the slider module reads.
- *
- * The module receives one attribute per setting, so without this only the
- * desktop value of a responsive control would ever reach Swiper. Elementor
- * stores a device value only when the user sets one, so an empty breakpoint
- * inherits the previous (wider) one — the same cascade the editor shows.
- *
- * Mirrors Themeasy.sliderResponsiveCsv() in JS (editor preview parity).
- *
- * Example: 25 / – / 8 / – → '25,25,8,8'
- *
- * @param array     $settings Widget settings.
- * @param string    $control  Base control key.
- * @param int|float $fallback Value used when the desktop slot is empty.
- * @return string
- * @since 1.0.0
- */
-function themeasy_slider_responsive_csv( array $settings, string $control, $fallback ): string {
-  $values = [];
-  $previous = $fallback;
-
-  foreach ( ['', '_laptop', '_tablet', '_mobile'] as $suffix ) {
-    $size = $settings[$control . $suffix]['size'] ?? '';
-
-    if ( is_numeric( $size ) ) {
-      $previous = $size + 0;
-    }
-
-    $values[] = $previous;
-  }
-
-  return implode( ',', $values );
-}
-
-/**
- * Box Shadow group `fields_options` that also publish the shadow's reach to
- * the carousel (backlog #220).
- *
- * A module carousel's `.swiper` root must keep `overflow: hidden`, so it clips
- * whatever a slide paints outside it. Next to the regular `box-shadow` rule,
- * the group now writes the shadow's vertical offset and reach (blur + spread)
- * as custom properties on the widget wrapper, and the slider module turns them
- * into the root's block padding: only a widget whose slide carries a shadow
- * buys room, sized to that shadow, in the editor and on the front alike.
- *
- * The `selectors` of the inner field are replaced whole (Elementor merges
- * `fields_options` shallowly), so the stock declaration is repeated verbatim.
- *
- * @param string $slot '' for the slide's resting shadow, 'alt' for a second one
- *                     the slide can paint (its hover state, or an inner box).
- * @return array
- * @since 1.0.0
- */
-function themeasy_carousel_shadow_room_fields( string $slot = '' ): array {
-  $prefix = '--tms-carousel-shadow' . ( '' !== $slot ? '-' . $slot : '' );
-
-  return [
-    'box_shadow' => [
-      'selectors' => [
-        '{{SELECTOR}}' => 'box-shadow: {{HORIZONTAL}}px {{VERTICAL}}px {{BLUR}}px {{SPREAD}}px {{COLOR}} {{box_shadow_position.VALUE}};',
-        '{{WRAPPER}}' => $prefix . '-y: {{VERTICAL}}px; ' . $prefix . '-reach: calc({{BLUR}}px + {{SPREAD}}px);',
-      ],
-    ],
-  ];
-}
-
-/**
- * Arguments of the carousel `stage_padding` control (backlog #220).
- *
- * Same key and meaning as the Coverflow's: the room inside the clipping
- * `.swiper` root. Empty by default, because the room is sized from the
- * slide's Box Shadow on its own (themeasy_carousel_shadow_room_fields()); a
- * value here overrides that automatic room.
- *
- * @return array
- * @since 1.0.0
- */
-function themeasy_carousel_stage_padding_control(): array {
-  return [
-    'label' => esc_html__( 'Stage Padding', 'themeasy-lite' ),
-    'description' => esc_html__( 'Room inside the carousel, which clips whatever leaves it. Leave empty to size it from the Box Shadow automatically; raise the side a shadow is still cut off on.', 'themeasy-lite' ),
-    'type' => \Elementor\Controls_Manager::DIMENSIONS,
-    'size_units' => ['px', 'rem'],
-    'allowed_dimensions' => 'vertical',
-    'selectors' => [
-      '{{WRAPPER}} .tms-slider__wrapper' =>
-        '--tms-carousel-room-top: {{TOP}}{{UNIT}}; --tms-carousel-room-bottom: {{BOTTOM}}{{UNIT}};',
-    ],
-  ];
-}
-
-/**
  * `global` argument of a Typography group whose default look is a Text Display
  * preset (backlog #273).
  *
- * The `tms-display-1..8` presets are Kit globals that only Typography_Sync
- * writes: with the full offer on a Themeasy theme, on a save of the Themeasy
- * settings. The setup wizard and the demo import save none, so a new Themeasy
+ * The `tms-display-1..8` presets are Kit globals that only the Themeasy
+ * plugin's Typography_Sync writes, on a save of its settings on a Themeasy
+ * theme. The setup wizard and the demo import save none, so a new Themeasy
  * site has no preset until that first save, and a Kit keeps them after a theme
  * switch or a downgrade (the sync never deletes). So the active Kit is asked,
  * once per request. A default that points at a missing global shows in the
@@ -948,42 +330,6 @@ function themeasy_display_typography_global( int $level ): array {
   $id = 'tms-display-' . $level;
 
   return isset( $kit_ids[$id] ) ? ['default' => 'globals/typography?id=' . $id] : [];
-}
-
-/**
- * Carries a saved pagination shadow over to the Default / Custom / None select.
- *
- * Post Grid, Archive Results and Product Grid used to expose the pager shadow
- * as a Box Shadow popover seeded ON, with the component's token shadow zeroed
- * inside them, so a theme without shadows could never flatten the pager. The
- * `pagination_shadow` select now owns the choice (Default = the .tms-pager
- * token) and the popover only renders under Custom. Elementor stores only what
- * diverged from the old seed, which leaves two populations to carry over:
- * the popover switched off ('' stored, also what the Builder writes for
- * "none") becomes None, and a stored shadow becomes Custom. An instance that
- * stored neither rode the seed and now follows the theme. Called from each
- * widget's constructor, so the data self-migrates on the next editor save.
- *
- * @param array $data Widget data (settings included on real instances).
- * @return array
- * @since 1.0.0
- */
-function themeasy_migrate_pagination_shadow( array $data ): array {
-  $settings = $data['settings'] ?? null;
-
-  if ( !is_array( $settings ) || isset( $settings['pagination_shadow'] ) ) {
-    return $data;
-  }
-
-  $type = $settings['pagination_box_shadow_box_shadow_type'] ?? null;
-
-  if ( '' === $type ) {
-    $data['settings']['pagination_shadow'] = 'none';
-  } elseif ( 'yes' === $type || isset( $settings['pagination_box_shadow_box_shadow'] ) ) {
-    $data['settings']['pagination_shadow'] = 'custom';
-  }
-
-  return $data;
 }
 
 /**
@@ -1029,48 +375,6 @@ function themeasy_bootstrap_columns( int $columns, array $breakpoints = [] ): st
   }
 
   return $classes;
-}
-
-/**
- * Column classes for a product loop: themeasy_bootstrap_columns() with the
- * phone count set by the store.
- *
- * The shared helper starts every grid at one column and only doubles it from
- * 400px, so the 375–390px phones most shoppers hold saw one product per row on
- * every store (Builder session, greengage, 2026-09-27). Below 576px the loop
- * shows `$phone` columns (capped at the desktop count).
- *
- * From 576px up a product card needs about 160px (rating stars, a struck-out
- * price beside the sale price), so the loop passes its own caps instead of the
- * shared gallery-sized ones (sm 4 / md 6): sm 3 / md 4 / lg 5 / xl 6. The
- * shared helper had a 5-column grid showing 118px cards at 768px (backlog #223).
- *
- * Example: (4, 2) → 'row row-cols-2 row-cols-sm-3 row-cols-md-4'
- *
- * @param int $columns Desktop products per row (1–12).
- * @param int $phone   Products per row below 576px (default 2).
- * @return string
- * @since 1.0.1
- */
-function themeasy_product_columns( int $columns, int $phone = 2 ): string {
-  $classes = themeasy_bootstrap_columns(
-    $columns,
-    [
-      'xs' => 2,
-      'sm' => 3,
-      'md' => 4,
-      'lg' => 5,
-      'xl' => 6,
-      'xxl' => 12,
-    ]
-  );
-  $phone = max( 1, min( $phone, max( 1, min( 12, $columns ) ) ) );
-
-  // The base count holds up to 576px now: the 400px step is dropped, so an
-  // explicit 1 stays one column across every phone width too.
-  $classes = preg_replace( '/\brow-cols-1\b/', 'row-cols-' . $phone, $classes, 1 );
-
-  return (string) preg_replace( '/\s+row-cols-xs-\d+\b/', '', $classes );
 }
 
 // ==============================
@@ -1152,95 +456,6 @@ function themeasy_render_attachment_image( int $image_id = 0, string $size = 'fu
   );
 }
 
-/**
- * Retrieves multiple meta fields for an image.
- *
- * Returns an array with metadata like alt, title, caption, etc., including custom Themeasy fields.
- *
- * @param int   $image_id Attachment ID.
- * @param array $fields   List of field keys to retrieve.
- * @return array Associative array of field => value.
- */
-function themeasy_get_image_meta_fields( int $image_id, array $fields ): array {
-  if ( !$image_id || empty( $fields ) ) {
-    return [];
-  }
-
-  $data = [];
-
-  foreach ( $fields as $field ) {
-    switch ( $field ) {
-      case 'category':
-        $data['category'] = get_post_meta( $image_id, '_tms_category', true );
-        break;
-      case 'custom_link':
-        $data['custom_link'] = get_post_meta( $image_id, '_tms_custom_link', true );
-        break;
-      case 'video':
-        $data['video'] = get_post_meta( $image_id, '_tms_video_url', true );
-        break;
-      case 'alt':
-        $data['alt'] = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
-        break;
-      case 'title':
-        $data['title'] = get_the_title( $image_id );
-        break;
-      case 'caption':
-        $data['caption'] = wp_get_attachment_caption( $image_id );
-        break;
-      case 'description':
-        $data['description'] = get_post_field( 'post_content', $image_id );
-        break;
-      default:
-        $data[$field] = null;
-    }
-  }
-
-  return $data;
-}
-
-/**
- * Retrieves a list of unique image categories stored via _tms_category postmeta.
- *
- * Used for filtering or dropdown controls related to images with custom metadata.
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * @return array Associative array: [slug => Category Name]
- */
-function themeasy_get_unique_image_categories(): array {
-  global $wpdb;
-
-  $meta_key = '_tms_category';
-  $raw_results = $wpdb->get_col(
-    $wpdb->prepare(
-      "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value != ''",
-      $meta_key
-    )
-  );
-  if ( empty( $raw_results ) ) {
-    return [];
-  }
-
-  $categories = [];
-
-  foreach ( $raw_results as $value ) {
-    $names = array_map( 'trim', explode( ',', $value ) );
-
-    foreach ( $names as $name ) {
-      if ( $name ) {
-        $slug = sanitize_title( $name );
-        if ( !isset( $categories[$slug] ) ) {
-          $categories[$slug] = ucwords( esc_html( $name ) );
-        }
-      }
-    }
-  }
-
-  return $categories;
-}
-
 // ==============================
 // SVG / ICON HELPERS
 // ==============================
@@ -1278,7 +493,7 @@ function themeasy_get_svg_icon( string $library, string $icon, string $class = '
   if ( !isset( $cache[$cache_key] ) ) {
     $cache[$cache_key] = '';
 
-    $base_path = TMS_PATH . 'assets/media/svg/' . $library;
+    $base_path = THEMEASY_PATH . 'assets/media/svg/' . $library;
     $file_path = $subfolder
       ? "{$base_path}/{$subfolder}/{$icon}.svg"
       : "{$base_path}/{$icon}.svg";
@@ -1286,7 +501,7 @@ function themeasy_get_svg_icon( string $library, string $icon, string $class = '
     if ( file_exists( $file_path ) ) {
       // Ensure the resolved path stays within the expected SVG directory.
       $resolved = realpath( $file_path );
-      $base_real = realpath( TMS_PATH . 'assets/media/svg/' );
+      $base_real = realpath( THEMEASY_PATH . 'assets/media/svg/' );
 
       if ( false !== $resolved && false !== $base_real && strpos( $resolved, $base_real ) === 0 ) {
         $svg = file_get_contents( $file_path );
@@ -1424,7 +639,7 @@ function themeasy_inject_svg_class( string $svg, string $class ): string {
 function themeasy_get_inline_svg_from_attachment( int $attachment_id ): string {
   $svg_url = wp_get_attachment_url( $attachment_id );
 
-  if ( !$svg_url || !str_ends_with( $svg_url, '.svg' ) ) {
+  if ( !$svg_url || '.svg' !== substr( $svg_url, -4 ) ) {
     return '';
   }
 
@@ -1432,7 +647,7 @@ function themeasy_get_inline_svg_from_attachment( int $attachment_id ): string {
   $base_url = trailingslashit( $upload_dir['baseurl'] );
   $base_path = trailingslashit( $upload_dir['basedir'] );
 
-  if ( str_starts_with( $svg_url, $base_url ) ) {
+  if ( 0 === strncmp( $svg_url, $base_url, strlen( $base_url ) ) ) {
     $relative_path = str_replace( $base_url, '', $svg_url );
     $absolute_path = $base_path . $relative_path;
 
@@ -1448,24 +663,6 @@ function themeasy_get_inline_svg_from_attachment( int $attachment_id ): string {
   }
 
   return '';
-}
-
-/**
- * Extracts a two-letter country code from a Polylang flag image URL.
- *
- * @param string $flag_url Full image URL (e.g., https://site.com/wp-content/.../flags/br.png).
- * @return string|null ISO 3166-1 alpha-2 country code or null if invalid.
- * @since 1.0.0
- */
-function themeasy_get_flag_code_from_url( string $flag_url ): ?string {
-  if ( empty( $flag_url ) ) {
-    return null;
-  }
-
-  $basename = basename( $flag_url );
-  $code = strtolower( pathinfo( $basename, PATHINFO_FILENAME ) );
-
-  return preg_match( '/^[a-z]{2}$/', $code ) ? $code : null;
 }
 
 /**
@@ -1494,8 +691,7 @@ function themeasy_get_icon_svg_normalization( array $attributes ): array {
  *
  * Generated in-repo by `npm run icons:build` (scripts/icons/build-icons.mjs)
  * into assets/media/svg/ty-manifest.php. Each library entry carries its
- * display label, the SOURCE DIR under assets/media/svg/ (premium libraries
- * use a __premium_only-suffixed dir the Free strip removes — consumers must
+ * display label, the SOURCE DIR under assets/media/svg/ (consumers must
  * existence-check the dir), an optional label_icon for the picker tab, the
  * editor `preload` flag (only preloaded libraries enter the editor's inline
  * SVG blob; the rest lazy-fetch per icon), and the icon name list.
@@ -1513,7 +709,7 @@ function themeasy_get_ty_icon_manifest(): array {
     return $manifest;
   }
 
-  $file = TMS_PATH . 'assets/media/svg/ty-manifest.php';
+  $file = THEMEASY_PATH . 'assets/media/svg/ty-manifest.php';
   $loaded = file_exists( $file ) ? include $file : null;
   $manifest = is_array( $loaded ) ? $loaded : [];
 
@@ -1523,9 +719,9 @@ function themeasy_get_ty_icon_manifest(): array {
 /**
  * Extracts the icon file name from a ty-* icon picker value.
  *
- * The Themeasy Icons libraries (ty-feather, ty-solar-*) register as Elementor
+ * The Themeasy Icons libraries (ty-*) register as Elementor
  * icon picker tabs, so the stored value is a CSS class string built by the
- * picker — "ty-solar-line-heart" (and, defensively, any "displayPrefix
+ * picker — "ty-feather-heart" (and, defensively, any "displayPrefix
  * prefix-name" multi-token form Elementor may produce). This helper keeps the
  * last token, strips the "{library}-" prefix, and normalizes the remainder to
  * a safe file-name subset. Mirrored by Themeasy.parseTyIconName() in JS.
@@ -1546,7 +742,7 @@ function themeasy_parse_ty_icon_name( string $library, string $value ): string {
   $token = end( $parts );
   $prefix = $library . '-';
 
-  if ( str_starts_with( $token, $prefix ) ) {
+  if ( 0 === strncmp( $token, $prefix, strlen( $prefix ) ) ) {
     $token = substr( $token, strlen( $prefix ) );
   }
 
@@ -1559,10 +755,8 @@ function themeasy_parse_ty_icon_name( string $library, string $value ): string {
  * The svg-only style controls (fill/stroke/thickness) condition on
  * 'icon[library]' being one of these — always call this helper in those
  * conditions, never hand-list libraries. Manifest-driven so new ty-*
- * libraries (including premium ones stripped from the Free build — harmless
- * surplus there, and correct after a premium-to-Free downgrade with saved
- * Solar icons) join automatically. The static fallback keeps the controls
- * alive if the manifest ever goes missing.
+ * libraries join automatically. The static fallback keeps the controls alive
+ * if the manifest ever goes missing.
  *
  * @return string[]
  * @since 1.0.0
@@ -1577,7 +771,7 @@ function themeasy_svg_icon_condition_libraries(): array {
   $ty_keys = [];
 
   foreach ( array_keys( themeasy_get_ty_icon_manifest()['libraries'] ?? [] ) as $key ) {
-    if ( str_starts_with( (string) $key, 'ty-' ) ) {
+    if ( 0 === strpos( (string) $key, 'ty-' ) ) {
       $ty_keys[] = (string) $key;
     }
   }
@@ -1592,18 +786,16 @@ function themeasy_svg_icon_condition_libraries(): array {
  *
  * Also recognizes three library shapes that bypass Elementor's pipeline:
  *
- *   - "ty-*" (Themeasy Icons: ty-feather, ty-solar-*) — the picker stores a
- *     class-shaped value ("ty-solar-line-heart"); we resolve it to an inline
- *     SVG from the library's manifest dir under assets/media/svg/. The picker
- *     preview uses the generated mask CSS (editor-only); the frontend is
- *     always inline SVG (Solar Duotone's secondary tone is an opacity
- *     attribute, so a single currentColor paints both tones).
+ *   - "ty-*" (Themeasy Icons) — the picker stores a class-shaped value
+ *     ("ty-feather-heart"); we resolve it to an inline SVG from the library's
+ *     manifest dir under assets/media/svg/. The picker preview uses the
+ *     generated mask CSS (editor-only); the frontend is always inline SVG.
  *
  *   - "themeasy-svg" — legacy: resolves to an inline SVG from the plugin's
  *     assets/media/svg/<lib>/ directory without touching the Media Library.
  *     Values accepted: "arrow-right" (defaults to ty-feather/) or
- *     "animated/radiant-spin" (explicit library/name form; a "feather/" lib
- *     is shimmed to the renamed ty-feather/ dir).
+ *     "ty-feather/heart" (explicit library/name form; a "feather/" lib is
+ *     shimmed to the renamed ty-feather/ dir).
  *
  *   - "svg" (uploaded SVG from the Media Library) — we read and sanitize
  *     the file ourselves so our Themeasy animation attributes (data-*) are
@@ -1629,9 +821,9 @@ function themeasy_render_icon_html( array $icon, array $attributes = [] ): strin
   $value = $icon['value'];
 
   // Themeasy Icons libraries (registered as picker tabs). The manifest maps
-  // each library to its source dir (premium libraries resolve to their
-  // __premium_only-suffixed dir; a stripped dir just renders '').
-  if ( is_string( $library ) && str_starts_with( $library, 'ty-' ) && is_string( $value ) ) {
+  // each library to its source dir; a library whose dir is not on disk just
+  // renders ''.
+  if ( is_string( $library ) && 0 === strpos( $library, 'ty-' ) && is_string( $value ) ) {
     $icon_name = themeasy_parse_ty_icon_name( $library, $value );
     $dir = themeasy_get_ty_icon_manifest()['libraries'][$library]['dir'] ?? $library;
     $svg = '' !== $icon_name ? themeasy_get_svg_icon( $dir, $icon_name ) : '';
@@ -1678,90 +870,6 @@ function themeasy_render_icon_html( array $icon, array $attributes = [] ): strin
   return ob_get_clean();
 }
 
-/**
- * Build the separator markup placed between post meta items.
- *
- * Shared by the Post Grid and the Post Carousel, which render the same
- * template part. Mirrors the Post Meta widget's separator vocabulary so a
- * suite can match the card index to the single — the difference is the
- * default, which stays 'pipe' here because that is what the cards have
- * always drawn.
- *
- * @param array<string,mixed> $settings Widget settings.
- * @return string Rendered HTML, or empty string when no separator.
- * @since 1.0.0
- */
-function themeasy_get_post_meta_separator_markup( array $settings ): string {
-  $type = (string) ( $settings['separator_type'] ?? 'pipe' );
-
-  if ( 'none' === $type ) {
-    return '';
-  }
-
-  if ( 'icon' === $type ) {
-    $icon = $settings['separator_icon'] ?? [];
-    $icon_html = is_array( $icon ) ? themeasy_render_icon_html( $icon ) : '';
-
-    if ( '' === $icon_html ) {
-      return '';
-    }
-
-    return '<span class="tms-post-grid__sep" aria-hidden="true">' . $icon_html . '</span>';
-  }
-
-  $texts = [
-    'slash' => '/',
-    'chevron' => "\u{203A}",
-    'dot' => "\u{2022}",
-    'dash' => "\u{2014}",
-    'pipe' => '|',
-  ];
-
-  $text = ( 'custom' === $type )
-    ? (string) ( $settings['separator_custom'] ?? '|' )
-    : ( $texts[$type] ?? '' );
-
-  if ( '' === trim( $text ) ) {
-    return '';
-  }
-
-  return sprintf(
-    '<span class="tms-post-grid__sep" aria-hidden="true">%s</span>',
-    esc_html( $text )
-  );
-}
-
-/**
- * Build the prev/next arrow markup handed to paginate_links().
- *
- * Shared by every widget that exposes pagination icon controls (Post Grid,
- * Archive Results). The widget owns the wrapper span — the icon helper returns
- * the bare 1em glyph — so `.tms-pager__icon` in components.min.css can size and
- * colour it, and the Icon Size control has something to target. The glyph is
- * decorative, so the link carries its own screen-reader label: paginate_links()
- * emits a bare `<a>` and gives us no way to set an attribute on it.
- *
- * @param mixed  $icon     Elementor ICONS control value (array, or anything else when unset).
- * @param string $fallback Feather icon name used when the control was cleared.
- * @param string $label    Already-escaped screen-reader label for the link.
- * @return string Rendered HTML.
- * @since 1.0.0
- */
-function themeasy_get_pager_arrow_markup( $icon, string $fallback, string $label ): string {
-  $icon_html = themeasy_render_icon_html( is_array( $icon ) ? $icon : [] );
-
-  // An emptied icon control must not cost the pager its prev/next affordance.
-  if ( '' === $icon_html ) {
-    $icon_html = themeasy_get_svg_icon( 'ty-feather', $fallback );
-  }
-
-  return sprintf(
-    '<span class="tms-pager__icon" aria-hidden="true">%s</span><span class="screen-reader-text">%s</span>',
-    $icon_html,
-    $label
-  );
-}
-
 // ==============================
 // ELEMENTOR
 // ==============================
@@ -1806,118 +914,4 @@ function themeasy_is_elementor_preview(): bool {
   }
 
   return false;
-}
-
-/**
- * Get Elementor templates filtered by template type.
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * Pass an array to match several types at once. Block-level pickers should ask for
- * ['section', 'container']: with Elementor's Flexbox Container layout active, a
- * template saved from a container is stored as 'container', never 'section'.
- *
- * @param string|string[] $type Optional. Template type(s): section, container, page, popup, kit. Empty = all.
- * @return array List of templates with [ID => Title]
- */
-function themeasy_get_elementor_templates_by_type( $type = '' ): array {
-  $types = array_values( array_filter( array_map( 'sanitize_key', (array) $type ) ) );
-
-  $args = [
-    'post_type' => 'elementor_library',
-    'post_status' => 'publish',
-    'posts_per_page' => -1,
-    'orderby' => 'title',
-    'order' => 'ASC',
-  ];
-
-  if ( $types ) {
-    $args['meta_query'] = [
-      [
-        'key' => '_elementor_template_type',
-        'value' => $types,
-        'compare' => 'IN',
-      ],
-    ];
-  }
-
-  $query = new \WP_Query( $args );
-  $templates = [];
-
-  // Raw post_title, not get_the_title(): the SELECT/SELECT2 controls escape option
-  // labels themselves, so texturized entities (&#8211;) would print literally.
-  if ( $query->have_posts() ) {
-    foreach ( $query->posts as $template ) {
-      $templates[$template->ID] = $template->post_title;
-    }
-  }
-
-  return $templates;
-}
-
-/**
- * Renders an Elementor template by its ID using the frontend rendering engine.
- *
- * Useful for widgets, global sections, or dynamic templates via shortcode.
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * @param int  $template_id The ID of the template.
- * @param bool $with_css    Whether to include CSS output. Default true.
- * @return string Rendered HTML content or empty string on failure.
- */
-function themeasy_render_elementor_template( int $template_id, bool $with_css = true ): string {
-  $template_id = absint( $template_id );
-
-  if ( !$template_id ) {
-    return '';
-  }
-
-  $post = get_post( $template_id );
-  if ( !$post || $post->post_type !== 'elementor_library' ) {
-    return '';
-  }
-
-  return \Elementor\Plugin::instance()->frontend->get_builder_content( $template_id, $with_css );
-}
-
-// ==============================
-// THIRD-PARTY PLUGINS
-// ==============================
-
-/**
- * Retrieves a list of published Contact Form 7 forms for use in select fields.
- *
- * @package Themeasy
- * @since 1.0.0
- *
- * @return array Associative array of form IDs => titles.
- */
-function themeasy_get_contact_form_7_forms(): array {
-  $options = [
-    '' => esc_html__( 'Select a Form', 'themeasy-lite' ),
-  ];
-
-  $forms = get_posts( [
-    'post_type' => 'wpcf7_contact_form',
-    'posts_per_page' => -1,
-    'orderby' => 'title',
-    'order' => 'ASC',
-    'fields' => 'ids',
-  ] );
-
-  if ( !empty( $forms ) ) {
-    foreach ( $forms as $form_id ) {
-      $title = get_the_title( $form_id );
-      if ( $title ) {
-        $options[$form_id] = esc_html( $title );
-      }
-    }
-  } else {
-    $options['none'] = esc_html__( 'No contact form found', 'themeasy-lite' );
-  }
-
-  return $options;
 }

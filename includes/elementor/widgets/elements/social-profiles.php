@@ -661,7 +661,7 @@ class SocialProfiles extends Widget_Base {
           $icon_value = $profile['icon']['value'] ?? '';
 
           if ( is_string( $icon_library ) && is_string( $icon_value ) && '' !== $icon_value ) {
-            if ( str_starts_with( $icon_library, 'ty-' ) ) {
+            if ( 0 === strpos( $icon_library, 'ty-' ) ) {
               $icon_value = themeasy_parse_ty_icon_name( $icon_library, $icon_value );
             }
 

@@ -8,14 +8,13 @@
  * multiplies across three orthogonal axes — five layouts (stacked, split,
  * offset eyebrow column, row with inline actions, vertical rail), six frame
  * treatments (top/bottom hairline, outline, panel, blueprint corner ticks)
- * and an adaptive divider — plus per-element Themeasy Motion text animations.
+ * and an adaptive divider.
  *
  * Every layout arranges the same two content groups (heading + content) on a
  * grid; the widget maps eyebrow/title/description/actions into those groups
  * per layout, so spacing stays exact with any field left empty. Pure CSS
- * structure with no widget JS: text simply renders when GSAP is absent,
- * layouts collapse to a single column on tablet/mobile, and motion respects
- * prefers-reduced-motion.
+ * structure with no widget JS: layouts collapse to a single column on
+ * tablet/mobile.
  *
  * @package Themeasy
  * @since 1.0.0
@@ -30,7 +29,6 @@ use Elementor\Group_Control_Background;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Widget_Base;
-use Themeasy\Core\Entitlement;
 
 /**
  * Responsible for registering controls and rendering the widget.
@@ -1241,42 +1239,9 @@ class SectionIntro extends Widget_Base {
     );
 
     // ------------------------------------------------------------------------
-    // Advanced sections: Themeasy Motion (Pro — the engines run on GSAP, which
-    // the Free build neither ships nor loads).
+    // Advanced section: Motion.
     // ------------------------------------------------------------------------
-    if ( Entitlement::can_use_widgets() ) {
-      $this->register_motion_controls();
-    } else {
-      themeasy_register_motion_upsell_section( $this );
-    }
-  }
-
-  /**
-   * Register the Themeasy Motion sections (Advanced tab).
-   *
-   * Pro only: the motion engines run on GSAP, which the Free build neither
-   * ships nor loads (backlog #253). register_controls() calls this when the
-   * site is entitled and registers the upsell section otherwise.
-   *
-   * @return void
-   */
-  private function register_motion_controls() {
-    // ------------------------------------------------------------------------
-    // Advanced section: Entrance Animation
-    // ------------------------------------------------------------------------
-    $this->start_controls_section(
-      'widget_animation_section',
-        [
-          'label' => esc_html__( 'Motion — Animation', 'themeasy-lite' ),
-          'tab' => Controls_Manager::TAB_ADVANCED,
-        ]
-      );
-
-      $this->register_text_animation_controls( 'eyebrow', esc_html__( 'Eyebrow', 'themeasy-lite' ), 'char', false );
-      $this->register_text_animation_controls( 'title', esc_html__( 'Title', 'themeasy-lite' ), 'word', true );
-      $this->register_text_animation_controls( 'description', esc_html__( 'Description', 'themeasy-lite' ), 'block', true );
-
-    $this->end_controls_section();
+    themeasy_register_motion_upsell_section( $this );
   }
 
   /**
@@ -1648,103 +1613,6 @@ class SectionIntro extends Widget_Base {
   }
 
   /**
-   * Register one group of Themeasy Motion text-animation controls.
-   *
-   * @param string $prefix         Prefix for control ids (eyebrow|title|description).
-   * @param string $heading_label  Group heading label.
-   * @param string $default_target Default animation target (char|word|line|block).
-   * @param bool   $separator      Whether the group heading gets a separator.
-   * @return void
-   */
-  private function register_text_animation_controls(
-    string $prefix,
-    string $heading_label,
-    string $default_target,
-    bool $separator
-  ): void {
-    $heading = [
-      'label' => $heading_label,
-      'type' => Controls_Manager::HEADING,
-    ];
-
-    if ( $separator ) {
-      $heading['separator'] = 'before';
-    }
-
-    $this->add_control( "{$prefix}_heading_advanced", $heading );
-
-    $this->add_control(
-      "{$prefix}_animation",
-      [
-        'label' => esc_html__( 'Entrance Animation', 'themeasy-lite' ),
-        'type' => Controls_Manager::SELECT,
-        'default' => '',
-        'options' => themeasy_get_animation_options( 'text' ),
-      ]
-    );
-
-    $this->add_control(
-      "{$prefix}_animation_target",
-      [
-        'label' => esc_html__( 'Animation Target', 'themeasy-lite' ),
-        'type' => Controls_Manager::SELECT,
-        'default' => $default_target,
-        'options' => [
-          'char' => esc_html__( 'Character Level', 'themeasy-lite' ),
-          'word' => esc_html__( 'Word Level', 'themeasy-lite' ),
-          'line' => esc_html__( 'Line Level', 'themeasy-lite' ),
-          'block' => esc_html__( 'Block Level', 'themeasy-lite' ),
-        ],
-        'condition' => [
-          "{$prefix}_animation!" => '',
-        ],
-      ]
-    );
-
-    $this->add_control(
-      "{$prefix}_animation_duration",
-      [
-        'label' => esc_html__( 'Duration', 'themeasy-lite' ),
-        'type' => Controls_Manager::SLIDER,
-        'size_units' => ['s'],
-        'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-        'default' => ['unit' => 's', 'size' => 1],
-        'condition' => [
-          "{$prefix}_animation!" => '',
-        ],
-      ]
-    );
-
-    $this->add_control(
-      "{$prefix}_animation_stagger_delay",
-      [
-        'label' => esc_html__( 'Stagger Delay', 'themeasy-lite' ),
-        'type' => Controls_Manager::SLIDER,
-        'size_units' => ['s'],
-        'range' => ['s' => ['min' => 0, 'max' => 1, 'step' => 0.01]],
-        'default' => ['unit' => 's', 'size' => 0.03],
-        'condition' => [
-          "{$prefix}_animation!" => '',
-        ],
-      ]
-    );
-
-    $this->add_control(
-      "{$prefix}_animation_delay",
-      [
-        'label' => esc_html__( 'Delay', 'themeasy-lite' ),
-        'type' => Controls_Manager::SLIDER,
-        'size_units' => ['s'],
-        'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-        'default' => ['unit' => 's', 'size' => 0],
-        'condition' => [
-          "{$prefix}_animation!" => '',
-        ],
-      ]
-    );
-  }
-
-  /**
    * Map each intro element into the heading or content group for a layout.
    *
    * @param string $layout Layout key.
@@ -1774,34 +1642,6 @@ class SectionIntro extends Widget_Base {
   }
 
   /**
-   * Resolve the Themeasy Motion classes + attributes for one text element.
-   *
-   * @param array  $settings Widget settings.
-   * @param string $prefix   Control prefix (eyebrow|title|description).
-   * @return array|null Array with 'classes' and 'atts' keys, or null when no animation is set.
-   */
-  private function get_text_animation_config( array $settings, string $prefix ): ?array {
-    // Themeasy Motion is Pro (GSAP — backlog #253): without it a saved
-    // animation emits no markup, so the hidden guard never strands the text.
-    $animation = Entitlement::can_use_widgets() ? ( $settings["{$prefix}_animation"] ?? '' ) : '';
-
-    if ( '' === $animation ) {
-      return null;
-    }
-
-    return [
-      'classes' => ['tms-text-animation', 'tms-animation--on-view', 'tms-animation--hidden'],
-      'atts' => [
-        'tms-text-animation' => $animation,
-        'targets-class' => $settings["{$prefix}_animation_target"] ?? 'char',
-        'duration' => $settings["{$prefix}_animation_duration"]['size'] ?? '1',
-        'stagger-delay' => $settings["{$prefix}_animation_stagger_delay"]['size'] ?? '0.03',
-        'delay' => $settings["{$prefix}_animation_delay"]['size'] ?? '0',
-      ],
-    ];
-  }
-
-  /**
    * Render one intro element (eyebrow|title|description|actions).
    *
    * @param string $part     Element key.
@@ -1818,15 +1658,9 @@ class SectionIntro extends Widget_Base {
 
         $eyebrow_sanitized = wp_kses( $ctx['eyebrow'], themeasy_get_kses_allowed_tags() );
 
-        if ( $ctx['eyebrow_anim'] ) {
-          $eyebrow_text_classes = array_merge( $ctx['eyebrow_text_classes'], $ctx['eyebrow_anim']['classes'] );
-          $eyebrow_text = '<span class="' . esc_attr( implode( ' ', $eyebrow_text_classes ) ) . '"'
-            . themeasy_html_attributes( $ctx['eyebrow_anim']['atts'] ) . '>'
-            . $eyebrow_sanitized . '</span>';
-        } else {
-          $eyebrow_text = '<span ' . $this->get_render_attribute_string( 'eyebrow' ) . '>'
-            . $eyebrow_sanitized . '</span>';
-        }
+        $eyebrow_text = '<span ' . $this->get_render_attribute_string( 'eyebrow' ) . '>'
+          . $eyebrow_sanitized . '</span>';
+
         ?>
         <span class="tms-section-intro__eyebrow">
           <?php
@@ -1848,15 +1682,8 @@ class SectionIntro extends Widget_Base {
         $title_tag = esc_html( $ctx['title_tag'] );
         $title_sanitized = wp_kses( $ctx['title'], themeasy_get_kses_allowed_tags() );
 
-        if ( $ctx['title_anim'] ) {
-          $title_anim_classes = array_merge( $ctx['title_classes'], $ctx['title_anim']['classes'] );
-          $title_html = '<' . $title_tag . ' class="' . esc_attr( implode( ' ', $title_anim_classes ) ) . '"'
-            . themeasy_html_attributes( $ctx['title_anim']['atts'] ) . '>'
-            . $title_sanitized . '</' . $title_tag . '>';
-        } else {
-          $title_html = '<' . $title_tag . ' ' . $this->get_render_attribute_string( 'title' ) . '>'
-            . $title_sanitized . '</' . $title_tag . '>';
-        }
+        $title_html = '<' . $title_tag . ' ' . $this->get_render_attribute_string( 'title' ) . '>'
+          . $title_sanitized . '</' . $title_tag . '>';
 
         echo $title_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         break;
@@ -1868,15 +1695,8 @@ class SectionIntro extends Widget_Base {
 
         $description_sanitized = wp_kses( $ctx['description'], themeasy_get_kses_allowed_tags() );
 
-        if ( $ctx['description_anim'] ) {
-          $description_classes = array_merge( ['tms-section-intro__description'], $ctx['description_anim']['classes'] );
-          $description_html = '<div class="' . esc_attr( implode( ' ', $description_classes ) ) . '"'
-            . themeasy_html_attributes( $ctx['description_anim']['atts'] ) . '>'
-            . $description_sanitized . '</div>';
-        } else {
-          $description_html = '<div ' . $this->get_render_attribute_string( 'description' ) . '>'
-            . $description_sanitized . '</div>';
-        }
+        $description_html = '<div ' . $this->get_render_attribute_string( 'description' ) . '>'
+          . $description_sanitized . '</div>';
 
         echo $description_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         break;
@@ -2005,11 +1825,6 @@ class SectionIntro extends Widget_Base {
       return;
     }
 
-    // Animation configs (null when the element has no animation).
-    $eyebrow_anim = $this->get_text_animation_config( $settings, 'eyebrow' );
-    $title_anim = $this->get_text_animation_config( $settings, 'title' );
-    $description_anim = $this->get_text_animation_config( $settings, 'description' );
-
     // ------------------------------------------------------------------------
     // Wrapper classes.
     // ------------------------------------------------------------------------
@@ -2051,22 +1866,17 @@ class SectionIntro extends Widget_Base {
     // ------------------------------------------------------------------------
     // Render attributes.
     // ------------------------------------------------------------------------
-    // Kept as arrays: the animated branches below append their own classes.
-    $eyebrow_text_classes = ['tms-section-intro__eyebrow-text'];
-
-    if ( $present['eyebrow'] && !$eyebrow_anim ) {
-      $this->add_render_attribute( 'eyebrow', 'class', implode( ' ', $eyebrow_text_classes ) );
+    if ( $present['eyebrow'] ) {
+      $this->add_render_attribute( 'eyebrow', 'class', 'tms-section-intro__eyebrow-text' );
       $this->add_inline_editing_attributes( 'eyebrow', 'basic' );
     }
 
-    $title_classes = ['tms-section-intro__title'];
-
-    if ( $present['title'] && !$title_anim ) {
-      $this->add_render_attribute( 'title', 'class', implode( ' ', $title_classes ) );
+    if ( $present['title'] ) {
+      $this->add_render_attribute( 'title', 'class', 'tms-section-intro__title' );
       $this->add_inline_editing_attributes( 'title', 'basic' );
     }
 
-    if ( $present['description'] && !$description_anim ) {
+    if ( $present['description'] ) {
       $this->add_render_attribute( 'description', 'class', 'tms-section-intro__description' );
       $this->add_inline_editing_attributes( 'description', 'advanced' );
     }
@@ -2084,15 +1894,10 @@ class SectionIntro extends Widget_Base {
     // Shared context for the part renderers.
     $ctx = [
       'eyebrow' => $eyebrow,
-      'eyebrow_anim' => $eyebrow_anim,
       'eyebrow_icon_html' => $eyebrow_icon_html,
-      'eyebrow_text_classes' => $eyebrow_text_classes,
       'title' => $title,
       'title_tag' => $title_tag,
-      'title_classes' => $title_classes,
-      'title_anim' => $title_anim,
       'description' => $description,
-      'description_anim' => $description_anim,
       'has_primary' => $has_primary,
       'has_secondary' => $has_secondary,
     ];
@@ -2146,10 +1951,6 @@ class SectionIntro extends Widget_Base {
   protected function content_template() {
     ?>
     <#
-      // Themeasy Motion is Pro (render() parity): without it the motion
-      // settings read as empty.
-      var motion = <?php echo Entitlement::can_use_widgets() ? 'true' : 'false'; ?>;
-
       // ------------------------------------------------------------------------
       // Settings.
       // ------------------------------------------------------------------------
@@ -2209,38 +2010,6 @@ class SectionIntro extends Widget_Base {
         ? window.Themeasy.safeUrl
         : function () { return ''; };
 
-      // Themeasy Motion config for one text element (null when unset).
-      var textAnimationConfig = function( prefix, defaultTarget ) {
-        var animation = motion ? ( settings[ prefix + '_animation' ] || '' ) : '';
-
-        if ( ! animation ) {
-          return null;
-        }
-
-        var durationSetting = settings[ prefix + '_animation_duration' ];
-        var staggerSetting = settings[ prefix + '_animation_stagger_delay' ];
-        var delaySetting = settings[ prefix + '_animation_delay' ];
-
-        var duration = ( durationSetting && durationSetting.size ) ? durationSetting.size : '1';
-        var stagger = ( staggerSetting && staggerSetting.size ) ? staggerSetting.size : '0.03';
-        var delay = ( delaySetting && delaySetting.size ) ? delaySetting.size : '0';
-
-        return {
-          classes: [ 'tms-text-animation', 'tms-animation--on-view', 'tms-animation--hidden' ],
-          atts: {
-            'tms-text-animation': animation,
-            'targets-class': settings[ prefix + '_animation_target' ] || defaultTarget,
-            'duration': duration,
-            'stagger-delay': stagger,
-            'delay': delay
-          }
-        };
-      };
-
-      var eyebrowAnim     = textAnimationConfig( 'eyebrow', 'char' );
-      var titleAnim       = textAnimationConfig( 'title', 'word' );
-      var descriptionAnim = textAnimationConfig( 'description', 'block' );
-
       // ------------------------------------------------------------------------
       // Wrapper classes.
       // ------------------------------------------------------------------------
@@ -2279,22 +2048,17 @@ class SectionIntro extends Widget_Base {
       // ------------------------------------------------------------------------
       // Render attributes.
       // ------------------------------------------------------------------------
-      // Kept as arrays: the animated branches below append their own classes.
-      var eyebrowTextClasses = [ 'tms-section-intro__eyebrow-text' ];
-
-      if ( present.eyebrow && ! eyebrowAnim ) {
-        view.addRenderAttribute( 'eyebrow', 'class', eyebrowTextClasses.join( ' ' ) );
+      if ( present.eyebrow ) {
+        view.addRenderAttribute( 'eyebrow', 'class', 'tms-section-intro__eyebrow-text' );
         view.addInlineEditingAttributes( 'eyebrow', 'basic' );
       }
 
-      var titleClasses = [ 'tms-section-intro__title' ];
-
-      if ( present.title && ! titleAnim ) {
-        view.addRenderAttribute( 'title', 'class', titleClasses.join( ' ' ) );
+      if ( present.title ) {
+        view.addRenderAttribute( 'title', 'class', 'tms-section-intro__title' );
         view.addInlineEditingAttributes( 'title', 'basic' );
       }
 
-      if ( present.description && ! descriptionAnim ) {
+      if ( present.description ) {
         view.addRenderAttribute( 'description', 'class', 'tms-section-intro__description' );
         view.addInlineEditingAttributes( 'description', 'advanced' );
       }
@@ -2364,36 +2128,22 @@ class SectionIntro extends Widget_Base {
 
           if ( eyebrowIconMarkup ) { html += eyebrowIconMarkup; }
 
-          if ( eyebrowAnim ) {
-            var eyebrowAnimClasses = eyebrowTextClasses.concat( eyebrowAnim.classes );
-            html += '<span class="' + _.escape( eyebrowAnimClasses.join( ' ' ) ) + '" '
-              + Themeasy.htmlAttributes( eyebrowAnim.atts ) + '>' + eyebrow + '</span>';
-          } else {
-            html += '<span ' + view.getRenderAttributeString( 'eyebrow' ) + '>' + eyebrow + '</span>';
-          }
+          var eyebrowHtml = '<span ' + view.getRenderAttributeString( 'eyebrow' ) + '>' + eyebrow + '</span>';
 
-          html += '</span>';
+          html += eyebrowHtml + '</span>';
         }
 
         if ( part === 'title' && present.title ) {
-          if ( titleAnim ) {
-            var titleAnimClasses = titleClasses.concat( titleAnim.classes );
-            html += '<' + titleTag + ' class="' + _.escape( titleAnimClasses.join( ' ' ) ) + '" '
-              + Themeasy.htmlAttributes( titleAnim.atts ) + '>' + title + '</' + titleTag + '>';
-          } else {
-            html += '<' + titleTag + ' ' + view.getRenderAttributeString( 'title' ) + '>'
-              + title + '</' + titleTag + '>';
-          }
+          var titleHtml = '<' + titleTag + ' ' + view.getRenderAttributeString( 'title' ) + '>'
+            + title + '</' + titleTag + '>';
+
+          html += titleHtml;
         }
 
         if ( part === 'description' && present.description ) {
-          if ( descriptionAnim ) {
-            var descriptionClasses = [ 'tms-section-intro__description' ].concat( descriptionAnim.classes );
-            html += '<div class="' + _.escape( descriptionClasses.join( ' ' ) ) + '" '
-              + Themeasy.htmlAttributes( descriptionAnim.atts ) + '>' + description + '</div>';
-          } else {
-            html += '<div ' + view.getRenderAttributeString( 'description' ) + '>' + description + '</div>';
-          }
+          var descriptionHtml = '<div ' + view.getRenderAttributeString( 'description' ) + '>' + description + '</div>';
+
+          html += descriptionHtml;
         }
 
         if ( part === 'actions' && present.actions ) {

@@ -9,10 +9,8 @@
  * the catalog traffic goes through Library_Ajax (same-origin proxy) and the
  * insertion runs client-side via the Elementor command API.
  *
- * Ships in BOTH builds (no premium marker): it is a Free funnel surface that
- * inserts `free` templates and locks `pro` behind an upgrade CTA. The Pro gate is
- * a runtime check (Entitlement::is_subscriber()) mirrored server-side by the
- * backstage 403 — only a real SaaS subscriber carries a Freemius license proof.
+ * The panel inserts the `free` templates and shows the `pro` ones locked, with
+ * a link to the Pro checkout, as Elementor does with its own library.
  *
  * @package Themeasy\Elementor
  * @since 1.0.0
@@ -20,8 +18,7 @@
 
 namespace Themeasy\Elementor;
 
-use Themeasy\Admin\Upgrade_Page;
-use Themeasy\Core\Entitlement;
+use Themeasy\Admin\Welcome_Page;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -74,7 +71,7 @@ class Library_Panel {
   public function enqueue_styles(): void {
     wp_enqueue_style(
       'themeasy-library',
-      TMS_E_ASSETS_URL . 'css/themeasy-el-library.min.css',
+      THEMEASY_E_ASSETS_URL . 'css/themeasy-el-library.min.css',
       [],
       $this->asset_ver( 'css/themeasy-el-library.min.css' )
     );
@@ -88,15 +85,15 @@ class Library_Panel {
   public function enqueue_scripts(): void {
     wp_enqueue_script(
       'themeasy-library',
-      TMS_E_ASSETS_URL . 'js/themeasy-el-library.min.js',
+      THEMEASY_E_ASSETS_URL . 'js/themeasy-el-library.min.js',
       [],
       $this->asset_ver( 'js/themeasy-el-library.min.js' ),
       true
     );
 
     // Inline JSON rather than wp_localize_script: localize stringifies every
-    // scalar (true -> "1", false -> ""), which would make the canInsertPro gate
-    // depend on JS truthiness quirks. wp_json_encode keeps real booleans/ints.
+    // scalar (true -> "1", false -> ""), which would make a boolean flag depend
+    // on JS truthiness quirks. wp_json_encode keeps real booleans/ints.
     // Assigned to window.* (not `var`) so it stays a cross-<script>-tag global the
     // module reads, while honoring the no-var house rule.
     wp_add_inline_script(
@@ -109,7 +106,7 @@ class Library_Panel {
   /**
    * Resolve an editor-asset cache-busting version from filemtime.
    *
-   * filemtime keeps same-version edits from serving stale: TMS_VER stays pinned
+   * filemtime keeps same-version edits from serving stale: THEMEASY_VER stays pinned
    * across a release, so it would mask edits made during development. Falls back
    * to the version constant if the file is ever missing.
    *
@@ -117,7 +114,7 @@ class Library_Panel {
    * @return string
    */
   private function asset_ver( string $rel ): string {
-    $path = TMS_PATH . 'includes/elementor/assets/' . $rel;
+    $path = THEMEASY_PATH . 'includes/elementor/assets/' . $rel;
 
     return file_exists( $path ) ? (string) filemtime( $path ) : themeasy_get_asset_version();
   }
@@ -128,24 +125,6 @@ class Library_Panel {
    * @return array<string,mixed>
    */
   private function bootstrap_data(): array {
-    // Subscriber-only unlock: the living library is exclusive to the SaaS plan
-    // (anti-cannibalization), and only a SaaS subscriber holds the Freemius
-    // license proof the backstage /content gate requires — so the UI lock state
-    // mirrors what the server will actually allow.
-    $can_insert_pro = Entitlement::is_subscriber();
-
-    // A locked card sells Pro, the plan of the Pro templates: its checkout for a
-    // Free site, in license-update mode for an admin whose install holds its own
-    // license (#287). A theme buyer (M2), or an editor on a plan of its own, gets
-    // the pricing page, and so does a subscriber, who sees no lock: the license
-    // key never sits in an editor page that cannot use it.
-    if ( !$can_insert_pro && ( !Entitlement::can_use_widgets() || ( Entitlement::has_own_license() && current_user_can( 'manage_options' ) ) ) ) {
-      $upgrade_url = Upgrade_Page::checkout_url( 'pro' );
-    } else {
-      /** This filter is documented in core/licensing.php. */
-      $upgrade_url = (string) apply_filters( 'themeasy/upgrade_url', 'https://themeasy.co/pricing' );
-    }
-
     /**
      * Filter the public template catalog base URL (library.themeasy.co).
      *
@@ -156,19 +135,20 @@ class Library_Panel {
      */
     $catalog_url = (string) apply_filters( 'themeasy/library_catalog_url', 'https://library.themeasy.co' );
 
-    return [
+    $data = [
       'ajaxUrl' => admin_url( 'admin-ajax.php' ),
       'nonce' => wp_create_nonce( Library_Ajax::NONCE ),
       'perPage' => self::PER_PAGE,
-      'canInsertPro' => $can_insert_pro,
-      'plan' => Entitlement::plan(),
       // A Themeasy theme lays out full-page templates itself; on any other theme
       // the insert may warn about the Page Layout (backlog #292).
       'themeasyTheme' => current_theme_supports( 'themeasy-compatible' ),
-      'upgradeUrl' => esc_url_raw( $upgrade_url ),
+      // Where the button of a `pro` card goes: the card shows locked.
+      'upgradeUrl' => esc_url_raw( Welcome_Page::checkout_url( 'pro' ) ),
       'catalogUrl' => esc_url_raw( $catalog_url ),
       'i18n' => $this->strings(),
     ];
+
+    return $data;
   }
 
   /**
@@ -177,25 +157,17 @@ class Library_Panel {
    * @return array<string,string>
    */
   private function strings(): array {
-    // The Agency White Label renames the brand (backlog #272); Themeasy by
-    // default. The modal writes these as text (textContent, setAttribute), so the
-    // name is not HTML-escaped: esc_html() would print "&amp;" in "Smith & Co".
+    // The modal writes these as text (textContent, setAttribute), so the name
+    // is not HTML-escaped: esc_html() would print "&amp;" in "Smith & Co".
+    $brand = 'Themeasy';
+
     $library = sprintf(
-      /* translators: %s: the brand name (Themeasy, or the Agency's White Label name). */
+      /* translators: %s: the brand name (Themeasy by default). */
       __( '%s Library', 'themeasy-lite' ),
-      (string) apply_filters( 'themeasy/brand/name', 'Themeasy' )
+      $brand
     );
 
-    // Why an insert left widgets out (backlog #291): the editor registers only
-    // the site's plan, so the reason follows the plan. On the full offer a
-    // missing widget needs WooCommerce, Contact Form 7 or a Themeasy theme.
-    if ( Entitlement::can_use_premium() ) {
-      $left_out_reason = esc_html__( 'Left-out widgets need a plugin or theme this site does not have.', 'themeasy-lite' );
-    } elseif ( Entitlement::can_use_widgets() ) {
-      $left_out_reason = esc_html__( 'Left-out widgets need the Pro plan.', 'themeasy-lite' );
-    } else {
-      $left_out_reason = esc_html__( 'Left-out widgets need a paid plan.', 'themeasy-lite' );
-    }
+    $left_out_reason = esc_html__( 'They use widgets this site does not have.', 'themeasy-lite' );
 
     return [
       'launch' => $library,
@@ -213,6 +185,8 @@ class Library_Panel {
       'leftOutOne' => esc_html__( 'Template inserted, but 1 element was left out.', 'themeasy-lite' ),
       /* translators: %1$s: number of elements left out of the inserted template. */
       'leftOutMany' => esc_html__( 'Template inserted, but %1$s elements were left out.', 'themeasy-lite' ),
+      // Why an insert left widgets out (backlog #291): the editor only has the
+      // widgets this plugin registers.
       'leftOutReason' => $left_out_reason,
       'fullWidthHint' => esc_html__( 'For full width, set Page Layout → Elementor Full Width.', 'themeasy-lite' ),
       'proBadge' => esc_html__( 'Pro', 'themeasy-lite' ),

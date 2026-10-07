@@ -25,7 +25,6 @@ use Elementor\Group_Control_Image_Size;
 use Elementor\Group_Control_Typography;
 use Elementor\Utils;
 use Elementor\Widget_Base;
-use Themeasy\Core\Entitlement;
 
 /**
  * Responsible for registering controls and rendering the widget.
@@ -209,26 +208,6 @@ class Card extends Widget_Base {
           ],
         ]
       );
-
-      // The hidden label only feeds the scroll text animation, which is Pro.
-      if ( Entitlement::can_use_widgets() ) {
-        $this->add_control(
-          'button_hidden_label',
-          [
-            'label' => esc_html__( 'Hidden Label', 'themeasy-lite' ),
-            'description' => esc_html__( 'This hidden label is used for scroll text animations.', 'themeasy-lite' ),
-            'type' => Controls_Manager::TEXT,
-            'default' => esc_html__( 'Call to Action', 'themeasy-lite' ),
-            'placeholder' => esc_html__( 'Type your text here', 'themeasy-lite' ),
-            'dynamic' => [
-              'active' => true,
-            ],
-            'condition' => [
-              'link_type' => 'button',
-            ],
-          ]
-        );
-      }
 
       $this->add_control(
         'button_icon',
@@ -763,27 +742,6 @@ class Card extends Widget_Base {
         ]
       );
 
-      // Scroll text runs on the core GSAP engine: Pro only.
-      if ( Entitlement::can_use_widgets() ) {
-        $this->add_control(
-          'button_scroll_text',
-          [
-            'label' => esc_html__( 'Scroll Text Animation', 'themeasy-lite' ),
-            'description' => esc_html__( 'Choose the scroll text animation for the button hover effect.', 'themeasy-lite' ),
-            'type' => Controls_Manager::SELECT,
-            'default' => '',
-            'options' => [
-              '' => esc_html__( 'None', 'themeasy-lite' ),
-              'vertical' => esc_html__( 'Vertical', 'themeasy-lite' ),
-              'horizontal' => esc_html__( 'Horizontal', 'themeasy-lite' ),
-            ],
-            'condition' => [
-              'button_style!' => ['simple', 'duocolor', 'duocolor-outline'],
-            ],
-          ]
-        );
-      }
-
       // Gradient-outline tokens (own pair of colors, sits before the tabbed colors).
       $this->add_control(
         'button_gradient_outline_primary_color',
@@ -1181,12 +1139,9 @@ class Card extends Widget_Base {
     $this->end_controls_section();
 
     // ------------------------------------------------------------------------
-    // Advanced section: Themeasy Motion upsell (the button scroll text is Pro:
-    // it runs on GSAP, which the Free build neither ships nor loads).
+    // Advanced section: Motion.
     // ------------------------------------------------------------------------
-    if ( !Entitlement::can_use_widgets() ) {
-      themeasy_register_motion_upsell_section( $this );
-    }
+    themeasy_register_motion_upsell_section( $this );
   }
 
   /**
@@ -1210,12 +1165,9 @@ class Card extends Widget_Base {
 
     // Button settings.
     $button_label = $settings['button_label'] ?? '';
-    $button_hidden_label = $settings['button_hidden_label'] ?? '';
     $button_icon = is_array( $settings['button_icon'] ?? null ) ? $settings['button_icon'] : [];
     $button_icon_align = $settings['button_icon_alignment'] ?? 'right';
     $button_style = $settings['button_style'] ?? 'solid-fill';
-    $button_scroll_text = Entitlement::can_use_widgets() ? ( $settings['button_scroll_text'] ?? '' ) : '';
-    $is_scroll_text = in_array( $button_scroll_text, ['vertical', 'horizontal'], true );
 
     // ------------------------------------------------------------------------
     // Wrapper classes + attributes.
@@ -1233,10 +1185,6 @@ class Card extends Widget_Base {
 
     if ( $button_style ) {
       $button_classes[] = 'tms-button--' . $button_style;
-    }
-
-    if ( $button_scroll_text ) {
-      $button_classes[] = 'tms-' . $button_scroll_text . '-scroll-text';
     }
 
     $card_classes_output = implode( ' ', array_filter( $card_classes ) );
@@ -1345,10 +1293,6 @@ class Card extends Widget_Base {
           <div class="tms-button-group">
             <a <?php $this->print_render_attribute_string( 'link' ); ?> class="<?php echo esc_attr( $button_classes_output ); ?>">
 
-              <?php if ( $is_scroll_text ) : ?>
-                <span class="tms-scroll-text--visible">
-              <?php endif; ?>
-
               <span <?php $this->print_render_attribute_string( 'button_label' ); ?>>
                 <?php echo wp_kses( $button_label, themeasy_get_kses_allowed_tags() ); ?>
               </span>
@@ -1359,17 +1303,6 @@ class Card extends Widget_Base {
                 </span>
               <?php else : ?>
                 <?php echo $button_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
-              <?php endif; ?>
-
-              <?php if ( $is_scroll_text ) : ?>
-                </span><!-- /.tms-scroll-text--visible -->
-
-                <span class="tms-scroll-text--hidden">
-                  <span class="tms-button__text">
-                    <?php echo wp_kses( $button_hidden_label, themeasy_get_kses_allowed_tags() ); ?>
-                  </span>
-                  <?php echo $button_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
-                </span><!-- /.tms-scroll-text--hidden -->
               <?php endif; ?>
 
             </a><!-- /.tms-button -->
@@ -1393,10 +1326,6 @@ class Card extends Widget_Base {
   protected function content_template() {
     ?>
     <#
-      // Themeasy Motion is Pro (render() parity): without it the motion
-      // settings read as empty.
-      var motion = <?php echo Entitlement::can_use_widgets() ? 'true' : 'false'; ?>;
-
       // User text reaches raw {{{ }}} output: sanitize with kses parity.
       var sanitizeInline = ( window.Themeasy && window.Themeasy.sanitizeInlineHtml )
         ? window.Themeasy.sanitizeInlineHtml
@@ -1420,11 +1349,8 @@ class Card extends Widget_Base {
 
       // Button settings.
       var buttonLabel       = sanitizeInline( settings.button_label || '' );
-      var buttonHiddenLabel = sanitizeInline( settings.button_hidden_label || '' );
       var buttonIconAlign   = settings.button_icon_alignment || 'right';
       var buttonStyle       = settings.button_style || 'solid-fill';
-      var buttonScrollText  = motion ? ( settings.button_scroll_text || '' ) : '';
-      var isScrollText      = [ 'vertical', 'horizontal' ].indexOf( buttonScrollText ) !== -1;
 
       // Link.
       var link    = settings.link || {};
@@ -1447,10 +1373,6 @@ class Card extends Widget_Base {
 
       if ( buttonStyle ) {
         buttonClasses.push( 'tms-button--' + buttonStyle );
-      }
-
-      if ( buttonScrollText ) {
-        buttonClasses.push( 'tms-' + buttonScrollText + '-scroll-text' );
       }
 
       var cardClassStr   = cardClasses.filter( Boolean ).join( ' ' );
@@ -1528,10 +1450,6 @@ class Card extends Widget_Base {
           <div class="tms-button-group">
             <a href="{{ linkUrl }}" class="{{ buttonClassStr }}">
 
-              <# if ( isScrollText ) { #>
-                <span class="tms-scroll-text--visible">
-              <# } #>
-
               <span {{{ view.getRenderAttributeString( 'button_label' ) }}}>
                 {{{ buttonLabel }}}
               </span>
@@ -1542,15 +1460,6 @@ class Card extends Widget_Base {
                 </span>
               <# } else { #>
                 {{{ buttonIconMarkup }}}
-              <# } #>
-
-              <# if ( isScrollText ) { #>
-                </span><!-- /.tms-scroll-text--visible -->
-
-                <span class="tms-scroll-text--hidden">
-                  <span class="tms-button__text">{{{ buttonHiddenLabel }}}</span>
-                  {{{ buttonIconMarkup }}}
-                </span><!-- /.tms-scroll-text--hidden -->
               <# } #>
 
             </a><!-- /.tms-button -->

@@ -22,7 +22,6 @@ use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
 use Elementor\Widget_Base;
-use Themeasy\Core\Entitlement;
 
 /**
  * Pricing Table widget -- registers controls and renders output.
@@ -56,9 +55,7 @@ class PricingTable extends Widget_Base {
     return ['themeasy-shared', 'themeasy-pricing-table'];
   }
 
-  // No themeasy-shared script: the table renders none of the shared JS
-  // components (progress, side widget, sliding tabs), and that script is
-  // premium — the Free build has no such handle to load.
+  // The table's own script only: it renders none of the shared JS components.
   public function get_script_depends() {
     return ['themeasy-pricing-table'];
   }
@@ -202,22 +199,6 @@ class PricingTable extends Widget_Base {
           'condition' => ['link_type' => 'button'],
         ]
       );
-
-      // The hidden label only feeds the scroll text animation, which is Pro.
-      if ( Entitlement::can_use_widgets() ) {
-        $repeater->add_control(
-          'button_hidden_label',
-          [
-            'label' => esc_html__( 'Hidden Label', 'themeasy-lite' ),
-            'placeholder' => esc_html__( 'Type your text here', 'themeasy-lite' ),
-            'description' => esc_html__( 'This hidden label is used for scroll text animations.', 'themeasy-lite' ),
-            'type' => Controls_Manager::TEXT,
-            'default' => esc_html__( 'Call to Action', 'themeasy-lite' ),
-            'dynamic' => ['active' => true],
-            'condition' => ['link_type' => 'button'],
-          ]
-        );
-      }
 
       $repeater->add_control(
         'button_icon',
@@ -1213,27 +1194,6 @@ class PricingTable extends Widget_Base {
         ]
       );
 
-      // Scroll text runs on the core GSAP engine: Pro only.
-      if ( Entitlement::can_use_widgets() ) {
-        $this->add_control(
-          'button_scroll_text',
-          [
-            'label' => esc_html__( 'Scroll Text Animation', 'themeasy-lite' ),
-            'description' => esc_html__( 'Choose the scroll text animation for the button hover effect.', 'themeasy-lite' ),
-            'type' => Controls_Manager::SELECT,
-            'default' => '',
-            'options' => [
-              '' => esc_html__( 'None', 'themeasy-lite' ),
-              'vertical' => esc_html__( 'Vertical', 'themeasy-lite' ),
-              'horizontal' => esc_html__( 'Horizontal', 'themeasy-lite' ),
-            ],
-            'condition' => [
-              'button_style!' => ['simple', 'duocolor', 'duocolor-outline'],
-            ],
-          ]
-        );
-      }
-
       // ---- Colors ----
       $this->add_control(
         'button_gradient_outline_primary_color',
@@ -1854,12 +1814,9 @@ class PricingTable extends Widget_Base {
     $this->end_controls_section();
 
     // ------------------------------------------------------------------------
-    // Advanced section: Themeasy Motion upsell (the button scroll text is Pro:
-    // it runs on GSAP, which the Free build neither ships nor loads).
+    // Advanced section: Motion.
     // ------------------------------------------------------------------------
-    if ( !Entitlement::can_use_widgets() ) {
-      themeasy_register_motion_upsell_section( $this );
-    }
+    themeasy_register_motion_upsell_section( $this );
   }
 
   /**
@@ -1996,11 +1953,6 @@ class PricingTable extends Widget_Base {
       $button_style = 'solid-fill';
     }
 
-    $button_scroll_text = Entitlement::can_use_widgets() ? ( $settings['button_scroll_text'] ?? '' ) : '';
-    if ( ! in_array( $button_scroll_text, ['vertical', 'horizontal'], true ) ) {
-      $button_scroll_text = '';
-    }
-    $is_scroll_text = '' !== $button_scroll_text;
 
     // ------------------------------------------------------------------------
     // Wrapper classes + attributes.
@@ -2047,11 +1999,6 @@ class PricingTable extends Widget_Base {
     // Button style.
     if ( $button_style ) {
       $button_classes[] = 'tms-button--' . $button_style;
-    }
-
-    // Button scroll text animation.
-    if ( $button_scroll_text ) {
-      $button_classes[] = 'tms-' . $button_scroll_text . '-scroll-text';
     }
 
     // ------------------------------------------------------------------------
@@ -2108,7 +2055,6 @@ class PricingTable extends Widget_Base {
             // Per-item settings.
             $is_featured = ! empty( $item['is_featured'] ) && $item['is_featured'] === 'yes';
             $button_label = $item['button_label'] ?? '';
-            $button_hidden_label = $item['button_hidden_label'] ?? '';
             $button_icon = is_array( $item['button_icon'] ?? null ) ? $item['button_icon'] : [];
             $button_icon_alignment = $item['button_icon_alignment'] ?? 'right';
             $link_type = $item['link_type'] ?? '';
@@ -2304,10 +2250,6 @@ class PricingTable extends Widget_Base {
                     <div class="tms-button-group">
                       <a <?php $this->print_render_attribute_string( $link_key ); ?> class="<?php echo esc_attr( $button_classes_str ); ?>">
 
-                        <?php if ( $is_scroll_text ) : ?>
-                          <span class="tms-scroll-text--visible">
-                        <?php endif; ?>
-
                           <span <?php $this->print_render_attribute_string( $button_label_key ); ?>>
                             <?php echo wp_kses( $button_label, themeasy_get_kses_allowed_tags() ); ?>
                           </span>
@@ -2319,17 +2261,6 @@ class PricingTable extends Widget_Base {
                           <?php else : ?>
                             <?php echo $button_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                           <?php endif; ?>
-
-                        <?php if ( $is_scroll_text ) : ?>
-                          </span><!-- /.tms-scroll-text--visible -->
-
-                          <span class="tms-scroll-text--hidden">
-                            <span class="tms-button__text">
-                              <?php echo wp_kses( $button_hidden_label, themeasy_get_kses_allowed_tags() ); ?>
-                            </span>
-                            <?php echo $button_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                          </span><!-- /.tms-scroll-text--hidden -->
-                        <?php endif; ?>
 
                       </a><!-- /.tms-button -->
                     </div><!-- /.tms-button-group -->
@@ -2359,10 +2290,6 @@ class PricingTable extends Widget_Base {
   protected function content_template() {
     ?>
     <#
-      // Themeasy Motion is Pro (render() parity): without it the motion
-      // settings read as empty.
-      var motion = <?php echo Entitlement::can_use_widgets() ? 'true' : 'false'; ?>;
-
       // User text reaches raw {{{ }}} output: sanitize with kses parity.
       var sanitizeInline = ( window.Themeasy && window.Themeasy.sanitizeInlineHtml )
         ? window.Themeasy.sanitizeInlineHtml
@@ -2414,8 +2341,6 @@ class PricingTable extends Widget_Base {
       var startsYearly       = ( settings.toggle_default_period || 'yearly' ) !== 'monthly';
       var featuredBadgeStyle = settings.featured_badge_style || 'top-label-filled';
       var buttonStyle        = settings.button_style || 'solid-fill';
-      var buttonScrollText   = motion ? ( settings.button_scroll_text || '' ) : '';
-      var isScrollText       = [ 'vertical', 'horizontal' ].includes( buttonScrollText );
 
       // ------------------------------------------------------------------------
       // Wrapper classes + attributes.
@@ -2473,11 +2398,6 @@ class PricingTable extends Widget_Base {
         buttonClasses.push( 'tms-button--' + buttonStyle );
       }
 
-      // Button scroll text animation.
-      if ( buttonScrollText ) {
-        buttonClasses.push( 'tms-' + buttonScrollText + '-scroll-text' );
-      }
-
       // ------------------------------------------------------------------------
       // Render attributes.
       // ------------------------------------------------------------------------
@@ -2529,7 +2449,6 @@ class PricingTable extends Widget_Base {
             // Per-item settings.
             var isFeatured          = item.is_featured === 'yes';
             var buttonLabel         = sanitizeInline( item.button_label || '' );
-            var buttonHiddenLabel   = sanitizeInline( item.button_hidden_label || '' );
             var buttonIconAlignment = item.button_icon_alignment || 'right';
             var linkType            = item.link_type || '';
             var link                = item.link || {};
@@ -2688,10 +2607,6 @@ class PricingTable extends Widget_Base {
                     <div class="tms-button-group">
                       <a href="{{ linkUrl }}" class="{{ buttonClassesStr }}">
 
-                        <# if ( isScrollText ) { #>
-                          <span class="tms-scroll-text--visible">
-                        <# } #>
-
                           <span {{{ view.getRenderAttributeString( buttonLabelKey ) }}}>
                             {{{ buttonLabel }}}
                           </span>
@@ -2703,15 +2618,6 @@ class PricingTable extends Widget_Base {
                           <# } else { #>
                             {{{ buttonIconMarkup }}}
                           <# } #>
-
-                        <# if ( isScrollText ) { #>
-                          </span><!-- /.tms-scroll-text--visible -->
-
-                          <span class="tms-scroll-text--hidden">
-                            <span class="tms-button__text">{{{ buttonHiddenLabel }}}</span>
-                            {{{ buttonIconMarkup }}}
-                          </span><!-- /.tms-scroll-text--hidden -->
-                        <# } #>
 
                       </a><!-- /.tms-button -->
                     </div><!-- /.tms-button-group -->

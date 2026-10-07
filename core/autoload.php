@@ -15,12 +15,12 @@
  *
  * Keep it that way: building the map reads and tokenizes every scanned file, which
  * costs 100ms+ per request on a real site. A module with lazy classes must resolve
- * them through its own autoloader registered with `$prepend = true` (see
- * Variation_Swatches), or require them explicitly, so this map stays unbuilt.
+ * them through its own autoloader registered with `$prepend = true`, or
+ * require them explicitly, so this map stays unbuilt.
  *
- * Excluded from the scan: the vendored Freemius SDK (freemius/) and both Elementor
- * widget trees (includes/elementor/widgets/ and its Pro sibling), which the
- * Elementor loader discovers and gates through its own scanner.
+ * Excluded from the scan: the vendored Freemius SDK and the Elementor widget
+ * tree (includes/elementor/widgets/), which the Elementor loader discovers
+ * through its own scanner.
  *
  * @package Themeasy\Core
  * @since 1.0.0
@@ -37,7 +37,7 @@ spl_autoload_register(
     static $map = null;
 
     if ( null === $map ) {
-      $map = themeasy_build_classmap( TMS_PATH );
+      $map = themeasy_build_classmap( THEMEASY_PATH );
     }
 
     if ( isset( $map[$class] ) && is_readable( $map[$class] ) ) {
@@ -50,20 +50,12 @@ spl_autoload_register(
  * Build a fully-qualified-class-name => absolute-file-path map by tokenizing the
  * plugin's PHP sources.
  *
- * @param string $base_path Plugin root path (TMS_PATH, trailing slash).
+ * @param string $base_path Plugin root path (THEMEASY_PATH, trailing slash).
  * @return array<string, string>
  */
 function themeasy_build_classmap( string $base_path ): array {
   $map = [];
-  $dirs = [
-    'core',
-    'admin',
-    'admin__premium_only',
-    'includes/elementor',
-    'includes/woocommerce__premium_only',
-    'includes/contact-form-7__premium_only',
-    'modules__premium_only',
-  ];
+  $dirs = ['core', 'admin', 'includes/elementor'];
 
   foreach ( $dirs as $dir ) {
     $root = $base_path . $dir;
@@ -82,8 +74,8 @@ function themeasy_build_classmap( string $base_path ): array {
         continue;
       }
 
-      // Both Elementor widget trees (Free and Pro) have their own scanner; never
-      // autoload from them. The pattern covers any suffix on the tree root.
+      // The Elementor widget trees have their own scanner; never autoload from
+      // them. The pattern covers any suffix on the tree root.
       if ( preg_match( '#/includes/elementor/widgets[^/]*/#', wp_normalize_path( $file->getPathname() ) ) ) {
         continue;
       }

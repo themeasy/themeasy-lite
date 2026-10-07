@@ -13,21 +13,16 @@
  *                       to the sibling .svg files, currentColor via
  *                       background-color)
  *
- * Premium libraries (the Solar tabs) live in __premium_only-suffixed dirs:
- * the Free build strip removes the whole dir — icons, JSON and CSS together —
- * and the existence checks below skip the tab, so no entitlement code is
- * involved.
+ * A library registers its tab only when its dir is on disk, icons, JSON and
+ * CSS together.
  *
  * The picker preview is CSS mask based, but the frontend NEVER loads that
  * CSS: themeasy_render_icon_html() intercepts every ty-* library and outputs
- * the inline SVG instead (zero extra requests, currentColor preserved — for
- * Solar Duotone the secondary tone is an opacity attribute, so one color
- * paints both tones), so Elementor's font-icon enqueue path is never reached
- * for these tabs.
+ * the inline SVG instead (zero extra requests, currentColor preserved), so
+ * Elementor's font-icon enqueue path is never reached for these tabs.
  *
- * Free baseline: ty-feather ships in both builds and is the ONLY defaults
- * library — Free widgets (Card, Icon, …) default to ty-feather icons; the
- * Solar libraries are customization-only, never a widget default.
+ * ty-feather is the ONLY defaults library: the widgets (Card, Icon, …) default
+ * to ty-feather icons.
  *
  * @package Themeasy\Elementor
  * @since 1.0.0
@@ -39,7 +34,7 @@ defined( 'ABSPATH' ) || exit;
  * Register the ty-* libraries as Elementor icon picker tabs.
  *
  * The stored control value follows Elementor's class-shaped convention
- * ("ty-solar-line-heart", library "ty-solar-line");
+ * ("ty-feather-heart", library "ty-feather");
  * themeasy_parse_ty_icon_name() maps it back to the SVG file at render time.
  *
  * @param array $tabs Registered additional tabs.
@@ -54,30 +49,28 @@ function themeasy_register_ty_icon_tabs( array $tabs ): array {
 
   // Picker tab order — libraries missing from this list keep their manifest
   // position after it.
-  $tab_order = ['ty-feather', 'ty-solar-line', 'ty-solar-solid', 'ty-solar-duotone', 'ty-solar-broken'];
+  $tab_order = ['ty-feather'];
+
   $libraries = array_merge(
     array_intersect_key( array_flip( $tab_order ), $manifest['libraries'] ),
     $manifest['libraries']
   );
 
-  // The manifest labels read "Themeasy — Feather"; the Agency White Label
-  // swaps the brand for its own (backlog #272). Themeasy by default.
-  $brand = (string) apply_filters( 'themeasy/brand/name', 'Themeasy' );
+  // The manifest labels read "Themeasy — Feather".
+  $brand = 'Themeasy';
 
   foreach ( $libraries as $library => $data ) {
     $library = (string) $library;
     $dir = (string) ( $data['dir'] ?? $library );
-    $css_path = TMS_PATH . "assets/media/svg/{$dir}/picker.css";
-    $json_path = TMS_PATH . "assets/media/svg/{$dir}/icons.json";
+    $css_path = THEMEASY_PATH . "assets/media/svg/{$dir}/picker.css";
+    $json_path = THEMEASY_PATH . "assets/media/svg/{$dir}/icons.json";
 
-    // The existence checks double as the Free-build gate: premium libraries
-    // live in __premium_only-suffixed dirs the strip removes, so their tabs
-    // self-skip in the Free build.
-    if ( !str_starts_with( $library, 'ty-' ) || !file_exists( $css_path ) || !file_exists( $json_path ) ) {
+    // A library whose dir is not on disk has no tab (see the file header).
+    if ( 0 !== strpos( $library, 'ty-' ) || !file_exists( $css_path ) || !file_exists( $json_path ) ) {
       continue;
     }
 
-    // filemtime, not TMS_VER: regenerations (`npm run icons:build`) land
+    // filemtime, not THEMEASY_VER: regenerations (`npm run icons:build`) land
     // between releases and each tab's picker CSS + fetchJson must bust with
     // them.
     $css_version = (string) filemtime( $css_path );
@@ -88,7 +81,7 @@ function themeasy_register_ty_icon_tabs( array $tabs ): array {
     $label_icon = (string) ( $data['label_icon'] ?? ( $data['icons'][0] ?? '' ) );
 
     $label = (string) ( $data['label'] ?? $library );
-    if ( str_starts_with( $label, 'Themeasy — ' ) ) {
+    if ( 0 === strpos( $label, 'Themeasy — ' ) ) {
       $label = $brand . substr( $label, strlen( 'Themeasy' ) );
     }
 
@@ -98,9 +91,9 @@ function themeasy_register_ty_icon_tabs( array $tabs ): array {
       'labelIcon' => '' !== $label_icon ? $library . '-' . $label_icon : 'eicon-star',
       'prefix' => $library . '-',
       'displayPrefix' => '',
-      'url' => TMS_URL . "assets/media/svg/{$dir}/picker.css",
+      'url' => THEMEASY_URL . "assets/media/svg/{$dir}/picker.css",
       'ver' => $css_version,
-      'fetchJson' => add_query_arg( 'ver', (string) filemtime( $json_path ), TMS_URL . "assets/media/svg/{$dir}/icons.json" ),
+      'fetchJson' => add_query_arg( 'ver', (string) filemtime( $json_path ), THEMEASY_URL . "assets/media/svg/{$dir}/icons.json" ),
       'native' => false,
     ];
   }
@@ -118,8 +111,8 @@ add_filter( 'elementor/icons_manager/additional_tabs', 'themeasy_register_ty_ico
  * themeasy_render_icon_html(), so the mask stylesheet would be a dead request
  * on every page using a ty-* icon. Dequeue late; the editor document loads it
  * through its own admin-side pipeline, which this hook never touches.
- * Dequeuing a handle that never registered (a stripped premium library in the
- * Free build) is a no-op.
+ * Dequeuing a handle that never registered (a library this build does not
+ * carry) is a no-op.
  *
  * @return void
  */

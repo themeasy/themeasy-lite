@@ -18,8 +18,7 @@
  *
  * Designed for section breaks, form dividers (e.g. "OR"), editorial accents
  * and full-bleed section separators. Everything is CSS/SVG and fully visible
- * with no JS; the optional draw-on animation of the shape line is the single
- * feature that needs GSAP, and its absence only skips the motion.
+ * with no JS.
  *
  * @package Themeasy
  * @since 1.0.0
@@ -34,7 +33,6 @@ use Elementor\Group_Control_Background;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Typography;
 use Elementor\Widget_Base;
-use Themeasy\Core\Entitlement;
 
 /**
  * Responsible for registering controls and rendering the Divider widget.
@@ -88,10 +86,9 @@ class Divider extends Widget_Base {
     return ['themeasy-shared', 'themeasy-divider'];
   }
 
-  // The Divider's only script is the draw-on, and that is Pro (GSAP): the
-  // Free build has no such handle, and its stroke is drawn server-side.
+  // The stroke is drawn server-side: the widget needs no script of its own.
   public function get_script_depends() {
-    return Entitlement::can_use_widgets() ? ['themeasy-divider'] : [];
+    return [];
   }
 
   /**
@@ -843,7 +840,6 @@ class Divider extends Widget_Base {
           'conditions' => [
             'terms' => [
               ['name' => 'shape_type', 'operator' => 'in', 'value' => $this->get_tiling_shapes()],
-              ['name' => 'shape_draw', 'operator' => '!==', 'value' => 'yes'],
             ],
           ],
           'selectors' => [
@@ -1060,266 +1056,9 @@ class Divider extends Widget_Base {
     $this->end_controls_section();
 
     // ------------------------------------------------------------------------
-    // Advanced sections: Themeasy Motion (Pro — the engines run on GSAP, which
-    // the Free build neither ships nor loads).
+    // Advanced section: Motion.
     // ------------------------------------------------------------------------
-    if ( Entitlement::can_use_widgets() ) {
-      $this->register_motion_controls();
-    } else {
-      themeasy_register_motion_upsell_section( $this );
-    }
-  }
-
-  /**
-   * Register the Themeasy Motion sections (Advanced tab).
-   *
-   * Pro only: the motion engines run on GSAP, which the Free build neither
-   * ships nor loads (backlog #253). register_controls() calls this when the
-   * site is entitled and registers the upsell section otherwise.
-   *
-   * @return void
-   */
-  private function register_motion_controls() {
-    // ------------------------------------------------------------------------
-    // Advanced section: Entrance Animation
-    // ------------------------------------------------------------------------
-    $this->start_controls_section(
-      'widget_animation_section',
-        [
-          'label' => esc_html__( 'Motion — Animation', 'themeasy-lite' ),
-          'tab' => Controls_Manager::TAB_ADVANCED,
-        ]
-    );
-
-      $this->add_control(
-        'widget_animation',
-        [
-          'label' => esc_html__( 'Entrance Animation', 'themeasy-lite' ),
-          'type' => Controls_Manager::SELECT,
-          'default' => '',
-          'options' => themeasy_get_animation_options( 'block' ),
-        ]
-      );
-
-      $this->add_control(
-        'widget_animation_duration',
-        [
-          'label' => esc_html__( 'Duration', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 1],
-          'condition' => ['widget_animation!' => ''],
-        ]
-      );
-
-      $this->add_control(
-        'widget_animation_delay',
-        [
-          'label' => esc_html__( 'Delay', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 0],
-          'condition' => ['widget_animation!' => ''],
-        ]
-      );
-
-      // Draw-on for the SVG Shape line. The motif is a real inline <svg>
-      // stroke carrying pathLength="1000", so the reveal is a normalized
-      // stroke-dashoffset tween (1000 -> 0) that survives resizes with no
-      // re-measuring and no DrawSVG plugin. It lives here rather than in its
-      // own section
-      // because Themeasy Motion is where every other widget keeps its
-      // animation knobs (see the Icon widget's Loop Animation).
-      $this->add_control(
-        'shape_draw_heading',
-        [
-          'label' => esc_html__( 'Draw Shape', 'themeasy-lite' ),
-          'type' => Controls_Manager::HEADING,
-          'separator' => 'before',
-          'condition' => [
-            'skin' => 'shape',
-            'shape_style' => 'line',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'shape_draw',
-        [
-          'label' => esc_html__( 'Draw the Line', 'themeasy-lite' ),
-          'type' => Controls_Manager::SWITCHER,
-          'label_on' => esc_html__( 'Yes', 'themeasy-lite' ),
-          'label_off' => esc_html__( 'No', 'themeasy-lite' ),
-          'return_value' => 'yes',
-          'default' => '',
-          'description' => esc_html__( 'Reveal the motif by drawing it from one end to the other. The line becomes one continuous stroke across the full width, so Pattern Width no longer applies. Without GSAP, or under reduced motion, the line simply renders fully drawn.', 'themeasy-lite' ),
-          'condition' => [
-            'skin' => 'shape',
-            'shape_style' => 'line',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'shape_draw_trigger',
-        [
-          'label' => esc_html__( 'Draw Mode', 'themeasy-lite' ),
-          'type' => Controls_Manager::SELECT,
-          'default' => 'view',
-          'options' => [
-            'view' => esc_html__( 'Play when visible', 'themeasy-lite' ),
-            'scrub' => esc_html__( 'Scrub with scroll', 'themeasy-lite' ),
-          ],
-          'description' => esc_html__( 'Play runs once at its own speed when the divider enters the viewport. Scrub ties the drawing to the scrollbar, so the reader controls it.', 'themeasy-lite' ),
-          'condition' => [
-            'skin' => 'shape',
-            'shape_style' => 'line',
-            'shape_draw' => 'yes',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'shape_draw_direction',
-        [
-          'label' => esc_html__( 'Draw From', 'themeasy-lite' ),
-          'type' => Controls_Manager::CHOOSE,
-          'options' => [
-            'start' => [
-              'title' => esc_html__( 'Left', 'themeasy-lite' ),
-              'icon' => 'eicon-h-align-left',
-            ],
-            'end' => [
-              'title' => esc_html__( 'Right', 'themeasy-lite' ),
-              'icon' => 'eicon-h-align-right',
-            ],
-          ],
-          'default' => 'start',
-          'toggle' => false,
-          'description' => esc_html__( 'Which end the stroke grows from. Flip Horizontal mirrors the motif, so it swaps this too.', 'themeasy-lite' ),
-          'condition' => [
-            'skin' => 'shape',
-            'shape_style' => 'line',
-            'shape_draw' => 'yes',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'shape_draw_duration',
-        [
-          'label' => esc_html__( 'Draw Duration', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0.2, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 1.6],
-          'condition' => [
-            'skin' => 'shape',
-            'shape_style' => 'line',
-            'shape_draw' => 'yes',
-            'shape_draw_trigger' => 'view',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'shape_draw_delay',
-        [
-          'label' => esc_html__( 'Draw Delay', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 3, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 0],
-          'condition' => [
-            'skin' => 'shape',
-            'shape_style' => 'line',
-            'shape_draw' => 'yes',
-            'shape_draw_trigger' => 'view',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'shape_draw_easing',
-        [
-          'label' => esc_html__( 'Easing', 'themeasy-lite' ),
-          'type' => Controls_Manager::SELECT,
-          'default' => 'power2.out',
-          'options' => [
-            'none' => esc_html__( 'None', 'themeasy-lite' ),
-            'power1.out' => esc_html__( 'Power1 Out', 'themeasy-lite' ),
-            'power2.out' => esc_html__( 'Power2 Out', 'themeasy-lite' ),
-            'power3.out' => esc_html__( 'Power3 Out', 'themeasy-lite' ),
-            'power4.out' => esc_html__( 'Power4 Out', 'themeasy-lite' ),
-            'expo.out' => esc_html__( 'Expo Out', 'themeasy-lite' ),
-            'circ.out' => esc_html__( 'Circ Out', 'themeasy-lite' ),
-            'sine.out' => esc_html__( 'Sine Out', 'themeasy-lite' ),
-          ],
-          'condition' => [
-            'skin' => 'shape',
-            'shape_style' => 'line',
-            'shape_draw' => 'yes',
-            'shape_draw_trigger' => 'view',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'shape_draw_scrub',
-        [
-          'label' => esc_html__( 'Scrub Smoothing', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 2, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 0.6],
-          'description' => esc_html__( 'Lag between scroll and stroke. 0 locks the drawing to the scrollbar; higher values let it ease in.', 'themeasy-lite' ),
-          'condition' => [
-            'skin' => 'shape',
-            'shape_style' => 'line',
-            'shape_draw' => 'yes',
-            'shape_draw_trigger' => 'scrub',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'shape_draw_start',
-        [
-          'label' => esc_html__( 'Draw Start', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['%'],
-          'range' => ['%' => ['min' => 50, 'max' => 100, 'step' => 1]],
-          'default' => ['unit' => '%', 'size' => 85],
-          'description' => esc_html__( 'Where the divider sits in the viewport (measured from the top) when drawing begins.', 'themeasy-lite' ),
-          'condition' => [
-            'skin' => 'shape',
-            'shape_style' => 'line',
-            'shape_draw' => 'yes',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'shape_draw_end',
-        [
-          'label' => esc_html__( 'Draw End', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['%'],
-          'range' => ['%' => ['min' => 0, 'max' => 60, 'step' => 1]],
-          'default' => ['unit' => '%', 'size' => 40],
-          'description' => esc_html__( 'Where the divider sits in the viewport when the stroke completes.', 'themeasy-lite' ),
-          'condition' => [
-            'skin' => 'shape',
-            'shape_style' => 'line',
-            'shape_draw' => 'yes',
-            'shape_draw_trigger' => 'scrub',
-          ],
-        ]
-      );
-
-    $this->end_controls_section();
+    themeasy_register_motion_upsell_section( $this );
   }
 
   /**
@@ -1329,12 +1068,6 @@ class Divider extends Widget_Base {
    */
   protected function render() {
     $settings = $this->get_settings_for_display();
-
-    // Themeasy Motion is Pro (GSAP — backlog #253). Without it the motion
-    // settings read as empty, so saved values (a template, a site back from
-    // premium) emit no markup: the hidden guard would leave the widget
-    // invisible with no engine to reveal it.
-    $motion = Entitlement::can_use_widgets();
 
     // ------------------------------------------------------------------------
     // Settings.
@@ -1356,21 +1089,13 @@ class Divider extends Widget_Base {
     $shape_type = array_key_exists( $settings['shape_type'] ?? '', $this->get_shape_paths() ) ? $settings['shape_type'] : 'curve';
     $shape_style = in_array( $settings['shape_style'] ?? '', ['filled', 'line'], true ) ? $settings['shape_style'] : 'filled';
     $orientation = in_array( $settings['divider_orientation'] ?? '', ['horizontal', 'vertical'], true ) ? $settings['divider_orientation'] : 'horizontal';
-    $draw_trigger = in_array( $settings['shape_draw_trigger'] ?? '', ['view', 'scrub'], true ) ? $settings['shape_draw_trigger'] : 'view';
-    $draw_direction = in_array( $settings['shape_draw_direction'] ?? '', ['start', 'end'], true ) ? $settings['shape_draw_direction'] : 'start';
-
-    // The draw-on only exists for the stroked line: a filled silhouette has no
-    // contour to trace. A stale 'yes' left behind by switching back to Filled
-    // must therefore never reach the markup.
-    $draw = ( $motion && 'shape' === $skin && 'line' === $shape_style && ( $settings['shape_draw'] ?? '' ) === 'yes' );
 
     // Line geometry: the open contour, repeated across one viewBox when the
     // motif tiles. A stroked <svg> cannot repeat itself the way a CSS mask
-    // does, and a drawn stroke must stay a single continuous path anyway.
+    // does.
     $shape_contour = $this->get_shape_contours()[$shape_type];
-    $shape_repeats = ( !$draw && in_array( $shape_type, $this->get_tiling_shapes(), true ) )
-      ? $this->get_shape_repeats( $settings )
-      : 1;
+    $is_tiled = in_array( $shape_type, $this->get_tiling_shapes(), true );
+    $shape_repeats = $is_tiled ? $this->get_shape_repeats( $settings ) : 1;
 
     // Line and dots are the two rule skins: same structure (segments plus an
     // optional center element), only the paint differs. Everything structural
@@ -1431,36 +1156,9 @@ class Divider extends Widget_Base {
       }
 
       // A periodic motif repeats at its own width so it keeps its proportions;
-      // a single silhouette keeps stretching to span the divider. A drawn
-      // stroke is one continuous path, so it opts out and stretches too.
-      if ( in_array( $shape_type, $this->get_tiling_shapes(), true ) && !$draw ) {
+      // a single silhouette keeps stretching to span the divider.
+      if ( $is_tiled ) {
         $wrapper_classes[] = 'tms-divider--shape-tiled';
-      }
-
-      if ( $draw ) {
-        $wrapper_classes[] = 'tms-divider--draw';
-
-        // The editor canvas shows the finished stroke: a scroll-driven reveal
-        // needs a real scroll position, which the preview iframe does not
-        // have. The frontend module plays it once there instead (see the
-        // Preview Runtime), and --static is what tells it to.
-        if ( themeasy_is_elementor_editor() ) {
-          $wrapper_classes[] = 'tms-divider--static';
-        } else {
-          // Hide the stroke before the footer script boots, or the finished
-          // line flashes in on first paint and then jumps back to zero. The
-          // CSS carries its own failsafe for a JS that never arrives.
-          $wrapper_classes[] = 'tms-divider--draw-pending';
-        }
-
-        $wrapper_atts['data-draw'] = $draw_trigger;
-        $wrapper_atts['data-draw-from'] = $draw_direction;
-        $wrapper_atts['data-draw-duration'] = (string) ( $settings['shape_draw_duration']['size'] ?? 1.6 );
-        $wrapper_atts['data-draw-delay'] = (string) ( $settings['shape_draw_delay']['size'] ?? 0 );
-        $wrapper_atts['data-draw-ease'] = (string) ( $settings['shape_draw_easing'] ?? 'power2.out' );
-        $wrapper_atts['data-draw-scrub'] = (string) ( $settings['shape_draw_scrub']['size'] ?? 0.6 );
-        $wrapper_atts['data-draw-start'] = (string) ( $settings['shape_draw_start']['size'] ?? 85 );
-        $wrapper_atts['data-draw-end'] = (string) ( $settings['shape_draw_end']['size'] ?? 40 );
       }
 
       if ( $flip_horizontal ) {
@@ -1477,19 +1175,6 @@ class Divider extends Widget_Base {
       $wrapper_atts['aria-orientation'] = $is_vertical ? 'vertical' : 'horizontal';
     } else {
       $wrapper_atts['aria-hidden'] = 'true';
-    }
-
-    // Entrance animation.
-    $animation = $motion ? ( $settings['widget_animation'] ?? '' ) : '';
-
-    if ( $animation ) {
-      $wrapper_classes[] = 'tms-block-animation';
-      $wrapper_classes[] = 'tms-animation--on-view';
-      $wrapper_classes[] = 'tms-animation--hidden';
-
-      $wrapper_atts['tms-block-animation'] = $animation;
-      $wrapper_atts['duration'] = $settings['widget_animation_duration']['size'] ?? '1';
-      $wrapper_atts['delay'] = $settings['widget_animation_delay']['size'] ?? '0';
     }
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
@@ -1522,9 +1207,9 @@ class Divider extends Widget_Base {
         <?php if ( 'shape' === $skin && 'line' === $shape_style ) : ?>
           <?php /* The line style is a real stroke. pathLength="1000" normalizes
                    the dash space, so the draw-on needs no measuring and
-                   survives every resize; 1000 rather than 1 because GSAP
-                   rounds the pixel values it writes, and a whole animation
-                   inside a single unit would round away to an on/off snap. */ ?>
+                   survives every resize; 1000 rather than 1 because an
+                   animation that writes rounded pixel values would round a
+                   whole draw inside a single unit away to an on/off snap. */ ?>
           <div class="tms-divider__shape" aria-hidden="true">
             <svg
               class="tms-divider__shape-svg"
@@ -1593,10 +1278,6 @@ class Divider extends Widget_Base {
     $tiling_shapes = $this->get_tiling_shapes();
     ?>
     <#
-      // Themeasy Motion is Pro (render() parity): without it the motion
-      // settings read as empty.
-      var motion = <?php echo Entitlement::can_use_widgets() ? 'true' : 'false'; ?>;
-
       // ------------------------------------------------------------------------
       // Settings.
       // ------------------------------------------------------------------------
@@ -1630,10 +1311,6 @@ class Divider extends Widget_Base {
       var shapeContour  = shapeContours[ shapeType ] || shapeContours['curve'];
       var shapeIsTiled  = ( tilingShapes.indexOf( shapeType ) !== -1 );
 
-      // Twin of render(): the draw-on only exists for the stroked line, so a
-      // stale 'yes' left behind by switching back to Filled must not count.
-      var shapeDraw = ( motion && skin === 'shape' && shapeStyle === 'line' && settings.shape_draw === 'yes' );
-
       // Twin of get_shape_repeats(): size the repeat count against the
       // SMALLEST Pattern Width configured across breakpoints.
       var tileSizes = ['shape_tile_width', 'shape_tile_width_tablet', 'shape_tile_width_mobile']
@@ -1645,7 +1322,7 @@ class Divider extends Widget_Base {
         } );
 
       var shapeTile    = tileSizes.length ? Math.min.apply( null, tileSizes ) : 1200;
-      var shapeRepeats = ( !shapeDraw && shapeIsTiled )
+      var shapeRepeats = shapeIsTiled
         ? Math.max( 1, Math.min( <?php echo (int) self::SHAPE_TILE_MAX_REPEATS; ?>, Math.ceil( <?php echo (int) self::SHAPE_TILE_REFERENCE_WIDTH; ?> / shapeTile ) ) )
         : 1;
 
@@ -1705,33 +1382,9 @@ class Divider extends Widget_Base {
 
         // A periodic motif repeats at its own width so it keeps its
         // proportions; a single silhouette keeps stretching to span the
-        // divider. A drawn stroke is one continuous path, so it stretches too.
-        if ( shapeIsTiled && ! shapeDraw ) {
+        // divider.
+        if ( shapeIsTiled ) {
           wrapperClasses.push( 'tms-divider--shape-tiled' );
-        }
-
-        // The canvas always shows the finished stroke — a scroll-driven reveal
-        // has no real scroll position inside the preview iframe. The Preview
-        // Runtime plays it once per render instead, and --static is its cue.
-        if ( shapeDraw ) {
-          wrapperClasses.push( 'tms-divider--draw', 'tms-divider--static' );
-
-          // A plain truthiness check would swallow a legitimate ZERO — Scrub
-          // Smoothing 0 ("lock to the scrollbar") and Draw End 0 are both real
-          // authored values, and PHP passes them through.
-          var drawSize = function ( key, fallback ) {
-            var size = settings[ key ] ? parseFloat( settings[ key ].size ) : NaN;
-            return isNaN( size ) ? fallback : String( size );
-          };
-
-          wrapperAtts['data-draw'] = settings.shape_draw_trigger || 'view';
-          wrapperAtts['data-draw-from'] = settings.shape_draw_direction || 'start';
-          wrapperAtts['data-draw-ease'] = settings.shape_draw_easing || 'power2.out';
-          wrapperAtts['data-draw-duration'] = drawSize( 'shape_draw_duration', '1.6' );
-          wrapperAtts['data-draw-delay'] = drawSize( 'shape_draw_delay', '0' );
-          wrapperAtts['data-draw-scrub'] = drawSize( 'shape_draw_scrub', '0.6' );
-          wrapperAtts['data-draw-start'] = drawSize( 'shape_draw_start', '85' );
-          wrapperAtts['data-draw-end'] = drawSize( 'shape_draw_end', '40' );
         }
 
         if ( flipHorizontal ) {
@@ -1748,20 +1401,6 @@ class Divider extends Widget_Base {
         wrapperAtts['aria-orientation'] = isVertical ? 'vertical' : 'horizontal';
       } else {
         wrapperAtts['aria-hidden'] = 'true';
-      }
-
-      // Entrance animation.
-      var animation = motion ? ( settings.widget_animation || '' ) : '';
-
-      if ( animation ) {
-        wrapperClasses.push( 'tms-block-animation', 'tms-animation--on-view', 'tms-animation--hidden' );
-        wrapperAtts['tms-block-animation'] = animation;
-        wrapperAtts['duration'] = ( settings.widget_animation_duration && settings.widget_animation_duration.size )
-          ? settings.widget_animation_duration.size
-          : '1';
-        wrapperAtts['delay'] = ( settings.widget_animation_delay && settings.widget_animation_delay.size )
-          ? settings.widget_animation_delay.size
-          : '0';
       }
 
       var wrapperClassStr = wrapperClasses.filter( Boolean ).join( ' ' );

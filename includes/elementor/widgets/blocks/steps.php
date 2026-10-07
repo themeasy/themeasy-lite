@@ -4,7 +4,7 @@
  *
  * Displays a series of steps with icons (or auto-numbered badges), titles, and
  * descriptions in a connected card layout. Supports horizontal/vertical
- * orientation, Material/Outline skins, and staggered entrance animations.
+ * orientation and Material/Outline skins.
  *
  * @package Themeasy
  * @since 1.0.0
@@ -20,7 +20,6 @@ use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Repeater;
 use Elementor\Widget_Base;
-use Themeasy\Core\Entitlement;
 
 /**
  * Steps widget — renders numbered or icon-based step items in a card layout.
@@ -529,85 +528,9 @@ class Steps extends Widget_Base {
     $this->end_controls_section();
 
     // ------------------------------------------------------------------------
-    // Advanced sections: Themeasy Motion (Pro — the engines run on GSAP, which
-    // the Free build neither ships nor loads).
+    // Advanced section: Motion.
     // ------------------------------------------------------------------------
-    if ( Entitlement::can_use_widgets() ) {
-      $this->register_motion_controls();
-    } else {
-      themeasy_register_motion_upsell_section( $this );
-    }
-  }
-
-  /**
-   * Register the Themeasy Motion sections (Advanced tab).
-   *
-   * Pro only: the motion engines run on GSAP, which the Free build neither
-   * ships nor loads (backlog #253). register_controls() calls this when the
-   * site is entitled and registers the upsell section otherwise.
-   *
-   * @return void
-   */
-  private function register_motion_controls() {
-    // ------------------------------------------------------------------------
-    // Advanced section: Entrance Animation
-    // ------------------------------------------------------------------------
-    $this->start_controls_section(
-      'widget_animation_section',
-        [
-          'label' => esc_html__( 'Motion — Animation', 'themeasy-lite' ),
-          'tab' => Controls_Manager::TAB_ADVANCED,
-        ]
-    );
-
-      $this->add_control(
-        'widget_animation',
-        [
-          'label' => esc_html__( 'Entrance Animation', 'themeasy-lite' ),
-          'type' => Controls_Manager::SELECT,
-          'default' => '',
-          'options' => themeasy_get_animation_options( 'block' ),
-        ]
-      );
-
-      $this->add_control(
-        'widget_animation_duration',
-        [
-          'label' => esc_html__( 'Duration', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 1],
-          'condition' => ['widget_animation!' => ''],
-        ]
-      );
-
-      $this->add_control(
-        'widget_animation_stagger_delay',
-        [
-          'label' => esc_html__( 'Stagger Delay', 'themeasy-lite' ),
-          'description' => esc_html__( 'Delay between each step revealing in sequence.', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 2, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 0.4],
-          'condition' => ['widget_animation!' => ''],
-        ]
-      );
-
-      $this->add_control(
-        'widget_animation_delay',
-        [
-          'label' => esc_html__( 'Delay', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 0],
-          'condition' => ['widget_animation!' => ''],
-        ]
-      );
-
-    $this->end_controls_section();
+    themeasy_register_motion_upsell_section( $this );
   }
 
   /**
@@ -617,12 +540,6 @@ class Steps extends Widget_Base {
    */
   protected function render() {
     $settings = $this->get_settings_for_display();
-
-    // Themeasy Motion is Pro (GSAP — backlog #253). Without it the motion
-    // settings read as empty, so saved values (a template, a site back from
-    // premium) emit no markup: the hidden guard would leave the widget
-    // invisible with no engine to reveal it.
-    $motion = Entitlement::can_use_widgets();
 
     // ------------------------------------------------------------------------
     // Settings.
@@ -654,19 +571,6 @@ class Steps extends Widget_Base {
     // Skin.
     if ( 'outline' === $skin ) {
       $wrapper_classes[] = 'tms-steps--outline';
-    }
-
-    // Animation.
-    $animation = $motion ? ( $settings['widget_animation'] ?? '' ) : '';
-
-    if ( $animation ) {
-      $wrapper_classes[] = 'tms-animation';
-      $wrapper_classes[] = 'tms-animation--on-view';
-      $wrapper_classes[] = 'tms-animation--hidden';
-      $wrapper_atts['tms-animation'] = $animation;
-      $wrapper_atts['stagger-delay'] = $settings['widget_animation_stagger_delay']['size'] ?? '0.4';
-      $wrapper_atts['duration'] = $settings['widget_animation_duration']['size'] ?? '1';
-      $wrapper_atts['delay'] = $settings['widget_animation_delay']['size'] ?? '0';
     }
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
@@ -747,10 +651,6 @@ class Steps extends Widget_Base {
   protected function content_template() {
     ?>
     <#
-      // Themeasy Motion is Pro (render() parity): without it the motion
-      // settings read as empty.
-      var motion = <?php echo Entitlement::can_use_widgets() ? 'true' : 'false'; ?>;
-
       // User text reaches raw {{{ }}} output: sanitize with kses parity.
       var sanitizeInline = ( window.Themeasy && window.Themeasy.sanitizeInlineHtml )
         ? window.Themeasy.sanitizeInlineHtml
@@ -785,26 +685,6 @@ class Steps extends Widget_Base {
       // Skin.
       if ( skin === 'outline' ) {
         wrapperClasses.push( 'tms-steps--outline' );
-      }
-
-      // Animation.
-      var animation = motion ? ( settings.widget_animation || '' ) : '';
-
-      if ( animation ) {
-        wrapperClasses.push( 'tms-animation', 'tms-animation--on-view', 'tms-animation--hidden' );
-        wrapperAtts['tms-animation'] = animation;
-        wrapperAtts['stagger-delay'] = ( settings.widget_animation_stagger_delay
-          && settings.widget_animation_stagger_delay.size )
-          ? settings.widget_animation_stagger_delay.size
-          : '0.4';
-        wrapperAtts['duration'] = ( settings.widget_animation_duration
-          && settings.widget_animation_duration.size )
-          ? settings.widget_animation_duration.size
-          : '1';
-        wrapperAtts['delay'] = ( settings.widget_animation_delay
-          && settings.widget_animation_delay.size )
-          ? settings.widget_animation_delay.size
-          : '0';
       }
 
       var wrapperClassStr = wrapperClasses.filter( Boolean ).join( ' ' );

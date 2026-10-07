@@ -2,10 +2,8 @@
 /**
  * SVG Sanitizer
  *
- * Provides secure SVG upload support and render-time sanitization.
- * Sanitizes SVG content on upload using DOMDocument and restricts
- * uploads to administrators. Replaces the previous regex-based
- * approach with a proper DOM-walking whitelist.
+ * Render-time sanitization of SVG markup: a DOMDocument walk against a
+ * whitelist of elements and attributes.
  *
  * @package Themeasy\Core
  * @since 1.0.0
@@ -16,37 +14,6 @@ namespace Themeasy\Core;
 defined( 'ABSPATH' ) || exit;
 
 class SVG_Sanitizer {
-  /**
-   * Singleton instance.
-   *
-   * @var self|null
-   */
-  private static ?self $instance = null;
-
-  /**
-   * Returns the singleton instance.
-   *
-   * @return self
-   */
-  public static function instance(): self {
-    if ( is_null( self::$instance ) ) {
-      self::$instance = new self();
-    }
-
-    return self::$instance;
-  }
-
-  /**
-   * Initialize SVG upload and sanitization hooks.
-   *
-   * @return void
-   */
-  public function init(): void {
-    add_filter( 'upload_mimes', [$this, 'register_svg_mime'] );
-    add_filter( 'wp_check_filetype_and_ext', [$this, 'validate_svg_filetype'], 10, 4 );
-    add_filter( 'wp_handle_upload_prefilter', [$this, 'sanitize_svg_upload'] );
-    add_filter( 'wp_generate_attachment_metadata', [$this, 'skip_svg_subsizes'], 10, 2 );
-  }
 
   /**
    * Returns the SVG element and attribute whitelist.
@@ -124,136 +91,6 @@ class SVG_Sanitizer {
   }
 
   /**
-   * Register SVG as an allowed upload mime type for administrators.
-   *
-   * @param array $mimes Allowed mime types keyed by extension.
-   * @return array
-   */
-  public function register_svg_mime( array $mimes ): array {
-    if ( current_user_can( 'manage_options' ) ) {
-      $mimes['svg'] = 'image/svg+xml';
-    }
-
-    return $mimes;
-  }
-
-  /**
-   * Validate that a .svg file is actually valid SVG/XML.
-   *
-   * WordPress uses getimagesize() to validate image uploads, which
-   * fails for SVG (XML-based, not bitmap). This filter parses the
-   * file content to confirm it is valid XML with an <svg> root.
-   *
-   * @param array       $data     File data with 'ext', 'type', 'proper_filename'.
-   * @param string      $file     Full path to the file.
-   * @param string      $filename The name of the file.
-   * @param array|null  $mimes    Allowed mime types.
-   * @return array
-   */
-  public function validate_svg_filetype( array $data, string $file, string $filename, ?array $mimes ): array {
-    $ext = strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) );
-
-    if ( 'svg' !== $ext ) {
-      return $data;
-    }
-
-    $content = @file_get_contents( $file );
-
-    if ( false === $content || false === stripos( $content, '<svg' ) ) {
-      return $data;
-    }
-
-    $prev = libxml_use_internal_errors( true );
-    $doc = new \DOMDocument();
-    $ok = $doc->loadXML( $content );
-    libxml_clear_errors();
-    libxml_use_internal_errors( $prev );
-
-    if ( !$ok || !$doc->documentElement || 'svg' !== strtolower( $doc->documentElement->tagName ) ) {
-      return $data;
-    }
-
-    $data['ext'] = 'svg';
-    $data['type'] = 'image/svg+xml';
-
-    return $data;
-  }
-
-  /**
-   * Sanitize SVG content on upload.
-   *
-   * Parses the uploaded file with DOMDocument, walks the DOM tree to
-   * remove disallowed elements and attributes, then rewrites the temp
-   * file with clean content. Rejects files that are not valid XML or
-   * do not have an <svg> root element.
-   *
-   * @param array $file Upload data array with 'tmp_name', 'name', 'type'.
-   * @return array Original array or array with 'error' key on failure.
-   */
-  public function sanitize_svg_upload( array $file ): array {
-    $ext = strtolower( pathinfo( $file['name'] ?? '', PATHINFO_EXTENSION ) );
-
-    if ( 'svg' !== $ext ) {
-      return $file;
-    }
-
-    if ( !current_user_can( 'manage_options' ) ) {
-      $file['error'] = __( 'Sorry, you are not allowed to upload SVG files.', 'themeasy-lite' );
-      return $file;
-    }
-
-    $content = @file_get_contents( $file['tmp_name'] );
-
-    if ( false === $content || '' === trim( $content ) ) {
-      $file['error'] = __( 'The uploaded SVG file is empty or unreadable.', 'themeasy-lite' );
-      return $file;
-    }
-
-    // Strip BOM.
-    $content = preg_replace( '/^\xEF\xBB\xBF/', '', $content );
-
-    if ( false === stripos( $content, '<svg' ) ) {
-      $file['error'] = __( 'The uploaded file does not appear to be a valid SVG.', 'themeasy-lite' );
-      return $file;
-    }
-
-    $prev = libxml_use_internal_errors( true );
-    $doc = new \DOMDocument();
-    $ok = $doc->loadXML( $content );
-    libxml_clear_errors();
-    libxml_use_internal_errors( $prev );
-
-    if ( !$ok || !$doc->documentElement || 'svg' !== strtolower( $doc->documentElement->tagName ) ) {
-      $file['error'] = __( 'The uploaded file contains invalid XML.', 'themeasy-lite' );
-      return $file;
-    }
-
-    // Walk DOM tree and strip disallowed content.
-    self::sanitize_node( $doc->documentElement );
-
-    // Remove processing instructions, comments, and doctype from root.
-    foreach ( iterator_to_array( $doc->childNodes ) as $child ) {
-      if (
-        $child instanceof \DOMProcessingInstruction
-        || $child instanceof \DOMComment
-        || $child instanceof \DOMDocumentType
-      ) {
-        $doc->removeChild( $child );
-      }
-    }
-
-    // Write sanitized content back to temp file.
-    $clean = $doc->saveXML( $doc->documentElement );
-    $written = file_put_contents( $file['tmp_name'], $clean );
-
-    if ( false === $written ) {
-      $file['error'] = __( 'Could not save sanitized SVG file.', 'themeasy-lite' );
-    }
-
-    return $file;
-  }
-
-  /**
    * Recursively sanitize a DOM node against the whitelist.
    *
    * Removes disallowed child elements, event handler attributes, and any
@@ -297,7 +134,7 @@ class SVG_Sanitizer {
       $attr_name = strtolower( $attr->nodeName );
 
       // Block all event handlers.
-      if ( str_starts_with( $attr_name, 'on' ) ) {
+      if ( 0 === strpos( $attr_name, 'on' ) ) {
         $to_remove[] = $attr;
         continue;
       }
@@ -312,11 +149,9 @@ class SVG_Sanitizer {
         }
       }
 
-      // Allow any data-* attribute. They're safe metadata — no URIs, no
-      // script execution — and the Themeasy animation engine reads them
-      // (data-animation, data-delay, data-duration, data-loop) to wire
-      // SVG effects at runtime.
-      if ( str_starts_with( $attr_name, 'data-' ) ) {
+      // Allow any data-* attribute. They're safe metadata: no URIs, no script
+      // execution.
+      if ( 0 === strpos( $attr_name, 'data-' ) ) {
         continue;
       }
 
@@ -453,54 +288,4 @@ class SVG_Sanitizer {
     return is_string( $result ) ? $result : '';
   }
 
-  /**
-   * Skip image subsize generation for SVG uploads.
-   *
-   * WordPress tries to create thumbnails using GD/Imagick after upload,
-   * which fails for SVG files since they are XML-based, not bitmap.
-   * Returns basic metadata with dimensions extracted from the file's
-   * viewBox or width/height attributes instead.
-   *
-   * @param array $metadata      Attachment metadata.
-   * @param int   $attachment_id Attachment post ID.
-   * @return array
-   */
-  public function skip_svg_subsizes( array $metadata, int $attachment_id ): array {
-    $file = get_attached_file( $attachment_id );
-
-    if ( 'svg' !== pathinfo( $file, PATHINFO_EXTENSION ) ) {
-      return $metadata;
-    }
-
-    $svg = @simplexml_load_file( $file );
-
-    if ( false === $svg ) {
-      return $metadata;
-    }
-
-    $attr = $svg->attributes();
-    $width = 0;
-    $height = 0;
-
-    if ( isset( $attr->viewBox ) ) {
-      $parts = explode( ' ', (string) $attr->viewBox );
-      $width = isset( $parts[2] ) ? (int) round( (float) $parts[2] ) : 0;
-      $height = isset( $parts[3] ) ? (int) round( (float) $parts[3] ) : 0;
-    }
-
-    if ( 0 === $width && isset( $attr->width ) ) {
-      $width = (int) round( (float) $attr->width );
-    }
-
-    if ( 0 === $height && isset( $attr->height ) ) {
-      $height = (int) round( (float) $attr->height );
-    }
-
-    return [
-      'width' => $width,
-      'height' => $height,
-      'file' => _wp_relative_upload_path( $file ),
-      'sizes' => [],
-    ];
-  }
 }

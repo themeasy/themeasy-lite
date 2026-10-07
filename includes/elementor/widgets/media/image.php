@@ -2,8 +2,8 @@
 /**
  * Themeasy Elementor Widget: Image
  *
- * Displays an image with customizable styles, an optional caption, a media-file
- * lightbox or custom link, entrance animations, and pointer hover interactions.
+ * Displays an image with customizable styles, an optional caption and a
+ * media-file lightbox or custom link.
  *
  * @package Themeasy
  * @since 1.0.0
@@ -22,7 +22,6 @@ use Elementor\Group_Control_Image_Size;
 use Elementor\Group_Control_Typography;
 use Elementor\Utils;
 use Elementor\Widget_Base;
-use Themeasy\Core\Entitlement;
 
 /**
  * Image widget — registers controls and renders output.
@@ -436,160 +435,9 @@ class Image extends Widget_Base {
     $this->end_controls_section();
 
     // ------------------------------------------------------------------------
-    // Advanced sections: Themeasy Motion (Pro — the engines run on GSAP, which
-    // the Free build neither ships nor loads).
+    // Advanced section: Motion.
     // ------------------------------------------------------------------------
-    if ( Entitlement::can_use_widgets() ) {
-      $this->register_motion_controls();
-    } else {
-      themeasy_register_motion_upsell_section( $this );
-    }
-  }
-
-  /**
-   * Register the Themeasy Motion sections (Advanced tab).
-   *
-   * Pro only: the motion engines run on GSAP, which the Free build neither
-   * ships nor loads (backlog #253). register_controls() calls this when the
-   * site is entitled and registers the upsell section otherwise.
-   *
-   * @return void
-   */
-  private function register_motion_controls() {
-    // ------------------------------------------------------------------------
-    // Advanced section: Entrance Animation
-    // ------------------------------------------------------------------------
-    $this->start_controls_section(
-      'widget_animation_section',
-        [
-          'label' => esc_html__( 'Motion — Animation', 'themeasy-lite' ),
-          'tab' => Controls_Manager::TAB_ADVANCED,
-        ]
-    );
-
-      $this->add_control(
-        'image_animation',
-        [
-          'label' => esc_html__( 'Entrance Animation', 'themeasy-lite' ),
-          'type' => Controls_Manager::SELECT,
-          'default' => '',
-          'options' => themeasy_get_animation_options( 'block' ),
-        ]
-      );
-
-      $this->add_control(
-        'image_animation_duration',
-        [
-          'label' => esc_html__( 'Duration', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 1],
-          'condition' => ['image_animation!' => ''],
-        ]
-      );
-
-      $this->add_control(
-        'image_animation_delay',
-        [
-          'label' => esc_html__( 'Delay', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['s'],
-          'range' => ['s' => ['min' => 0, 'max' => 5, 'step' => 0.1]],
-          'default' => ['unit' => 's', 'size' => 0],
-          'condition' => ['image_animation!' => ''],
-        ]
-      );
-
-    $this->end_controls_section();
-
-    // ------------------------------------------------------------------------
-    // Advanced section: Hover Interactions
-    // ------------------------------------------------------------------------
-    $this->start_controls_section(
-      'widget_hover_section',
-        [
-          'label' => esc_html__( 'Motion — Hover Interactions', 'themeasy-lite' ),
-          'tab' => Controls_Manager::TAB_ADVANCED,
-        ]
-    );
-
-      $this->add_control(
-        'image_hover_animation',
-        [
-          'label' => esc_html__( 'Hover Animation', 'themeasy-lite' ),
-          'type' => Controls_Manager::SELECT,
-          'default' => '',
-          'options' => themeasy_get_animation_options( 'hover' ),
-        ]
-      );
-
-      $this->add_control(
-        'cursor_text',
-        [
-          'label' => esc_html__( 'Cursor Text', 'themeasy-lite' ),
-          'label_block' => false,
-          'type' => Controls_Manager::TEXT,
-          'default' => esc_html__( 'VIEW', 'themeasy-lite' ),
-          'placeholder' => esc_html__( 'Type your text here', 'themeasy-lite' ),
-          'dynamic' => ['active' => true],
-          'condition' => [
-            'image_hover_animation' => 'viewCursor',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'cursor_text_color',
-        [
-          'label' => esc_html__( 'Text Color', 'themeasy-lite' ),
-          'type' => Controls_Manager::COLOR,
-          'selectors' => [
-            '.tms-cursor-interaction' => 'color: {{VALUE}}',
-          ],
-          'condition' => [
-            'image_hover_animation' => 'viewCursor',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'cursor_text_background_color',
-        [
-          'label' => esc_html__( 'Background Color', 'themeasy-lite' ),
-          'type' => Controls_Manager::COLOR,
-          'selectors' => [
-            '.tms-cursor-interaction' => 'background-color: {{VALUE}}',
-          ],
-          'condition' => [
-            'image_hover_animation' => 'viewCursor',
-          ],
-        ]
-      );
-
-      $this->add_control(
-        'cursor_text_width',
-        [
-          'label' => esc_html__( 'Width', 'themeasy-lite' ),
-          'type' => Controls_Manager::SLIDER,
-          'size_units' => ['px'],
-          'range' => [
-            'px' => ['min' => 30, 'max' => 300, 'step' => 5],
-          ],
-          'default' => [
-            'size' => 100,
-            'unit' => 'px',
-          ],
-          'selectors' => [
-            '.tms-cursor-interaction' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}}; margin-top: calc(-{{SIZE}}{{UNIT}} / 2); margin-left: calc(-{{SIZE}}{{UNIT}} / 2);',
-          ],
-          'condition' => [
-            'image_hover_animation' => 'viewCursor',
-          ],
-        ]
-      );
-
-    $this->end_controls_section();
+    themeasy_register_motion_upsell_section( $this );
   }
 
   /**
@@ -599,12 +447,6 @@ class Image extends Widget_Base {
    */
   protected function render() {
     $settings = $this->get_settings_for_display();
-
-    // Themeasy Motion is Pro (GSAP — backlog #253). Without it the motion
-    // settings read as empty, so saved values (a template, a site back from
-    // premium) emit no markup: the hidden guard would leave the widget
-    // invisible with no engine to reveal it.
-    $motion = Entitlement::can_use_widgets();
 
     // ------------------------------------------------------------------------
     // Settings.
@@ -630,32 +472,6 @@ class Image extends Widget_Base {
     // ------------------------------------------------------------------------
     $wrapper_classes = ['tms-image-group'];
     $wrapper_atts = [];
-
-    // Entrance animation.
-    $block_animation = $motion ? ( $settings['image_animation'] ?? '' ) : '';
-
-    if ( $block_animation ) {
-      $wrapper_classes[] = 'tms-block-animation';
-      $wrapper_classes[] = 'tms-animation--on-view';
-      $wrapper_classes[] = 'tms-animation--hidden';
-
-      $wrapper_atts['tms-block-animation'] = $block_animation;
-      $wrapper_atts['duration'] = $settings['image_animation_duration']['size'] ?? '1';
-      $wrapper_atts['delay'] = $settings['image_animation_delay']['size'] ?? '0';
-    }
-
-    // Hover animation.
-    $hover_animation = $motion ? ( $settings['image_hover_animation'] ?? '' ) : '';
-
-    if ( $hover_animation ) {
-      $wrapper_classes[] = 'tms-hover-animation';
-      $wrapper_classes[] = 'tms-animation__target';
-      $wrapper_atts['tms-hover-animation'] = $hover_animation;
-
-      if ( 'viewCursor' === $hover_animation ) {
-        $wrapper_atts['tms-cursor-text'] = $settings['cursor_text'] ?? 'VIEW';
-      }
-    }
 
     $wrapper_classes_str = implode( ' ', array_filter( $wrapper_classes ) );
     $wrapper_atts_html = themeasy_html_attributes( $wrapper_atts );
@@ -761,10 +577,6 @@ class Image extends Widget_Base {
   protected function content_template() {
     ?>
     <#
-      // Themeasy Motion is Pro (render() parity): without it the motion
-      // settings read as empty.
-      var motion = <?php echo Entitlement::can_use_widgets() ? 'true' : 'false'; ?>;
-
       // ------------------------------------------------------------------------
       // Settings.
       // ------------------------------------------------------------------------
@@ -790,33 +602,6 @@ class Image extends Widget_Base {
       // ------------------------------------------------------------------------
       var wrapperClasses = [ 'tms-image-group' ];
       var wrapperAtts    = {};
-
-      // Entrance animation.
-      var blockAnimation = motion ? ( settings.image_animation || '' ) : '';
-
-      if ( blockAnimation ) {
-        wrapperClasses.push( 'tms-block-animation', 'tms-animation--on-view', 'tms-animation--hidden' );
-
-        wrapperAtts['tms-block-animation'] = blockAnimation;
-        wrapperAtts['duration'] = ( settings.image_animation_duration && settings.image_animation_duration.size )
-          ? settings.image_animation_duration.size
-          : '1';
-        wrapperAtts['delay'] = ( settings.image_animation_delay && settings.image_animation_delay.size )
-          ? settings.image_animation_delay.size
-          : '0';
-      }
-
-      // Hover animation.
-      var hoverAnimation = motion ? ( settings.image_hover_animation || '' ) : '';
-
-      if ( hoverAnimation ) {
-        wrapperClasses.push( 'tms-hover-animation', 'tms-animation__target' );
-        wrapperAtts['tms-hover-animation'] = hoverAnimation;
-
-        if ( hoverAnimation === 'viewCursor' ) {
-          wrapperAtts['tms-cursor-text'] = settings.cursor_text || 'VIEW';
-        }
-      }
 
       var wrapperClassStr = wrapperClasses.filter( Boolean ).join( ' ' );
 

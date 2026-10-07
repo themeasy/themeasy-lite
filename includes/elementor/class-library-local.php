@@ -2,14 +2,14 @@
 /**
  * Themeasy Library — local (theme-bundled) template source.
  *
- * Perpetual themes ship a local, theme-scoped template library: Elementor JSON
- * files bundled inside the active theme (business-context §3, Path B — sections
- * and inner pages extracted from that theme's demos). This class scans the
- * theme's /library directory and merges those templates into the in-editor
- * panel alongside the cloud catalog. Local templates are never license-gated
- * and never touch the network: the local library must keep working
- * indefinitely and offline, with nothing to revoke — when the backstage is
- * unreachable, the panel degrades to the local set instead of an error.
+ * A theme can ship a local, theme-scoped template library: Elementor JSON
+ * files bundled inside the active theme (sections and inner pages, for example
+ * the ones of its demos). This class scans the theme's /library directory, of
+ * any theme that has one, and merges those templates into the in-editor
+ * panel alongside the cloud catalog. Local templates never touch the network:
+ * the local library must keep working indefinitely and offline, so when the
+ * backstage is unreachable, the panel degrades to the local set instead of an
+ * error.
  *
  * Directory layout (inside the parent theme):
  *   library/{group-slug}/{category-slug}/{template-slug}.json — grouped
@@ -27,9 +27,7 @@
  * comes from the envelope's `title` when present, else it is humanized from
  * the file name. Files larger than MAX_JSON_BYTES are ignored.
  *
- * Ships in BOTH builds (no premium marker), like the rest of the Library
- * panel: whether local templates exist is decided by the active theme, not by
- * the plan.
+ * Whether local templates exist is decided by the active theme alone.
  *
  * @package Themeasy\Elementor
  * @since 1.0.0
@@ -136,8 +134,8 @@ class Library_Local {
       $data = $result['data'];
       $data['items'] = ( isset( $data['items'] ) && is_array( $data['items'] ) ) ? $data['items'] : [];
 
-      // The synced snapshot also lives in the cloud catalog (published `pro`
-      // for subscribers), so on this theme's own site the same template can
+      // A theme's template can also live in the cloud catalog, so on this
+      // theme's own site the same template can
       // arrive from both sources — the local copy wins and the cloud twin is
       // dropped. `total` is deliberately NOT adjusted: the drop count varies
       // per page and a stable footer count beats exactness by a few.
