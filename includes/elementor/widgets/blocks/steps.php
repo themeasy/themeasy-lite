@@ -527,10 +527,6 @@ class Steps extends Widget_Base {
 
     $this->end_controls_section();
 
-    // ------------------------------------------------------------------------
-    // Advanced section: Motion.
-    // ------------------------------------------------------------------------
-    themeasy_register_motion_upsell_section( $this );
   }
 
   /**

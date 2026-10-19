@@ -44,53 +44,6 @@
     animation-iteration-count: 1 !important;
   }
 
-  /* The Cursor widget's circle and dot follow the pointer; its JS does not
-     mount under reduced motion either, so only the native cursor is left. */
-  .tms-preloader,
-  .tms-cursor-interaction,
-  .tms-cursor__circle,
-  .tms-cursor__dot {
-    display: none !important;
-  }
-
-  .tms-text-animation.tms-animation--hidden,
-  .tms-block-animation.tms-animation--hidden,
-  .tms-animation.tms-animation--hidden .tms-animation__target,
-  .tms-animation.tms-animation--hidden > .elementor-element,
-  .tms-animation.tms-animation--hidden > .e-con-inner > .elementor-element {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    transform: none !important;
-  }
-
-  .tms-hover__target {
-    will-change: auto !important;
-    transition: none !important;
-  }
-
-  .tms-hover__overlay {
-    transition: none !important;
-  }
-
-  .tms-preloader__spinner,
-  .tms-loading-bar .line,
-  .tms-product-grid--loader .tms-card::after,
-  .tms-product-gallery--loader::after {
-    animation: none !important;
-  }
-
-  /* Product grid and gallery skeletons: no sheen (above), and every card or
-     thumbnail reveals at once instead of cascading. Beats the order JS
-     writes inline on each column / thumbnail slide. */
-  .tms-product-grid__col,
-  .tms-product-gallery .tms-thumbs-slider__control .swiper-slide {
-    --tms-skeleton-order: 0 !important;
-  }
-
-  .swiper-wrapper {
-    transition-duration: 0s !important;
-  }
-
   .goverlay,
   .gslide-media,
   .gcss,
@@ -142,34 +95,9 @@
     box-shadow: none !important;
   }
 
-  .tms-hover__target {
-    box-shadow: none !important;
-  }
-
-  .tms-hover:hover .tms-hover__target {
-    outline: 2px solid var(--tms-heading-color);
-    outline-offset: -2px;
-  }
-
-  .tms-hover:focus-visible .tms-hover__target {
-    outline: 2px solid var(--tms-heading-color);
-    outline-offset: -2px;
-  }
-
-  .tms-cursor-interaction,
-  .tms-cursor__circle,
-  .tms-cursor__dot {
-    display: none !important;
-  }
-
   .modal-backdrop.show,
   .offcanvas-backdrop.show {
     opacity: 0.7 !important;
-  }
-
-  .tms-product-meta__value,
-  .tms-product-stock__icon {
-    opacity: 1 !important;
   }
 }
 
@@ -190,48 +118,7 @@
     transition: none !important;
     animation: none !important;
   }
-
-  .tms-preloader,
-  .tms-cursor-interaction,
-  .tms-cursor__circle,
-  .tms-cursor__dot,
-  .tms-hover__overlay {
-    display: none !important;
-  }
-
-  .tms-text-animation.tms-animation--hidden,
-  .tms-block-animation.tms-animation--hidden,
-  .tms-animation.tms-animation--hidden .tms-animation__target,
-  .tms-animation.tms-animation--hidden > .elementor-element,
-  .tms-animation.tms-animation--hidden > .e-con-inner > .elementor-element {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    transform: none !important;
-  }
-
-  .tms-hover__target {
-    filter: none !important;
-    will-change: auto !important;
-    transform: none !important;
-  }
-
-  .swiper-wrapper {
-    flex-wrap: wrap !important;
-    transform: none !important;
-  }
-
-  .swiper-slide {
-    margin-bottom: 1rem;
-    flex: 0 0 100% !important;
-  }
-
-  .swiper-button-prev,
-  .swiper-button-next,
-  .swiper-pagination,
-  .swiper-scrollbar,
-  .glightbox-container,
-  .tms-loading-bar,
-  .tms-loading-bar__overlay {
+  .glightbox-container {
     display: none !important;
   }
 }

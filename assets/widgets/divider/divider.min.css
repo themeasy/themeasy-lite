@@ -6,13 +6,11 @@
  * configurable dot size and gap, and an SVG motif that either spans the width
  * as a single silhouette or repeats as a seamless pattern (curve, wave,
  * zigzag, triangle, mountains, tilt, arrow, clouds), with flip H/V modifiers
- * — painted filled as a CSS mask, or as a line by an inline <svg> stroke that
- * can draw itself on scroll. Line and dots share one structure — horizontal or
- * vertical, a single continuous rule or two segments flanking a center element
- * (icon, text, badge). Everything is fully visible with no JS (the draw-on is
- * the one motion that needs GSAP, and it degrades to the drawn line);
- * consumes public --tms-* tokens with literal fallbacks so dark mode
- * keeps working.
+ * — painted filled as a CSS mask, or as a line by an inline <svg> stroke.
+ * Line and dots share one structure — horizontal or vertical, a single
+ * continuous rule or two segments flanking a center element (icon, text,
+ * badge). Everything is fully visible with no JS; consumes public --tms-*
+ * tokens with literal fallbacks so dark mode keeps working.
  *
  * @author Themeasy
  * @link https://themeasy.co
@@ -407,8 +405,7 @@
  * against a copy of itself pushed down by the thickness, so the surviving band
  * was measured VERTICALLY: it read thicker on every slope and flattened the
  * deepest troughs as soon as the line got thick. A stroke is perpendicular to
- * the path everywhere — and, unlike a mask, it has a length to animate, which
- * is what makes the draw-on possible at all (section 05c).
+ * the path everywhere.
  *
  * The stroke straddles the path, so half a thickness spills on each side. The
  * wrapper reserves exactly that much as block padding and the <svg> fills the
@@ -451,43 +448,6 @@
 }
 
 /* #endregion Shape line */
-
-/* ------------------------------------------------------------------------
- * 05c. Shape skin — draw-on animation
- * ------------------------------------------------------------------------ */
-
-/* #region Shape draw */
-
-/* Pre-paint guard for the draw-on. Every path carries pathLength="1000", so a
- * 1000-unit dash hides the whole stroke no matter how long it really is — and
- * the module reads that same attribute, so the two cannot drift.
- *
- * The module boots from the footer — after the first paint — so without this
- * the finished line flashes in and then snaps back to zero when GSAP arms it.
- * PHP prints the class only on the front (never on the editor canvas) and the
- * module drops it the moment it takes over, whether it animates or bows out.
- *
- * Two safety nets, because a decorative divider may never end up invisible:
- * the guard is gated on `scripting: enabled`, so a no-JS reader is served the
- * drawn line; and the failsafe draws it anyway if the module never arrives at
- * all (GSAP missing, a script error, a slow network). Once the module has
- * dropped the class neither can fight GSAP's inline values. */
-
-@media screen and (scripting: enabled) {
-  .tms-divider--draw-pending .tms-divider__shape-path {
-    stroke-dasharray: 1000;
-    stroke-dashoffset: 1000;
-    animation: tms-divider-draw-failsafe 1ms linear 3s forwards;
-  }
-}
-
-@keyframes tms-divider-draw-failsafe {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-/* #endregion Shape draw */
 
 /* ------------------------------------------------------------------------
  * 06. Shape skin — flip modifiers
@@ -536,17 +496,6 @@
   .tms-divider__shape-path {
     transition: none !important;
     animation: none !important;
-  }
-}
-
-/* Killing the failsafe above would strand the pre-paint guard on a reader who
- * never gets the module either (no JS at all), so the guard has to resolve to
- * the finished line here rather than to nothing. The stroke itself is what
- * this preference protects, and it ends up drawn and still. */
-
-@media (prefers-reduced-motion: reduce) {
-  .tms-divider--draw-pending .tms-divider__shape-path {
-    stroke-dashoffset: 0;
   }
 }
 

@@ -66,7 +66,6 @@ function themeasy_enqueue_elementor_preview_script(): void {
   }
 
   $deps = ['jquery'];
-  $data = [];
 
   wp_enqueue_script(
     'themeasy-elementor-preview',
@@ -75,10 +74,6 @@ function themeasy_enqueue_elementor_preview_script(): void {
     themeasy_asset_ver( 'includes/elementor/assets/js/themeasy-el-preview.min.js' ),
     true
   );
-
-  if ( $data ) {
-    wp_localize_script( 'themeasy-elementor-preview', 'themeasyElPreview', $data );
-  }
 }
 add_action( 'elementor/frontend/after_enqueue_scripts', 'themeasy_enqueue_elementor_preview_script' );
 
@@ -209,6 +204,9 @@ function themeasy_flush_editor_svg_library_cache(): void {
   $live = $wpdb->esc_like( '_transient_themeasy_editor_svg_library_' ) . '%';
   $timeout = $wpdb->esc_like( '_transient_timeout_themeasy_editor_svg_library_' ) . '%';
 
+  // This plugin's own transient rows, by prefix: no API lists them. The object
+  // cache copy of the running key is dropped below.
+  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
   $wpdb->query(
     $wpdb->prepare(
       "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
@@ -217,11 +215,11 @@ function themeasy_flush_editor_svg_library_cache(): void {
     )
   );
 
-  // Drop persistent object-cache copies too (Redis, Memcached). Core added this
-  // helper in 6.1; older sites fall back to the DB delete above.
-  if ( function_exists( 'wp_cache_flush_group' ) ) {
-    wp_cache_flush_group( 'transient' );
-  }
+  // A persistent object cache (Redis, Memcached) keeps transients out of
+  // wp_options, so the query above misses them: drop the running version's key
+  // by name, the one a release replaces or a same-version file change leaves
+  // stale. Never the whole transient group, which holds every plugin's.
+  delete_transient( 'themeasy_editor_svg_library_' . themeasy_get_asset_version() );
 }
 
 /**

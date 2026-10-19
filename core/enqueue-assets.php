@@ -257,7 +257,12 @@ function themeasy_register_widget_assets_in( string $relative ): void {
 
     // Subdirectories like /slider/, /image-distortion/, etc.
     if ( is_dir( $item_path ) ) {
-      $widget_files = glob( trailingslashit( $item_path ) . '*.{css,js}', GLOB_BRACE );
+      // Two globs, never GLOB_BRACE: musl builds of PHP (Alpine) do not define it,
+      // and an undefined constant is a fatal on PHP 8.
+      $dir = trailingslashit( $item_path );
+      $css_files = glob( $dir . '*.css' );
+      $js_files = glob( $dir . '*.js' );
+      $widget_files = array_merge( is_array( $css_files ) ? $css_files : [], is_array( $js_files ) ? $js_files : [] );
 
       if ( empty( $widget_files ) ) {
         continue;

@@ -1,8 +1,8 @@
 /*!
  * Themeasy — Core CSS
  *
- * Foundation layer: preloader, grid system, text styles,
- * underline styles, helper classes, inline color utilities, and the
+ * Foundation layer: grid system, text styles, underline styles, helper
+ * classes, inline color utilities, and the
  * layout of Themeasy widgets inside Elementor Containers.
  *
  * @author Themeasy
@@ -23,106 +23,6 @@
  * 07. Widget Layout
  *
  * ------------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------------
- * 01. Preloader
- * ------------------------------------------------------------------------ */
-
-/* #region Preloader */
-
-.tms-preloader {
-  position: fixed;
-  inset: 0;
-  z-index: 999999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--tms-black-color);
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: translateZ(0);
-}
-
-.tms-preloader__spinner {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 4px solid var(--tms-primary-color-25);
-  border-top-color: var(--tms-primary-color);
-  animation: tms-preloader-spin 0.9s linear infinite;
-}
-
-@keyframes tms-preloader-spin {
-  to { transform: rotate(360deg); }
-}
-
-/* #endregion Preloader */
-
-/* ------------------------------------------------------------------------
- * 02. Smooth Scroll
- * ------------------------------------------------------------------------ */
-
-/* #region Smooth Scroll */
-
-/*
- * Lenis smooths the real window scroll — no wrapper, no transform — so
- * `position: sticky` and `position: fixed` keep working (backlog #42/#53).
- * The `lenis*` classes are the vendor's own contract, set on <html> by the
- * library; these rules are the vendor stylesheet, inlined here to save a
- * request. Everything Themeasy owns stays under `.tms-*`.
- */
-
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-
-.lenis:not(.lenis-autoToggle).lenis-stopped {
-  overflow: clip;
-}
-
-/* Opt-out hooks: keep nested scrollers (offcanvas panels, code blocks) native. */
-.lenis [data-lenis-prevent],
-.lenis [data-lenis-prevent-wheel],
-.lenis [data-lenis-prevent-touch],
-.lenis [data-lenis-prevent-vertical],
-.lenis [data-lenis-prevent-horizontal] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-smooth iframe {
-  pointer-events: none;
-}
-
-.lenis.lenis-autoToggle {
-  transition-property: overflow;
-  transition-duration: 1ms;
-  transition-behavior: allow-discrete;
-}
-
-/*
- * Page scroll lock — shared contract.
- *
- * Any component that opens a full-screen layer (offcanvas panel, modal,
- * mini-cart) sets `tms-scroll-locked` on <body>; this rule locks the document
- * and the Smooth Scroll module stops Lenis on the same signal (a JS scroller
- * ignores `overflow: hidden`, so the CSS alone would leave the page gliding
- * behind the layer). Nested scrollers inside the layer keep working: Lenis
- * evaluates its `prevent` callback before its stopped state.
- *
- * `scrollbar-gutter` holds the space the scrollbar leaves behind so locking
- * does not shift the layout sideways. Whoever sets the class only sets it when
- * the document actually scrolls, so a short page never gains a gutter it never
- * had. The lock lives on <html> because that is the scrolling element —
- * `overflow: hidden` on <body> alone would do nothing.
- */
-html:has(> body.tms-scroll-locked) {
-  overflow: hidden;
-  scrollbar-gutter: stable;
-}
-
-/* #endregion Smooth Scroll */
 
 /* ------------------------------------------------------------------------
  * 03. Grid
@@ -582,28 +482,8 @@ html:has(> body.tms-scroll-locked) {
  * every page loads (backlog #262).
  */
 .elementor-widget-themeasy-accordion,
-.elementor-widget-themeasy-archive-results,
-.elementor-widget-themeasy-copyright-bar,
-.elementor-widget-themeasy-form,
-.elementor-widget-themeasy-gallery,
 .elementor-widget-themeasy-icon-list,
-.elementor-widget-themeasy-image-carousel,
-.elementor-widget-themeasy-image-distortion,
-.elementor-widget-themeasy-image-marquee,
-.elementor-widget-themeasy-line-progress-bar,
-.elementor-widget-themeasy-maps,
-.elementor-widget-themeasy-mini-cart,
-.elementor-widget-themeasy-post-grid,
-.elementor-widget-themeasy-pricing-table,
-.elementor-widget-themeasy-scrolling-text,
-.elementor-widget-themeasy-site-search,
-.elementor-widget-themeasy-slider,
-.elementor-widget-themeasy-tabs,
-.elementor-widget-themeasy-testimonial-carousel,
-.elementor-widget-themeasy-text-marquee,
-.elementor-widget-themeasy-timeline,
-.elementor-widget-themeasy-wc-product-carousel,
-.elementor-widget-themeasy-wc-product-categories-carousel {
+.elementor-widget-themeasy-pricing-table {
   width: 100%;
   max-width: 100%;
   flex: 0 0 100%;
@@ -631,10 +511,6 @@ html:has(> body.tms-scroll-locked) {
  * in the editor and on the page. Elementor gives its own Video, Maps and
  * Swiper widgets the same width.
  */
-.elementor-widget-themeasy-before-after,
-.elementor-widget-themeasy-card-deck,
-.elementor-widget-themeasy-image-accordion,
-.elementor-widget-themeasy-lottie,
 .elementor-widget-themeasy-video {
   width: 100%;
 }

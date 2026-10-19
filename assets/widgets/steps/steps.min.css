@@ -4,8 +4,7 @@
  * A connected sequence of step cards with an icon or auto-numbered badge per
  * step. Supports horizontal and vertical orientation plus Material (shadow) and
  * Outline (bordered) skins. The connector line is drawn with a CSS pseudo-element
- * and is removed on small viewports; entrance motion is layered by the shared
- * tms-animation system and degrades to fully visible without JS.
+ * and is removed on small viewports; everything is fully visible without JS.
  *
  * @author Themeasy
  * @link https://themeasy.co

@@ -29,8 +29,7 @@ use Themeasy\Elementor\Elementor_Loader;
 // activated, and declares nothing (a second Themeasy class is a fatal that makes
 // WordPress refuse the activation). The plugin lives in the else block, never at
 // the top level: PHP binds a top-level class as soon as an opcache-cached file
-// loads, before an early return could run. The strip flips the true to false in
-// the Free build, as the Freemius processor does.
+// loads, before an early return could run.
 if ( function_exists( 'themeasy_fs' ) ) {
   themeasy_fs()->set_basename( false, __FILE__ );
 } else {

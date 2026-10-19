@@ -157,12 +157,10 @@ class Library_Panel {
    * @return array<string,string>
    */
   private function strings(): array {
-    // The modal writes these as text (textContent, setAttribute), so the name
-    // is not HTML-escaped: esc_html() would print "&amp;" in "Smith & Co".
     $brand = 'Themeasy';
 
     $library = sprintf(
-      /* translators: %s: the brand name (Themeasy by default). */
+      /* translators: %s: the brand name. */
       __( '%s Library', 'themeasy-lite' ),
       $brand
     );

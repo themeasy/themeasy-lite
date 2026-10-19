@@ -4,9 +4,8 @@
  * Zero-specificity defaults for the public --tms-* design tokens, so the
  * widgets keep their colors, radii, shadows and type scale on any theme
  * (backlog #256). A Themeasy theme declares the same tokens on :root in its
- * style.css, and the Themeasy Settings override them in settings.css: both
- * outrank :where(:root) whichever sheet loads first, so on a Themeasy theme
- * this file changes nothing.
+ * style.css, which outranks :where(:root) whichever sheet loads first, so on a
+ * Themeasy theme this file changes nothing.
  *
  * The values mirror themeasy-base/style.css (sections 1-14), guarded by
  * tests/token-layer-drift.php: change a token in both files. The font

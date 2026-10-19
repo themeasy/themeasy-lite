@@ -1378,45 +1378,6 @@
 
 /* #endregion Inline Form */
 
-/* #region Stacked Site Search */
-
-.tms-site-search--stacked .tms-form__row {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.tms-site-search .tms-form__submit {
-  margin-top: 0;
-}
-
-/* Header-search look: a square that matches the field's own height. Scoped to
-   the icon-only modifier — unconditionally it also squashed the Label + Icon
-   and Label Only modes, clipping the label out of a 48px box with no padding
-   (the default "Search" label rendered as "earch" spilling past the button). */
-.tms-site-search .tms-button.tms-button--icon-only {
-  width: var(--tms-form-control-min-height, 48px);
-  height: var(--tms-form-control-min-height, 48px);
-  min-width: 0;
-  min-height: 0;
-  padding: 0;
-}
-
-.tms-site-search .tms-button:hover {
-  background-color: var(--tms-primary-color);
-}
-
-.tms-site-search .tms-button:focus {
-  box-shadow: none;
-}
-
-/* Oversized glyph for the square icon-only button only; alongside a label the
-   icon tracks the button's own font-size like every other .tms-button. */
-.tms-site-search .tms-form__submit .tms-button.tms-button--icon-only svg {
-  font-size: 1.2rem;
-}
-
-/* #endregion Stacked Site Search */
-
 /* ------------------------------------------------------------------------
  * 04. Field
  * ------------------------------------------------------------------------ */
@@ -2392,20 +2353,12 @@ a:hover>.tms-badge .tms-badge__icon {
 	margin: 0;
 }
 
-.nav-tabs .product-reviews .nav-link {
-	display: flex;
-	justify-content: flex-start;
-	align-items: center;
-	gap: 10px;
-}
-
 /* The badge is taller than a tight label line-height (e.g. 12px), so it would
    stretch the flex row and push this tab's label below its siblings'. Negative
    block margins (half its height) take it out of the row height: the tab keeps
    the label's height and the badge stays centered on it, overflowing into the
    link padding. The Badge control of both Tabs widgets prints the same pill
    (.tms-tabs__badge), in either orientation. */
-.nav-tabs .product-reviews .reviews-count,
 .tms-tabs > .nav > * > .nav-link > .tms-tabs__badge {
 	order: 2;
 	width: 20px;

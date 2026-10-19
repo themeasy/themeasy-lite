@@ -251,7 +251,8 @@ class Library_Ajax {
    * @return void
    */
   private function guard(): void {
-    if ( empty( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== strtoupper( (string) $_SERVER['REQUEST_METHOD'] ) ) {
+    $method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+    if ( 'POST' !== strtoupper( $method ) ) {
       wp_send_json_error(
         [
           'code' => 'method',

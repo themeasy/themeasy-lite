@@ -279,7 +279,7 @@ class Testimonial extends Widget_Base {
       );
 
       $icons_brand = 'Themeasy';
-      /* translators: %s: the brand name (Themeasy by default). */
+      /* translators: %s: the brand name. */
       $icons_note = __( 'You can use custom icons for the quote and star rating. If you do not select any icon, the default icons will be used. Quote glyphs live in the %s — Feather library.', 'themeasy-lite' );
 
       $this->add_control(
@@ -1129,10 +1129,6 @@ class Testimonial extends Widget_Base {
 
     $this->end_controls_section();
 
-    // ------------------------------------------------------------------------
-    // Advanced section: Motion.
-    // ------------------------------------------------------------------------
-    themeasy_register_motion_upsell_section( $this );
   }
 
   /**

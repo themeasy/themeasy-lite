@@ -27,6 +27,8 @@ Whether you run a blog, a portfolio, or a small business site, Themeasy Lite giv
 
 = Optional upgrade =
 
+The paid plans come as a separate plugin, downloaded from themeasy.co: Themeasy Lite contains no paid code and reads no license.
+
 Themeasy Lite is fully functional on its own, and its widgets never expire. Three paid plans add more, and each one is optional:
 
 * **Themeasy Widgets:** the Pro content widgets (text, media, elements, blocks, sliders and data) and Themeasy Motion (entrance, hover, text and scroll animations, on the free widgets too), in any theme.

@@ -17,6 +17,7 @@
 
 namespace Themeasy\Admin;
 
+use Themeasy\Core\SVG_Sanitizer;
 use Themeasy\Elementor\Widget_Categories;
 
 defined( 'ABSPATH' ) || exit;
@@ -52,12 +53,11 @@ class Welcome_Page {
   protected const HELP_URL = 'https://hub.themeasy.co/docs';
 
   /**
-   * Widgets per paid plan, as the Themeasy plugin registers them: the Widgets
-   * plan, and Pro with a Themeasy theme and on any other theme, where the
+   * Widgets per paid plan, as the paid Themeasy plugin registers them: the
+   * Widgets plan, and Pro with a Themeasy theme and on any other theme, where the
    * WooCommerce widgets and the two cart widgets stay out (they need the theme's
-   * WooCommerce runtime). The copy names them, and this build has no Pro tree to
-   * count, so they are numbers here: tests/widgets-plan-drift.php recounts them
-   * from the widget trees.
+   * WooCommerce runtime). The copy names them as counts, which
+   * tests/widgets-plan-drift.php keeps in step with the widget trees.
    */
   protected const WIDGETS_PLAN_COUNT = 87;
 
@@ -154,7 +154,7 @@ class Welcome_Page {
 
           <div class="themeasy-admin__hero">
             <div class="themeasy-admin__brand">
-              <?php echo self::logo_svg(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted bundled SVG.?>
+              <?php echo wp_kses( self::logo_svg(), SVG_Sanitizer::get_allowed_tags() ); ?>
             </div>
             <h1 class="themeasy-admin__title">
               <?php esc_html_e( 'Welcome to Themeasy', 'themeasy-lite' ); ?>
@@ -516,7 +516,7 @@ class Welcome_Page {
    *
    * Read from Elementor's widget registry and filtered to the Free category, so
    * the page names exactly what the editor offers, never a second copy of the
-   * tier list (Widget_Tiers). Empty when Elementor is not running.
+   * widget list. Empty when Elementor is not running.
    *
    * @return string[]
    */
@@ -563,7 +563,7 @@ class Welcome_Page {
       <?php foreach ( $features as $feature ) : ?>
         <li class="themeasy-admin__feature">
           <span class="themeasy-admin__feature-icon" aria-hidden="true">
-            <?php echo self::read_svg( $feature['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted bundled SVG.?>
+            <?php echo wp_kses( self::read_svg( $feature['icon'] ), SVG_Sanitizer::get_allowed_tags() ); ?>
           </span>
           <span class="themeasy-admin__feature-text"><?php echo esc_html( $feature['text'] ); ?></span>
         </li>

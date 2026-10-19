@@ -37,7 +37,7 @@ class Widget_Categories {
    * @return string
    */
   public static function free_editor_label(): string {
-    /* translators: %s: the brand name (Themeasy by default). */
+    /* translators: %s: the brand name. */
     return sprintf( __( '%s — Essentials', 'themeasy-lite' ), self::brand_name() );
   }
 

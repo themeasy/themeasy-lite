@@ -1086,10 +1086,6 @@ class BusinessHours extends Widget_Base {
 
     $this->end_controls_section();
 
-    // ------------------------------------------------------------------------
-    // Advanced section: Motion.
-    // ------------------------------------------------------------------------
-    themeasy_register_motion_upsell_section( $this );
   }
 
   /**
@@ -1395,9 +1391,9 @@ class BusinessHours extends Widget_Base {
                 <?php endif; ?>
 
                 <?php if ( '' !== $title_text ) : ?>
-                  <<?php echo $title_tag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?> <?php $this->print_render_attribute_string( 'title_text' ); ?>>
+                  <<?php echo tag_escape( $title_tag ); ?> <?php $this->print_render_attribute_string( 'title_text' ); ?>>
                     <?php echo esc_html( $title_text ); ?>
-                  </<?php echo $title_tag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+                  </<?php echo tag_escape( $title_tag ); ?>>
                 <?php endif; ?>
 
               </div><!-- /.tms-business-hours__heading -->

@@ -829,7 +829,7 @@ class Blockquote extends Widget_Base {
     // ------------------------------------------------------------------------
     $tag = tag_escape( $quote_tag );
     ?>
-    <<?php echo $tag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+    <<?php echo tag_escape( $tag ); ?>
       class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $cite_attr_output . $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
 
       <?php if ( $show_quote_mark && $mark_html ) : ?>
@@ -874,7 +874,7 @@ class Blockquote extends Widget_Base {
         </footer>
       <?php endif; ?>
 
-    </<?php echo $tag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>><!-- /.tms-blockquote -->
+    </<?php echo tag_escape( $tag ); ?>><!-- /.tms-blockquote -->
     <?php
   }
 

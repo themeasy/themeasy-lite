@@ -1238,10 +1238,6 @@ class SectionIntro extends Widget_Base {
       ['show_secondary_button' => 'yes']
     );
 
-    // ------------------------------------------------------------------------
-    // Advanced section: Motion.
-    // ------------------------------------------------------------------------
-    themeasy_register_motion_upsell_section( $this );
   }
 
   /**
@@ -1679,7 +1675,7 @@ class SectionIntro extends Widget_Base {
           break;
         }
 
-        $title_tag = esc_html( $ctx['title_tag'] );
+        $title_tag = tag_escape( $ctx['title_tag'] );
         $title_sanitized = wp_kses( $ctx['title'], themeasy_get_kses_allowed_tags() );
 
         $title_html = '<' . $title_tag . ' ' . $this->get_render_attribute_string( 'title' ) . '>'

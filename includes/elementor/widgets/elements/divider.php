@@ -822,10 +822,6 @@ class Divider extends Widget_Base {
         ]
       );
 
-      // A drawn stroke has to be ONE continuous path, so it cannot tile: the
-      // motif stretches instead and this control would be a dead knob. Elementor
-      // only offers the draw switch on the line style, so "drawing" alone is
-      // enough to exclude it.
       $this->add_responsive_control(
         'shape_tile_width',
         [
@@ -1055,10 +1051,6 @@ class Divider extends Widget_Base {
 
     $this->end_controls_section();
 
-    // ------------------------------------------------------------------------
-    // Advanced section: Motion.
-    // ------------------------------------------------------------------------
-    themeasy_register_motion_upsell_section( $this );
   }
 
   /**

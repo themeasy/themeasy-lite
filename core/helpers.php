@@ -24,48 +24,6 @@ function themeasy_get_asset_version(): string {
 }
 
 // ==============================
-// MOTION
-// ==============================
-
-/**
- * Register the Motion section of a widget's Advanced tab: a note that says
- * where the animations live.
- *
- * Themeasy Motion (entrance, hover, text and loop animations, scroll text,
- * draw-on) runs on GSAP, which the build hosted on wordpress.org neither ships
- * nor loads: the GSAP license is not GPL-compatible (backlog #253). So the
- * Advanced tab says where the effects live instead of silently lacking them.
- *
- * @param \Elementor\Controls_Stack $element The widget registering its controls.
- * @return void
- */
-function themeasy_register_motion_upsell_section( \Elementor\Controls_Stack $element ): void {
-  $element->start_controls_section(
-    'themeasy_motion_upsell_section',
-    [
-      'label' => esc_html__( 'Motion', 'themeasy-lite' ),
-      'tab' => \Elementor\Controls_Manager::TAB_ADVANCED,
-    ]
-  );
-
-  $element->add_control(
-    'themeasy_motion_upsell',
-    [
-      'type' => \Elementor\Controls_Manager::RAW_HTML,
-      'raw' => sprintf(
-        '%1$s <a href="%2$s" target="_blank" rel="noopener">%3$s</a>',
-        esc_html__( 'Animations and hover effects for this widget come with the paid plans, starting with Themeasy Widgets.', 'themeasy-lite' ),
-        esc_url( admin_url( 'admin.php?page=themeasy' ) ),
-        esc_html__( 'Compare Plans', 'themeasy-lite' )
-      ),
-      'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
-    ]
-  );
-
-  $element->end_controls_section();
-}
-
-// ==============================
 // UI & HTML HELPERS
 // ==============================
 
@@ -296,10 +254,10 @@ function themeasy_add_external_link_rel( $element, string $key, array $link ): v
  * preset (backlog #273).
  *
  * The `tms-display-1..8` presets are Kit globals that only the Themeasy
- * plugin's Typography_Sync writes, on a save of its settings on a Themeasy
- * theme. The setup wizard and the demo import save none, so a new Themeasy
- * site has no preset until that first save, and a Kit keeps them after a theme
- * switch or a downgrade (the sync never deletes). So the active Kit is asked,
+ * settings write, when they are saved on a Themeasy theme. The setup wizard and
+ * the demo import save none, so a new Themeasy site has no preset until that
+ * first save, and a Kit keeps them after a theme switch or a downgrade (a save
+ * never deletes them). So the active Kit is asked,
  * once per request. A default that points at a missing global shows in the
  * editor as an active global named "undefined", with nothing to pick (measured
  * on Hello, 2026-10-01).

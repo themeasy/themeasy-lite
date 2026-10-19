@@ -42,17 +42,13 @@ if ( !function_exists( 'themeasy_fs' ) ) {
         'has_premium_version' => true,
         'has_addons' => false,
         'has_paid_plans' => true,
-        'trial' => [
-          'days' => 3,
-          'is_require_payment' => true,
-        ],
         'menu' => [
           'slug' => 'themeasy',
           'first-path' => 'admin.php?page=themeasy',
-          'account' => true,
+          'account' => false,
           'contact' => false,
           'support' => false,
-          'pricing' => true,
+          'pricing' => false,
         ],
         'is_org_compliant' => true,
         'anonymous_mode' => true,
@@ -61,8 +57,8 @@ if ( !function_exists( 'themeasy_fs' ) ) {
       // The Upgrade/Pricing funnel routes to the Themeasy site, never the SDK's
       // in-WP pricing (owner decision). Hide the Freemius pricing page AND the
       // plugin-row upgrade link entirely; the branded Themeasy page owns the
-      // funnel and links out to the hosted checkouts. Consequence: the 3-day
-      // trial is started from the site/hosted checkout, not from wp-admin.
+      // funnel and links out to the hosted checkouts: every checkout starts on
+      // the Themeasy site, never in wp-admin.
       $themeasy_fs->add_filter( 'is_pricing_page_visible', '__return_false' );
 
       // Every SDK link to its pricing page (the hidden Account page's Upgrade
@@ -72,7 +68,7 @@ if ( !function_exists( 'themeasy_fs' ) ) {
         static function () {
           /**
            * Filter the Themeasy pricing page: where the SDK's pricing links go, and
-           * the Library's locks when they do not open a checkout.
+           * the Library's Pro template cards when they do not open a checkout.
            *
            * @param string $url The pricing page on the Themeasy site.
            */
@@ -88,7 +84,7 @@ if ( !function_exists( 'themeasy_fs' ) ) {
       // with "Anonymous feedback" ticked. The SDK default leaves it unticked, and
       // an answer then opts the whole site in when the plugin is deleted (name,
       // email, site URL, plugin list). Now only a user who unticks it opts in
-      // (backlog #267; readme-lite.txt → External services).
+      // (backlog #267; the readme's External services section).
       $themeasy_fs->add_filter( 'default_to_anonymous_feedback', '__return_true' );
 
       // Account management lives on the Themeasy site + the Hub, never the SDK's

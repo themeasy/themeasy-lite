@@ -43,48 +43,6 @@
   --themeasy-el-logo: url(data:image/svg+xml;base64,PHN2ZyBpZD0idXVpZC01NzExNTQ2Yi1hYWVmLTRhMTUtODhjYi1lNmVlZjE1YjMxMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEyNDkuODExIDEyNzEuNTQ3Ij48cGF0aCBkPSJNMTIyNC41NDcsMTA4NC44NDljMCw4Mi41LTY3LjUsMTUwLTE1MCwxNTBIMTc0LjU0N2MtODIuNSwwLTE1MC02Ny41LTE1MC0xNTBWMTg0Ljg0OWMwLTgyLjUsNjcuNS0xNTAsMTUwLTE1MGg5MDBjODIuNSwwLDE1MCw2Ny41LDE1MCwxNTB2OTAwWk03NTIuMDQ3LDUwNy4zNDljMC0xNDAuODMyLTExNC4xNjctMjU1LTI1NS0yNTVoLTEwNWMtODIuNSwwLTE1MCwwLTE1MCwwaDBjMCwxNDAuODMyLDExNC4xNjcsMjU1LDI1NSwyNTVoMTA1YzgyLjUsMCwxNTAsMCwxNTAsMGgwWk00OTcuMDQ3LDEwMTcuMzQ5YzE0MC44MzIsMCwyNTUtMTE0LjE2NywyNTUtMjU1di0xMDVjMC04Mi41LDAtMTUwLDAtMTUwaDBjLTE0MC44MzIsMC0yNTUsMTE0LjE2Ny0yNTUsMjU1djEwNWMwLDgyLjUsMCwxNTAsMCwxNTBoMFpNODc5LjU0NywyNTIuMzQ5Yy03MC40MTYsMC0xMjcuNSw1Ny4wODQtMTI3LjUsMTI3LjVzNTcuMDg0LDEyNy41LDEyNy41LDEyNy41LDEyNy41LTU3LjA4NCwxMjcuNS0xMjcuNS01Ny4wODQtMTI3LjUtMTI3LjUtMTI3LjVaIiBmaWxsPSIjM2Y0NDRiIi8+PC9zdmc+Cg==)
 }
 
-/* Custom section controls — watermark top-right. */
-.elementor-control.elementor-control-themeasy_header_layout_section,
-.elementor-control.elementor-control-themeasy_header_style_section,
-.elementor-control.elementor-control-themeasy_layout_section,
-.elementor-control.elementor-control-themeasy_dark_mode_section,
-.elementor-control.elementor-control-themeasy_backdrop_blur_section,
-.elementor-control.elementor-control-themeasy_border_effect_section,
-.elementor-control.elementor-control-themeasy_bg_motion_section,
-.elementor-control.elementor-control-themeasy_aurora_section,
-.elementor-control.elementor-control-themeasy_texture_section,
-.elementor-control.elementor-control-themeasy_grid_pattern_section,
-.elementor-control.elementor-control-themeasy_parallax_section,
-.elementor-control.elementor-control-themeasy_animation_section,
-.elementor-control.elementor-control-themeasy_hover_animation_section {
-  position: relative
-}
-
-.elementor-control.elementor-control-themeasy_header_layout_section::after,
-.elementor-control.elementor-control-themeasy_header_style_section::after,
-.elementor-control.elementor-control-themeasy_layout_section::after,
-.elementor-control.elementor-control-themeasy_dark_mode_section::after,
-.elementor-control.elementor-control-themeasy_backdrop_blur_section::after,
-.elementor-control.elementor-control-themeasy_border_effect_section::after,
-.elementor-control.elementor-control-themeasy_bg_motion_section::after,
-.elementor-control.elementor-control-themeasy_aurora_section::after,
-.elementor-control.elementor-control-themeasy_texture_section::after,
-.elementor-control.elementor-control-themeasy_grid_pattern_section::after,
-.elementor-control.elementor-control-themeasy_parallax_section::after,
-.elementor-control.elementor-control-themeasy_animation_section::after,
-.elementor-control.elementor-control-themeasy_hover_animation_section::after {
-  content: "";
-  position: absolute;
-  top: 14px;
-  right: 20px;
-  width: 18px;
-  height: 18px;
-  background-color: var(--e-a-bg-active-bold, #3f444b);
-  -webkit-mask: var(--themeasy-el-logo) center / contain no-repeat;
-  mask: var(--themeasy-el-logo) center / contain no-repeat;
-  pointer-events: none
-}
-
 /* Themeasy widget cards — brand mark in every panel view.
  * Keyed off data-library-element-type (= widget get_name(), all "themeasy-*"),
  * rendered by Elementor's shared card template in BOTH the categorized list and
@@ -228,64 +186,6 @@
 }
 
 /* #endregion Control Overrides */
-
-/* ------------------------------------------------------------------------
- * 03. Custom Controls
- * ------------------------------------------------------------------------ */
-
-/* #region Custom Controls */
-
-.elementor-control-themeasy_is_desktop_navbar .elementor-control-content,
-.elementor-control-themeasy_is_mobile_navbar .elementor-control-content,
-.elementor-control-themeasy_is_offcanvas_panel .elementor-control-content {
-  padding-left: 1rem;
-  border-left: 1px dashed;
-  border-color: #5b60d8
-}
-
-.elementor-control-themeasy_header_builder_info,
-.elementor-control-themeasy_header_builder_style_info {
-  padding-bottom: 0
-}
-
-.themeasy-e-control-description {
-  margin: 0;
-  color: var(--e-a-color-txt-muted);
-  font-size: 11px;
-  font-style: italic;
-  line-height: 1.4
-}
-
-.themeasy-e-control-notice {
-  padding: 1rem;
-  border-top-right-radius: .25rem;
-  border-bottom-right-radius: .25rem;
-  background-color: var(--e-a-bg-hover);
-  border-left: 2px solid;
-  border-color: #5b60d8;
-  color: var(--e-a-color-txt-muted);
-  font-size: 11px;
-  font-style: italic;
-  line-height: 1.4
-}
-
-.themeasy-e-control-notice a,
-.themeasy-e-control-notice strong {
-  width: fit-content;
-  color: var(--e-a-color-txt)
-}
-
-.themeasy-e-control-notice a:hover {
-  color: var(--e-a-color-txt)
-}
-
-.themeasy-e-control-notice-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* #endregion Custom Controls */
 
 /* ------------------------------------------------------------------------
  * 04. Icons Manager Modal
