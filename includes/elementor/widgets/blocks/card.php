@@ -43,7 +43,7 @@ class Card extends Widget_Base {
   }
 
   public function get_custom_help_url() {
-    return 'https://themeasy.co/help-center';
+    return 'https://hub.themeasy.co/docs';
   }
 
   public function get_categories() {
@@ -252,7 +252,7 @@ class Card extends Widget_Base {
           'placeholder' => esc_html__( 'https://your-link.com', 'themeasy-lite' ),
           'options' => ['url', 'is_external', 'nofollow'],
           'default' => [
-            'url' => 'https://your-link.com',
+            'url' => '#your-link',
             'is_external' => false,
             'nofollow' => true,
           ],

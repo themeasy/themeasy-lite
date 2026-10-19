@@ -5,7 +5,7 @@ Tags: elementor, elementor widgets, page builder, widgets, design
 Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -101,12 +101,17 @@ Plyr, (C) Sam Potts — https://github.com/sampotts/plyr
 
 == Changelog ==
 
+= 1.1.0 — 2026-10-19 =
+* Launch release: 18 free Elementor widgets and a consistent set of design controls, on any theme.
+* Fixes and polish across the widgets.
+
 = 1.0.1 =
 * Stability and efficiency improvements following a comprehensive code audit.
 
-The full version history is in changelog.txt.
-
 == Upgrade Notice ==
+
+= 1.1.0 =
+Launch release, with fixes and polish across the widgets.
 
 = 1.0.1 =
 Stability and efficiency improvements following a comprehensive code audit.

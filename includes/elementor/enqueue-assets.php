@@ -24,13 +24,11 @@ function themeasy_enqueue_elementor_preview_style(): void {
     return;
   }
 
-  $version = themeasy_get_asset_version();
-
   wp_enqueue_style(
     'themeasy-elementor-preview',
     THEMEASY_E_ASSETS_URL . 'css/themeasy-el-preview.min.css',
     [],
-    $version
+    themeasy_asset_ver( 'includes/elementor/assets/css/themeasy-el-preview.min.css' )
   );
 }
 add_action( 'elementor/frontend/after_enqueue_styles', 'themeasy_enqueue_elementor_preview_style' );
@@ -67,7 +65,6 @@ function themeasy_enqueue_elementor_preview_script(): void {
     return;
   }
 
-  $version = themeasy_get_asset_version();
   $deps = ['jquery'];
   $data = [];
 
@@ -75,7 +72,7 @@ function themeasy_enqueue_elementor_preview_script(): void {
     'themeasy-elementor-preview',
     THEMEASY_E_ASSETS_URL . 'js/themeasy-el-preview.min.js',
     $deps,
-    $version,
+    themeasy_asset_ver( 'includes/elementor/assets/js/themeasy-el-preview.min.js' ),
     true
   );
 
@@ -91,13 +88,11 @@ add_action( 'elementor/frontend/after_enqueue_scripts', 'themeasy_enqueue_elemen
  * @return void
  */
 function themeasy_enqueue_editor_panel_style(): void {
-  $version = themeasy_get_asset_version();
-
   wp_enqueue_style(
     'themeasy-editor-panel',
     THEMEASY_E_ASSETS_URL . 'css/themeasy-el-editor-panel.min.css',
     [],
-    $version
+    themeasy_asset_ver( 'includes/elementor/assets/css/themeasy-el-editor-panel.min.css' )
   );
 }
 add_action( 'elementor/editor/after_enqueue_styles', 'themeasy_enqueue_editor_panel_style' );

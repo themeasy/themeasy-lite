@@ -44,8 +44,12 @@
     animation-iteration-count: 1 !important;
   }
 
+  /* The Cursor widget's circle and dot follow the pointer; its JS does not
+     mount under reduced motion either, so only the native cursor is left. */
   .tms-preloader,
-  .tms-cursor-interaction {
+  .tms-cursor-interaction,
+  .tms-cursor__circle,
+  .tms-cursor__dot {
     display: none !important;
   }
 
@@ -152,7 +156,9 @@
     outline-offset: -2px;
   }
 
-  .tms-cursor-interaction {
+  .tms-cursor-interaction,
+  .tms-cursor__circle,
+  .tms-cursor__dot {
     display: none !important;
   }
 
@@ -187,6 +193,8 @@
 
   .tms-preloader,
   .tms-cursor-interaction,
+  .tms-cursor__circle,
+  .tms-cursor__dot,
   .tms-hover__overlay {
     display: none !important;
   }

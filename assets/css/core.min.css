@@ -622,8 +622,18 @@ html:has(> body.tms-scroll-locked) {
  * circularity — but not `flex: 0 0 100%`, which would also force the widget
  * onto a line of its own and kill side-by-side layouts in row Containers. A
  * per-widget Width set in Elementor still wins (higher specificity).
+ *
+ * The same holds at every width wherever the Container sizes the widget to
+ * its content: a row Container, or a column one aligned anywhere but stretch.
+ * Image Accordion panels (flex-basis 0 over absolute content) and Card Deck
+ * cards (absolute in their stage) give it nothing to measure: the accordion
+ * shrank to its gaps (18px, every panel 0px wide) and read as an empty widget,
+ * in the editor and on the page. Elementor gives its own Video, Maps and
+ * Swiper widgets the same width.
  */
 .elementor-widget-themeasy-before-after,
+.elementor-widget-themeasy-card-deck,
+.elementor-widget-themeasy-image-accordion,
 .elementor-widget-themeasy-lottie,
 .elementor-widget-themeasy-video {
   width: 100%;

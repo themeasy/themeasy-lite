@@ -19,6 +19,7 @@ defined( 'ABSPATH' ) || exit;
 
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Background;
+use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Typography;
 use Elementor\Widget_Base;
 
@@ -39,7 +40,7 @@ class Button extends Widget_Base {
   }
 
   public function get_custom_help_url() {
-    return 'https://themeasy.co/help-center';
+    return 'https://hub.themeasy.co/docs';
   }
 
   public function get_categories() {
@@ -145,7 +146,7 @@ class Button extends Widget_Base {
           'placeholder' => esc_html__( 'https://your-link.com', 'themeasy-lite' ),
           'options' => ['url', 'is_external', 'nofollow'],
           'default' => [
-            'url' => 'https://your-link.com',
+            'url' => '#your-link',
             'is_external' => false,
             'nofollow' => true,
           ],
@@ -647,6 +648,79 @@ class Button extends Widget_Base {
           ],
         ]
       );
+
+      // ---- Shadow ----
+      // Without a value the button keeps the site token (--tms-button-shadow),
+      // or no shadow on the variants that drop it; an authored shadow outranks
+      // both. Hidden on the text-only variant, like the padding.
+      $this->add_control(
+        'button_shadow_heading',
+        [
+          'label' => esc_html__( 'Shadow', 'themeasy-lite' ),
+          'type' => Controls_Manager::HEADING,
+          'separator' => 'before',
+          'condition' => [
+            'button_style!' => 'simple',
+          ],
+        ]
+      );
+
+      $this->start_controls_tabs(
+        'button_shadow_tabs',
+        [
+          'condition' => ['button_style!' => 'simple'],
+        ]
+      );
+
+        $this->start_controls_tab(
+          'button_shadow_normal_tab',
+          [
+            'label' => esc_html__( 'Normal', 'themeasy-lite' ),
+            'condition' => [
+              'button_style!' => 'simple',
+            ],
+          ]
+        );
+
+          $this->add_group_control(
+            Group_Control_Box_Shadow::get_type(),
+            [
+              'name' => 'button_box_shadow',
+              'label' => esc_html__( 'Box Shadow', 'themeasy-lite' ),
+              'selector' => '{{WRAPPER}} .tms-button',
+              'condition' => [
+                'button_style!' => 'simple',
+              ],
+            ]
+          );
+
+        $this->end_controls_tab();
+
+        $this->start_controls_tab(
+          'button_shadow_hover_tab',
+          [
+            'label' => esc_html__( 'Hover', 'themeasy-lite' ),
+            'condition' => [
+              'button_style!' => 'simple',
+            ],
+          ]
+        );
+
+          $this->add_group_control(
+            Group_Control_Box_Shadow::get_type(),
+            [
+              'name' => 'button_hover_box_shadow',
+              'label' => esc_html__( 'Box Shadow', 'themeasy-lite' ),
+              'selector' => '{{WRAPPER}} .tms-button:hover',
+              'condition' => [
+                'button_style!' => 'simple',
+              ],
+            ]
+          );
+
+        $this->end_controls_tab();
+
+      $this->end_controls_tabs();
 
     $this->end_controls_section();
 

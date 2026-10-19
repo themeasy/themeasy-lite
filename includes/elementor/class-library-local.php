@@ -349,7 +349,7 @@ class Library_Local {
 
     // Full Elementor export envelope: pass through with a normalized content list.
     if ( isset( $decoded['content'] ) && is_array( $decoded['content'] ) ) {
-      $decoded['content'] = array_values( $decoded['content'] );
+      $decoded['content'] = $this->localize_media( array_values( $decoded['content'] ) );
 
       return $decoded;
     }
@@ -361,7 +361,7 @@ class Library_Local {
         'version' => '0.4',
         'title' => $index[$key]['slug'],
         'type' => 'section',
-        'content' => array_values( $decoded['elements'] ),
+        'content' => $this->localize_media( array_values( $decoded['elements'] ) ),
         'page_settings' => [],
       ];
     }
@@ -372,12 +372,115 @@ class Library_Local {
         'version' => '0.4',
         'title' => $index[$key]['slug'],
         'type' => 'section',
-        'content' => array_values( $decoded ),
+        'content' => $this->localize_media( array_values( $decoded ) ),
         'page_settings' => [],
       ];
     }
 
     return null;
+  }
+
+  /**
+   * Point the media of a theme template at this site's own copies (#427).
+   *
+   * The panel inserts a template's elements as they are, so a media value keeps
+   * the attachment id of the site the template was made on: here that id is
+   * nothing, or another attachment. And an uploaded SVG icon is drawn from its
+   * attachment alone (Elementor's Svg_Handler), so with a foreign id it shows
+   * nothing. A template copied from the theme's demo carries `tms_file` on each
+   * media value: the file's path under uploads/ on the demo. Once the demo is
+   * imported this site has that file too, and the value is re-pointed at it.
+   * Without a local copy the value keeps its public URL and loses the id. The
+   * hint never reaches the document.
+   *
+   * @param array $elements Element models.
+   * @return array
+   */
+  private function localize_media( array $elements ): array {
+    $found = [];
+    $walk = function ( array $value ) use ( &$walk, &$found ): array {
+      foreach ( $value as $k => $v ) {
+        if ( is_array( $v ) ) {
+          $value[$k] = $walk( $v );
+        }
+      }
+
+      if ( !isset( $value['tms_file'] ) ) {
+        return $value;
+      }
+
+      $file = is_string( $value['tms_file'] ) ? $value['tms_file'] : '';
+      unset( $value['tms_file'] );
+      if ( !array_key_exists( $file, $found ) ) {
+        $found[$file] = $this->attachment_for_file( $file );
+      }
+
+      $id = $found[$file];
+      $url = $id ? wp_get_attachment_url( $id ) : false;
+      if ( $url ) {
+        $value['id'] = $id;
+        $value['url'] = $url;
+      } elseif ( array_key_exists( 'id', $value ) ) {
+        $value['id'] = '';
+      }
+
+      return $value;
+    };
+
+    return $walk( $elements );
+  }
+
+  /**
+   * The attachment holding a file of uploads/ ("2026/07/mark.svg"), or 0. The
+   * demo importer keeps the year/month of each upload, so the path usually
+   * matches as it is; when the name was taken it stores "-1", so the same name
+   * anywhere in uploads/ is the fallback.
+   *
+   * @param string $file Path under uploads/.
+   * @return int
+   */
+  private function attachment_for_file( string $file ): int {
+    $file = ltrim( wp_normalize_path( $file ), '/' );
+    if ( '' === $file || false !== strpos( $file, '..' ) ) {
+      return 0;
+    }
+
+    $exact = get_posts(
+      [
+        'post_type' => 'attachment',
+        'post_status' => 'inherit',
+        'numberposts' => 1,
+        'fields' => 'ids',
+        'no_found_rows' => true,
+        'meta_key' => '_wp_attached_file', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+        'meta_value' => $file, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+      ]
+    );
+    if ( $exact ) {
+      return (int) $exact[0];
+    }
+
+    $name = basename( $file );
+    $stem = preg_replace( '/\.[^.]+$/', '', $name );
+    $ext = substr( $name, strlen( (string) $stem ) );
+    $like = get_posts(
+      [
+        'post_type' => 'attachment',
+        'post_status' => 'inherit',
+        'numberposts' => 20,
+        'no_found_rows' => true,
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+        'meta_query' => [['key' => '_wp_attached_file', 'value' => '/' . $stem, 'compare' => 'LIKE']],
+      ]
+    );
+    foreach ( $like as $post ) {
+      $stored = basename( (string) get_post_meta( $post->ID, '_wp_attached_file', true ) );
+      if ( $stored === $name || 1 === preg_match( '/^' . preg_quote( (string) $stem, '/' ) . '-\d+' . preg_quote( $ext, '/' ) . '$/', $stored ) ) {
+        return (int) $post->ID;
+      }
+    }
+
+    return 0;
   }
 
   /**

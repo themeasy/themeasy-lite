@@ -2647,6 +2647,26 @@ a:hover>.tms-badge .tms-badge__icon {
 		margin-bottom: var(--tms-tabs-gap, 1.5rem);
 	}
 
+	/* The stacked strip is a block box, where `gap` does nothing: the space
+	 * between the tabs reaches the items as a margin, from the same variable
+	 * and with the same fallbacks as the `gap` rules above (0 on Underline,
+	 * 15px on Filled). Backlog #387. */
+	.vertical-tab > .nav-pills > * + * {
+		margin-top: var(--tms-tabs-item-gap, 0px);
+	}
+
+	.filled-tab.vertical-tab > .nav-pills > * + * {
+		margin-top: var(--tms-tabs-item-gap, 15px);
+	}
+
+	/* Stacked, the strip is no longer a rail beside the panel. The widgets
+	 * set `sticky-top` on it for the side-by-side layout; left on here it
+	 * pins a transparent list of tabs over the panel it now sits above.
+	 * Backlog #388. */
+	.vertical-tab > .nav-pills.sticky-top {
+		position: static;
+	}
+
 	.vertical-tab > .tab-content {
 		width: 100%;
 	}

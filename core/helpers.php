@@ -415,13 +415,22 @@ function themeasy_render_image_tag( string $src, string $alt = '', string $class
  * @param string $fallback_src     Optional fallback src (if ID not provided).
  * @param string $alt              Image alt text.
  * @param string $class            Optional CSS class.
- * @param array  $attributes       Optional extra HTML attributes.
+ * @param array  $attributes       Optional extra HTML attributes. A `sizes`
+ *                                 entry replaces the attribute WordPress
+ *                                 computes ("100vw up to the image width"),
+ *                                 for a caller that knows how wide its image
+ *                                 is drawn.
  * @param string $loading_priority 'lazy' or 'high' (uses fetchpriority).
  * @since 1.0.0
  */
 function themeasy_render_attachment_image( int $image_id = 0, string $size = 'full', string $fallback_src = '', string $alt = '', string $class = '', array $attributes = [], string $loading_priority = 'lazy' ): void {
   $src = $fallback_src;
   $width = $height = $srcset = $sizes = '';
+
+  // Taken out of the extra attributes either way: `sizes` only means something
+  // next to a srcset, and it must never print twice.
+  $custom_sizes = (string) ( $attributes['sizes'] ?? '' );
+  unset( $attributes['sizes'] );
 
   if ( $image_id ) {
     $image_data = wp_get_attachment_image_src( $image_id, $size );
@@ -432,7 +441,7 @@ function themeasy_render_attachment_image( int $image_id = 0, string $size = 'fu
     }
 
     $srcset = wp_get_attachment_image_srcset( $image_id, $size );
-    $sizes = wp_get_attachment_image_sizes( $image_id, $size );
+    $sizes = $custom_sizes ?: wp_get_attachment_image_sizes( $image_id, $size );
   }
 
   if ( empty( $src ) ) {
@@ -747,6 +756,102 @@ function themeasy_parse_ty_icon_name( string $library, string $value ): string {
   }
 
   return (string) preg_replace( '/[^a-z0-9_-]/i', '', $token );
+}
+
+/**
+ * Brand icons and the name each brand writes itself with.
+ *
+ * Keys are icon file names (ty-* libraries) and Font Awesome brand names with
+ * the "fa-" prefix removed. Brand marks only: a proper noun reads the same in
+ * every language, while a generic glyph ("mail", "globe") names nothing its
+ * author meant. A widget's editor preview prints this same map into its
+ * template, so the two sides cannot drift.
+ *
+ * @return array<string, string>
+ * @since 1.0.0
+ */
+function themeasy_get_brand_icon_names(): array {
+  return [
+    'behance' => 'Behance',
+    'bluesky' => 'Bluesky',
+    'chrome' => 'Chrome',
+    'codepen' => 'CodePen',
+    'codesandbox' => 'CodeSandbox',
+    'discord' => 'Discord',
+    'dribbble' => 'Dribbble',
+    'facebook' => 'Facebook',
+    'facebook-f' => 'Facebook',
+    'figma' => 'Figma',
+    'framer' => 'Framer',
+    'github' => 'GitHub',
+    'gitlab' => 'GitLab',
+    'instagram' => 'Instagram',
+    'linkedin' => 'LinkedIn',
+    'linkedin-in' => 'LinkedIn',
+    'mastodon' => 'Mastodon',
+    'medium' => 'Medium',
+    'pinterest' => 'Pinterest',
+    'pinterest-p' => 'Pinterest',
+    'pocket' => 'Pocket',
+    'reddit' => 'Reddit',
+    'slack' => 'Slack',
+    'snapchat' => 'Snapchat',
+    'soundcloud' => 'SoundCloud',
+    'spotify' => 'Spotify',
+    'telegram' => 'Telegram',
+    'threads' => 'Threads',
+    'tiktok' => 'TikTok',
+    'trello' => 'Trello',
+    'twitch' => 'Twitch',
+    'twitter' => 'Twitter',
+    'vimeo' => 'Vimeo',
+    'vimeo-v' => 'Vimeo',
+    'whatsapp' => 'WhatsApp',
+    'x-twitter' => 'X',
+    'youtube' => 'YouTube',
+  ];
+}
+
+/**
+ * The accessible name of an icon-only link.
+ *
+ * A repeater row added in the editor is born with the label control's
+ * stand-in ("Social Link") and Elementor stores it, so every such link was
+ * announced with the same generic words; a row built without a label had no
+ * name at all (backlog #416). When the label is empty or still the stand-in,
+ * the brand the icon shows names the link. A label the author wrote always
+ * wins, and an icon that is no brand leaves the label as it came. Mirrored by
+ * Themeasy.iconLinkLabel() in JS.
+ *
+ * @param string $label    The stored label.
+ * @param array  $icon     Icon control value ('value' + 'library').
+ * @param string $stand_in The label control's default, as registered.
+ * @return string
+ * @since 1.0.0
+ */
+function themeasy_get_icon_link_label( string $label, array $icon, string $stand_in = '' ): string {
+  $label = trim( $label );
+
+  if ( '' !== $label && $label !== $stand_in ) {
+    return $label;
+  }
+
+  $value = $icon['value'] ?? '';
+  $library = $icon['library'] ?? '';
+
+  if ( ! is_string( $value ) || ! is_string( $library ) ) {
+    return $label;
+  }
+
+  // Every shape the control stores: "ty-feather-x-twitter", the picker's
+  // "tyfeather- ty-feather-x-twitter" and Font Awesome's "fab fa-linkedin-in".
+  $name = strtolower( themeasy_parse_ty_icon_name( $library, $value ) );
+
+  if ( 0 === strncmp( $name, 'fa-', 3 ) ) {
+    $name = substr( $name, 3 );
+  }
+
+  return themeasy_get_brand_icon_names()[$name] ?? $label;
 }
 
 /**

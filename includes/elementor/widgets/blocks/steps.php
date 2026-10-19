@@ -38,7 +38,7 @@ class Steps extends Widget_Base {
   }
 
   public function get_custom_help_url() {
-    return 'https://themeasy.co/help-center';
+    return 'https://hub.themeasy.co/docs';
   }
 
   public function get_categories() {
@@ -559,9 +559,12 @@ class Steps extends Widget_Base {
     $wrapper_classes = ['tms-steps'];
     $wrapper_atts = [];
 
-    // Columns.
+    // Columns. A step (node, title, paragraph) needs reading width, so the
+    // generic gallery-grade caps do not fit: one column on phones, two from
+    // 576px, and one per step only from 992px, where the stylesheet draws the
+    // connector. Mirrored in content_template().
     $columns = count( $items );
-    $col_class = themeasy_bootstrap_columns( (int) $columns );
+    $col_class = themeasy_bootstrap_columns( (int) $columns, ['sm' => 2, 'lg' => 12] );
 
     if ( 'vertical' === $orientation ) {
       $wrapper_classes[] = 'tms-steps--vertical';
@@ -673,9 +676,9 @@ class Steps extends Widget_Base {
       var wrapperClasses = [ 'tms-steps' ];
       var wrapperAtts    = {};
 
-      // Columns.
+      // Columns. Mirrors the caps of render().
       var columns  = items.length;
-      var colClass = Themeasy.bootstrapColumns( parseInt( columns ) );
+      var colClass = Themeasy.bootstrapColumns( parseInt( columns ), { sm: 2, lg: 12 } );
 
       if ( orientation === 'vertical' ) {
         wrapperClasses.push( 'tms-steps--vertical' );

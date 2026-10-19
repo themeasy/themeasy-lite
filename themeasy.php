@@ -3,7 +3,7 @@
  * Plugin Name:        Themeasy Lite
  * Plugin URI:         https://themeasy.co/features/
  * Description:        Free Elementor content widgets and design controls that work with any WordPress theme.
- * Version:            1.0.1
+ * Version:            1.1.0
  * Requires at least:  6.8
  * Requires PHP:       7.4
  * Requires Plugins:   elementor

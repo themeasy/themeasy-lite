@@ -49,7 +49,7 @@ class Welcome_Page {
   protected const HUB_PRODUCT_URL = 'https://hub.themeasy.co/account/products/themeasy';
 
   /** The Themeasy Help Center (the widgets' own help links point here too). */
-  protected const HELP_URL = 'https://themeasy.co/help-center';
+  protected const HELP_URL = 'https://hub.themeasy.co/docs';
 
   /**
    * Widgets per paid plan, as the Themeasy plugin registers them: the Widgets

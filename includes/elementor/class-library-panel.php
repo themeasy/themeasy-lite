@@ -189,6 +189,17 @@ class Library_Panel {
       // widgets this plugin registers.
       'leftOutReason' => $left_out_reason,
       'fullWidthHint' => esc_html__( 'For full width, set Page Layout → Elementor Full Width.', 'themeasy-lite' ),
+      // A template that brings its own header and footer asks for the Canvas
+      // layout (backlog #418): said when the insert switched it, and as a hint
+      // when the open document has no Page Layout to switch.
+      'canvasApplied' => esc_html__(
+        'Page Layout set to Elementor Canvas: this template brings its own header and footer.',
+        'themeasy-lite'
+      ),
+      'canvasHint' => esc_html__(
+        'This template brings its own header and footer: set Page Layout → Elementor Canvas.',
+        'themeasy-lite'
+      ),
       'proBadge' => esc_html__( 'Pro', 'themeasy-lite' ),
       'freeBadge' => esc_html__( 'Free', 'themeasy-lite' ),
       'themeBadge' => esc_html__( 'Theme', 'themeasy-lite' ),

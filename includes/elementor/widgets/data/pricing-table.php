@@ -40,7 +40,7 @@ class PricingTable extends Widget_Base {
   }
 
   public function get_custom_help_url() {
-    return 'https://themeasy.co/help-center';
+    return 'https://hub.themeasy.co/docs';
   }
 
   public function get_categories() {
@@ -239,7 +239,7 @@ class PricingTable extends Widget_Base {
           'placeholder' => esc_html__( 'https://your-link.com', 'themeasy-lite' ),
           'options' => ['url', 'is_external', 'nofollow'],
           'default' => [
-            'url' => 'https://your-link.com',
+            'url' => '#your-link',
             'is_external' => false,
             'nofollow' => true,
           ],
@@ -1936,6 +1936,10 @@ class PricingTable extends Widget_Base {
     // the printed value must agree.
     $starts_yearly = ( $settings['toggle_default_period'] ?? 'yearly' ) !== 'monthly';
 
+    // The toggle badge is optional. Printed empty, the tag still paints its
+    // fill and padding next to the label (backlog #385).
+    $has_toggle_badge = '' !== trim( (string) ( $settings['toggle_label_on_badge'] ?? '' ) );
+
     // Validate SELECT values against their allowlists before they reach class names.
     $allowed_badge_styles = ['top-label-filled', 'vertical-label', 'vertical-label-filled', 'diagonal-label-filled'];
     $allowed_button_styles = [
@@ -2038,11 +2042,13 @@ class PricingTable extends Widget_Base {
               <?php echo esc_html( $settings['toggle_label_on'] ?? '' ); ?>
             </span>
 
-            <span class="tms-price-toggle__badge tms-tag">
-              <span <?php $this->print_render_attribute_string( 'toggle_label_on_badge' ); ?>>
-                <?php echo esc_html( $settings['toggle_label_on_badge'] ?? '' ); ?>
+            <?php if ( $has_toggle_badge ) : ?>
+              <span class="tms-price-toggle__badge tms-tag">
+                <span <?php $this->print_render_attribute_string( 'toggle_label_on_badge' ); ?>>
+                  <?php echo esc_html( $settings['toggle_label_on_badge'] ); ?>
+                </span>
               </span>
-            </span>
+            <?php endif; ?>
           </div>
         </div>
       <?php endif; ?>
@@ -2339,6 +2345,9 @@ class PricingTable extends Widget_Base {
       // price text is what the JS reads as the current period, so the switch and
       // the printed value must agree.
       var startsYearly       = ( settings.toggle_default_period || 'yearly' ) !== 'monthly';
+      // The toggle badge is optional. Printed empty, the tag still paints its
+      // fill and padding next to the label (backlog #385).
+      var hasToggleBadge     = '' !== String( settings.toggle_label_on_badge || '' ).trim();
       var featuredBadgeStyle = settings.featured_badge_style || 'top-label-filled';
       var buttonStyle        = settings.button_style || 'solid-fill';
 
@@ -2432,11 +2441,13 @@ class PricingTable extends Widget_Base {
               {{ settings.toggle_label_on }}
             </span>
 
-            <span class="tms-price-toggle__badge tms-tag">
-              <span {{{ view.getRenderAttributeString( 'toggle_label_on_badge' ) }}}>
-                {{ settings.toggle_label_on_badge }}
+            <# if ( hasToggleBadge ) { #>
+              <span class="tms-price-toggle__badge tms-tag">
+                <span {{{ view.getRenderAttributeString( 'toggle_label_on_badge' ) }}}>
+                  {{ settings.toggle_label_on_badge }}
+                </span>
               </span>
-            </span>
+            <# } #>
           </div>
         </div>
       <# } #>

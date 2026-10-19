@@ -45,7 +45,7 @@ class TeamMember extends Widget_Base {
   }
 
   public function get_custom_help_url() {
-    return 'https://themeasy.co/help-center';
+    return 'https://hub.themeasy.co/docs';
   }
 
   public function get_categories() {
@@ -1399,9 +1399,15 @@ class TeamMember extends Widget_Base {
           <ul class="tms-team-member__socials">
 
             <?php foreach ( $socials as $index => $item ) :
-              $social_label = $item['social_label'] ?? '';
               $social_icon = $item['social_icon'] ?? [];
               $social_link = $item['social_link'] ?? [];
+
+              // A label nobody wrote gives way to the brand the icon shows.
+              $social_label = themeasy_get_icon_link_label(
+                (string) ( $item['social_label'] ?? '' ),
+                is_array( $social_icon ) ? $social_icon : [],
+                esc_html__( 'Social Link', 'themeasy-lite' )
+              );
 
               if ( empty( $social_icon['value'] ) && empty( $social_label ) ) {
                 continue;
@@ -1541,6 +1547,11 @@ class TeamMember extends Widget_Base {
       view.addInlineEditingAttributes( 'member_bio', 'advanced' );
 
       var coverLabelFallback = <?php echo wp_json_encode( __( 'Open profile', 'themeasy-lite' ) ); ?>;
+
+      // render() parity: the stand-in a new row is born with, and the brand
+      // names an unwritten label falls back to.
+      var socialLabelStandIn = <?php echo wp_json_encode( esc_html__( 'Social Link', 'themeasy-lite' ) ); ?>;
+      var brandIconNames = <?php echo wp_json_encode( themeasy_get_brand_icon_names() ); ?>;
     #>
 
     <article class="{{ wrapperClassStr }}">
@@ -1579,9 +1590,15 @@ class TeamMember extends Widget_Base {
           <ul class="tms-team-member__socials">
             <#
               _.each( socials, function( item, index ) {
-                var socialLabel = item.social_label || '';
                 var socialIcon  = item.social_icon || {};
                 var socialObj   = item.social_link || {};
+
+                // A label nobody wrote gives way to the brand the icon shows.
+                var socialLabel = ( window.Themeasy && window.Themeasy.iconLinkLabel )
+                  ? window.Themeasy.iconLinkLabel(
+                      item.social_label || '', socialIcon, socialLabelStandIn, brandIconNames
+                    )
+                  : ( item.social_label || '' );
 
                 // A blocked scheme yields '' — fall back to render()'s inert
                 // href="#" rather than emitting the hostile value.

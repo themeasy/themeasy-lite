@@ -548,6 +548,12 @@
     margin-block: 1.5rem;
   }
 
+  /* The rows are auto here, so with the divider off nothing kept the author off
+     the last line of the quote: it gets the divider's own breathing room. */
+  .tms-profile-card--split:not(:has(.tms-profile-card__divider)) .tms-profile-card__content {
+    margin-block-start: 1.5rem;
+  }
+
   .tms-profile-card--split .tms-profile-card__overlay-icon .icon {
     font-size: var(--tms-profile-card-quote-size, 3rem);
   }

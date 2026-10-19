@@ -41,7 +41,7 @@ class Testimonial extends Widget_Base {
   }
 
   public function get_custom_help_url() {
-    return 'https://themeasy.co/help-center';
+    return 'https://hub.themeasy.co/docs';
   }
 
   public function get_categories() {
@@ -1015,6 +1015,29 @@ class Testimonial extends Widget_Base {
           'selectors' => [
             '{{WRAPPER}} .tms-card .tms-horizontal-icons .tms-horizontal-icons__icon' => 'font-size: {{SIZE}}{{UNIT}};',
             '{{WRAPPER}} .tms-card .tms-horizontal-icons svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+          ],
+          'condition' => [
+            'show_star_rating' => 'yes',
+          ],
+        ]
+      );
+
+      // The row spaces its items with a margin on each side (shared.min.css),
+      // so the value is split in two. Every rule carries the placeholder: one
+      // without it would print for an empty slider too.
+      $this->add_responsive_control(
+        'star_rating_icon_gap',
+        [
+          'label' => esc_html__( 'Icon Spacing', 'themeasy-lite' ),
+          'type' => Controls_Manager::SLIDER,
+          'size_units' => ['px', 'em'],
+          'range' => [
+            'px' => ['min' => 0, 'max' => 30, 'step' => 1],
+            'em' => ['min' => 0, 'max' => 2, 'step' => 0.05],
+          ],
+          'selectors' => [
+            '{{WRAPPER}} .tms-card .tms-horizontal-icons .tms-horizontal-icons__item:not(:first-child)' => 'margin-inline-start: calc( {{SIZE}}{{UNIT}} / 2 );',
+            '{{WRAPPER}} .tms-card .tms-horizontal-icons .tms-horizontal-icons__item:not(:last-child)' => 'margin-inline-end: calc( {{SIZE}}{{UNIT}} / 2 );',
           ],
           'condition' => [
             'show_star_rating' => 'yes',
