@@ -1217,7 +1217,6 @@ class Testimonial extends Widget_Base {
     }
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
-    $wrapper_atts_output = themeasy_html_attributes( $wrapper_atts );
     $profile_card_classes_output = implode( ' ', array_filter( $profile_card_classes ) );
 
     // ------------------------------------------------------------------------
@@ -1236,13 +1235,13 @@ class Testimonial extends Widget_Base {
     // Output.
     // ------------------------------------------------------------------------
     ?>
-    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php themeasy_print_html_attributes( $wrapper_atts ); ?>>
       <div class="<?php echo esc_attr( $profile_card_classes_output ); ?>">
 
         <?php if ( $show_quote_icon && ( 'horizontal' === $block_layout || $is_split ) ) : ?>
           <div class="tms-profile-card__overlay-icon">
             <div class="icon-wrapper">
-              <?php echo $closed_quote_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+              <?php echo wp_kses( $closed_quote_icon, themeasy_get_icon_kses_tags() ); ?>
             </div>
           </div>
         <?php endif; ?>
@@ -1255,7 +1254,7 @@ class Testimonial extends Widget_Base {
               <div class="icon-wrapper">
                 <div class="tms-profile-card__overlay-icon">
                   <div class="icon-wrapper">
-                    <?php echo $open_quote_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+                    <?php echo wp_kses( $open_quote_icon, themeasy_get_icon_kses_tags() ); ?>
                   </div>
                 </div>
             <?php endif; ?>
@@ -1267,7 +1266,7 @@ class Testimonial extends Widget_Base {
             <?php if ( $show_quote_icon && 'vertical' === $block_layout ) : ?>
                 <div class="tms-profile-card__overlay-icon">
                   <div class="icon-wrapper">
-                    <?php echo $closed_quote_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+                    <?php echo wp_kses( $closed_quote_icon, themeasy_get_icon_kses_tags() ); ?>
                   </div>
                 </div>
               </div><!-- /.icon-wrapper -->
@@ -1320,7 +1319,7 @@ class Testimonial extends Widget_Base {
                     : 'tms-horizontal-icons__item';
                   ?>
                   <li class="<?php echo esc_attr( $item_class ); ?>">
-                    <?php echo $star_rating_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+                    <?php echo wp_kses( $star_rating_icon, themeasy_get_icon_kses_tags() ); ?>
                   </li>
                 <?php endfor; ?>
               </ul>

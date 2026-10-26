@@ -1245,7 +1245,7 @@ class Card extends Widget_Base {
           <div class="tms-card__header">
 
             <?php if ( 'icon' === $header_type && $icon_html ) : ?>
-              <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+              <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
 
             <?php elseif ( 'image' === $header_type && !empty( $image['url'] ) ) : ?>
               <?php
@@ -1295,10 +1295,10 @@ class Card extends Widget_Base {
 
               <?php if ( in_array( $button_style, ['duocolor', 'duocolor-outline'], true ) ) : ?>
                 <span class="tms-button__duocolor-icon">
-                  <?php echo $button_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+                  <?php echo wp_kses( $button_icon_html, themeasy_get_icon_kses_tags() ); ?>
                 </span>
               <?php else : ?>
-                <?php echo $button_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+                <?php echo wp_kses( $button_icon_html, themeasy_get_icon_kses_tags() ); ?>
               <?php endif; ?>
 
             </a><!-- /.tms-button -->

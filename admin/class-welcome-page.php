@@ -502,7 +502,7 @@ class Welcome_Page {
           <div class="themeasy-admin__card themeasy-admin__card--<?php echo esc_attr( $is_free_template ? 'free' : 'pro' ); ?>" aria-hidden="true">
             <img class="themeasy-admin__card-image" src="<?php echo esc_url( THEMEASY_URL . 'admin/assets/img/library/' . $template['image'] ); ?>" alt="" loading="lazy" />
             <span class="themeasy-admin__badge">
-              <?php echo $is_free_template ? esc_html__( 'Free', 'themeasy-lite' ) : esc_html__( 'Pro', 'themeasy-lite' ); ?>
+              <?php echo esc_html( $is_free_template ? __( 'Free', 'themeasy-lite' ) : __( 'Pro', 'themeasy-lite' ) ); ?>
             </span>
           </div>
         <?php endforeach; ?>

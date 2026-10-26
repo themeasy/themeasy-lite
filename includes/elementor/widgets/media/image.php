@@ -470,7 +470,6 @@ class Image extends Widget_Base {
     $wrapper_atts = [];
 
     $wrapper_classes_str = implode( ' ', array_filter( $wrapper_classes ) );
-    $wrapper_atts_html = themeasy_html_attributes( $wrapper_atts );
 
     // ------------------------------------------------------------------------
     // Render attributes.
@@ -528,7 +527,7 @@ class Image extends Widget_Base {
     // Output.
     // ------------------------------------------------------------------------
     ?>
-    <div class="<?php echo esc_attr( $wrapper_classes_str ); ?>"<?php echo $wrapper_atts_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+    <div class="<?php echo esc_attr( $wrapper_classes_str ); ?>"<?php themeasy_print_html_attributes( $wrapper_atts ); ?>>
 
       <?php if ( $has_link ) : ?>
         <a <?php $this->print_render_attribute_string( $link_key ); ?>>

@@ -1652,20 +1652,14 @@ class SectionIntro extends Widget_Base {
           break;
         }
 
-        $eyebrow_sanitized = wp_kses( $ctx['eyebrow'], themeasy_get_kses_allowed_tags() );
-
-        $eyebrow_text = '<span ' . $this->get_render_attribute_string( 'eyebrow' ) . '>'
-          . $eyebrow_sanitized . '</span>';
-
+        // The icon and the text touch: no whitespace between them.
         ?>
         <span class="tms-section-intro__eyebrow">
           <?php
           if ( $ctx['eyebrow_icon_html'] ) {
-            echo $ctx['eyebrow_icon_html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo wp_kses( $ctx['eyebrow_icon_html'], themeasy_get_icon_kses_tags() );
           }
-
-          echo $eyebrow_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-          ?>
+          ?><span <?php $this->print_render_attribute_string( 'eyebrow' ); ?>><?php echo wp_kses( $ctx['eyebrow'], themeasy_get_kses_allowed_tags() ); ?></span>
         </span>
         <?php
         break;
@@ -1674,27 +1668,18 @@ class SectionIntro extends Widget_Base {
         if ( '' === $ctx['title'] ) {
           break;
         }
-
-        $title_tag = tag_escape( $ctx['title_tag'] );
-        $title_sanitized = wp_kses( $ctx['title'], themeasy_get_kses_allowed_tags() );
-
-        $title_html = '<' . $title_tag . ' ' . $this->get_render_attribute_string( 'title' ) . '>'
-          . $title_sanitized . '</' . $title_tag . '>';
-
-        echo $title_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        ?>
+        <<?php echo tag_escape( $ctx['title_tag'] ); ?> <?php $this->print_render_attribute_string( 'title' ); ?>><?php echo wp_kses( $ctx['title'], themeasy_get_kses_allowed_tags() ); ?></<?php echo tag_escape( $ctx['title_tag'] ); ?>>
+        <?php
         break;
 
       case 'description':
         if ( '' === $ctx['description'] ) {
           break;
         }
-
-        $description_sanitized = wp_kses( $ctx['description'], themeasy_get_kses_allowed_tags() );
-
-        $description_html = '<div ' . $this->get_render_attribute_string( 'description' ) . '>'
-          . $description_sanitized . '</div>';
-
-        echo $description_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        ?>
+        <div <?php $this->print_render_attribute_string( 'description' ); ?>><?php echo wp_kses( $ctx['description'], themeasy_get_kses_allowed_tags() ); ?></div>
+        <?php
         break;
 
       case 'actions':
@@ -1768,7 +1753,7 @@ class SectionIntro extends Widget_Base {
         <?php echo wp_kses( $label, themeasy_get_kses_allowed_tags() ); ?>
       </span>
       <?php if ( $icon_html ) : ?>
-        <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+        <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
       <?php endif; ?>
     </a>
     <?php

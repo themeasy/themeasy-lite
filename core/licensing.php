@@ -11,7 +11,8 @@
  * shipped build); the secret_key is never referenced here and must never ship.
  *
  * This file boots the SDK and routes its screens: the opt-in, the deactivation
- * feedback form and the upgrade links. It reads no license.
+ * feedback form and the upgrade links. It also hooks the uninstall cleanup
+ * (core/uninstall.php) to the SDK. It reads no license.
  *
  * @package Themeasy\Core
  * @since 1.0.0
@@ -107,4 +108,10 @@ if ( !function_exists( 'themeasy_fs' ) ) {
   // Boot the SDK and signal dependents that it is ready.
   themeasy_fs();
   do_action( 'themeasy_fs_loaded' );
+
+  // Deleting the plugin removes what it stored to run, never the settings or
+  // the content (backlog #475). WordPress includes this file again to run the
+  // uninstall hook the SDK registered, and the SDK fires after_uninstall from it.
+  require_once __DIR__ . '/uninstall.php';
+  themeasy_fs()->add_action( 'after_uninstall', 'themeasy_uninstall_cleanup' );
 }

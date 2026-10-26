@@ -1152,7 +1152,6 @@ class Video extends Widget_Base {
     }
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
-    $wrapper_atts_output = themeasy_html_attributes( $wrapper_atts );
 
     // ------------------------------------------------------------------------
     // Ambient loop: a native muted autoplay video, no facade, no JS.
@@ -1160,7 +1159,7 @@ class Video extends Widget_Base {
     if ( $ambient ) {
       $player_atts = [
         'class' => 'tms-video__player tms-video__player--ambient',
-        // Raw-escaped: themeasy_html_attributes() runs esc_attr() on every value.
+        // Raw-escaped: themeasy_print_html_attributes() runs esc_attr() on every value.
         'src' => esc_url_raw( $watch_url ),
         'autoplay' => 'autoplay',
         'muted' => 'muted',
@@ -1174,9 +1173,9 @@ class Video extends Widget_Base {
         $player_atts['poster'] = esc_url_raw( $poster_url );
       }
       ?>
-      <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+      <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php themeasy_print_html_attributes( $wrapper_atts ); ?>>
         <div class="tms-video__frame">
-          <video <?php echo themeasy_html_attributes( $player_atts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>></video>
+          <video<?php themeasy_print_html_attributes( $player_atts ); ?>></video>
         </div><!-- /.tms-video__frame -->
       </div><!-- /.tms-video -->
       <?php
@@ -1188,7 +1187,7 @@ class Video extends Widget_Base {
     // ------------------------------------------------------------------------
     $badge_text = trim( (string) ( $settings['badge_text'] ?? '' ) );
     $label_raw = trim( (string) ( $settings['video_label'] ?? '' ) );
-    // Plain __(): themeasy_html_attributes() esc_attr()s the value once at output.
+    // Plain __(): themeasy_print_html_attributes() esc_attr()s the value once at output.
     $aria_label = '' !== $label_raw ? $label_raw : __( 'Play video', 'themeasy-lite' );
 
     // GLightbox detects self-hosted files by extension, so the lightbox href
@@ -1197,7 +1196,7 @@ class Video extends Widget_Base {
 
     $facade_classes = ['tms-video__facade'];
     $facade_atts = [
-      // Raw-escaped: themeasy_html_attributes() runs esc_attr() on every value.
+      // Raw-escaped: themeasy_print_html_attributes() runs esc_attr() on every value.
       'href' => esc_url_raw( $facade_href ),
       'aria-label' => $aria_label,
       // The href may point at an external host (watch page / external file):
@@ -1237,7 +1236,6 @@ class Video extends Widget_Base {
     }
 
     $facade_atts['class'] = implode( ' ', array_filter( $facade_classes ) );
-    $facade_atts_output = themeasy_html_attributes( $facade_atts );
 
     $play_icon_html = themeasy_render_icon_html( is_array( $settings['play_icon'] ?? null ) ? $settings['play_icon'] : [] );
 
@@ -1254,10 +1252,10 @@ class Video extends Widget_Base {
     // Output.
     // ------------------------------------------------------------------------
     ?>
-    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php themeasy_print_html_attributes( $wrapper_atts ); ?>>
       <div class="tms-video__frame">
 
-        <<?php echo esc_attr( $facade_tag ); ?> <?php echo $facade_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+        <<?php echo tag_escape( $facade_tag ); ?><?php themeasy_print_html_attributes( $facade_atts ); ?>>
 
           <?php if ( '' !== $poster_url ) : ?>
             <?php
@@ -1294,7 +1292,7 @@ class Video extends Widget_Base {
                 <span class="tms-video__play-ring"></span>
               <?php endif; ?>
               <span class="tms-video__play-icon" aria-hidden="true">
-                <?php echo $play_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+                <?php echo wp_kses( $play_icon_html, themeasy_get_icon_kses_tags() ); ?>
               </span>
             </span>
           <?php endif; ?>
@@ -1305,7 +1303,7 @@ class Video extends Widget_Base {
             </span>
           <?php endif; ?>
 
-        </<?php echo esc_attr( $facade_tag ); ?>><!-- /.tms-video__facade -->
+        </<?php echo tag_escape( $facade_tag ); ?>><!-- /.tms-video__facade -->
 
       </div><!-- /.tms-video__frame -->
     </div><!-- /.tms-video -->

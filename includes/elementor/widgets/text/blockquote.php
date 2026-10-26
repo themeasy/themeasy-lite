@@ -779,11 +779,6 @@ class Blockquote extends Widget_Base {
     }
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
-    $wrapper_atts_output = themeasy_html_attributes( $wrapper_atts );
-
-    // The cite attribute is emitted manually with esc_url(); routing it through
-    // themeasy_html_attributes() would re-apply esc_attr() and double-encode "&".
-    $cite_attr_output = !empty( $cite_url_raw ) ? ' cite="' . esc_url( $cite_url_raw ) . '"' : '';
 
     // ------------------------------------------------------------------------
     // Link attributes (author link uses the citation URL when present).
@@ -828,13 +823,16 @@ class Blockquote extends Widget_Base {
     // Output.
     // ------------------------------------------------------------------------
     $tag = tag_escape( $quote_tag );
+
+    // The cite attribute is printed with esc_url(): through
+    // themeasy_print_html_attributes() it would take esc_attr() and double-encode "&".
     ?>
     <<?php echo tag_escape( $tag ); ?>
-      class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $cite_attr_output . $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+      class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php if ( !empty( $cite_url_raw ) ) : ?> cite="<?php echo esc_url( $cite_url_raw ); ?>"<?php endif; ?><?php themeasy_print_html_attributes( $wrapper_atts ); ?>>
 
       <?php if ( $show_quote_mark && $mark_html ) : ?>
         <span class="tms-blockquote__mark" aria-hidden="true">
-          <?php echo $mark_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+          <?php echo wp_kses( $mark_html, themeasy_get_icon_kses_tags() ); ?>
         </span>
       <?php endif; ?>
 

@@ -36,10 +36,12 @@ class SVG_Sanitizer {
       'filter' => true,
     ];
 
+    // Presentation attributes only: none takes a script or an external URL.
     $fill_stroke = array_merge( $common, [
       'fill' => true,
       'fill-rule' => true,
       'fill-opacity' => true,
+      'clip-rule' => true,
       'stroke' => true,
       'stroke-width' => true,
       'stroke-linecap' => true,
@@ -47,6 +49,22 @@ class SVG_Sanitizer {
       'stroke-dasharray' => true,
       'stroke-dashoffset' => true,
       'stroke-opacity' => true,
+      'stroke-miterlimit' => true,
+      'color' => true,
+      'overflow' => true,
+      'vector-effect' => true,
+      'paint-order' => true,
+      'marker-start' => true,
+      'marker-mid' => true,
+      'marker-end' => true,
+      'font-family' => true,
+      'font-size' => true,
+      'font-weight' => true,
+      'letter-spacing' => true,
+      'word-spacing' => true,
+      'text-anchor' => true,
+      'dominant-baseline' => true,
+      'aria-label' => true,
     ] );
 
     $tags = [
@@ -61,6 +79,7 @@ class SVG_Sanitizer {
         'aria-label' => true,
         'focusable' => true,
         'version' => true,
+        'xml:space' => true,
         'x' => true,
         'y' => true,
       ] ),
@@ -76,10 +95,11 @@ class SVG_Sanitizer {
       'desc' => [],
       'defs' => [],
       'clippath' => ['id' => true, 'clippathunits' => true],
-      'use' => array_merge( ['href' => true, 'xlink:href' => true, 'x' => true, 'y' => true, 'width' => true, 'height' => true], $common ),
+      'use' => array_merge( ['href' => true, 'xlink:href' => true, 'x' => true, 'y' => true, 'width' => true, 'height' => true], $fill_stroke ),
       'symbol' => array_merge( ['viewbox' => true], $common ),
-      'lineargradient' => ['id' => true, 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true, 'gradientunits' => true, 'gradienttransform' => true],
-      'radialgradient' => ['id' => true, 'cx' => true, 'cy' => true, 'r' => true, 'fx' => true, 'fy' => true, 'gradientunits' => true, 'gradienttransform' => true],
+      'marker' => ['id' => true, 'viewbox' => true, 'refx' => true, 'refy' => true, 'markerwidth' => true, 'markerheight' => true, 'markerunits' => true, 'orient' => true],
+      'lineargradient' => ['id' => true, 'href' => true, 'xlink:href' => true, 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true, 'gradientunits' => true, 'gradienttransform' => true],
+      'radialgradient' => ['id' => true, 'href' => true, 'xlink:href' => true, 'cx' => true, 'cy' => true, 'r' => true, 'fx' => true, 'fy' => true, 'gradientunits' => true, 'gradienttransform' => true],
       'stop' => ['offset' => true, 'stop-color' => true, 'stop-opacity' => true, 'style' => true],
       'mask' => array_merge( ['id' => true, 'maskunits' => true, 'x' => true, 'y' => true, 'width' => true, 'height' => true], $fill_stroke ),
       'pattern' => ['id' => true, 'x' => true, 'y' => true, 'width' => true, 'height' => true, 'patternunits' => true, 'patterntransform' => true, 'viewbox' => true],
@@ -244,8 +264,9 @@ class SVG_Sanitizer {
    *
    * Uses the same DOM walker as the upload path, which preserves
    * case-sensitive attribute names (viewBox, gradientUnits, …) and the
-   * data-* attributes our animation engine reads. wp_kses wasn't suitable:
-   * it lowercases attributes and offers no wildcard for data-*.
+   * data-* attributes our animation engine reads, and holds references to
+   * same-document fragments, which wp_kses() does not check. The markup is
+   * escaped again where it is echoed (themeasy_get_icon_kses_tags()).
    *
    * @param string $svg Raw SVG markup.
    * @return string Sanitized SVG markup (empty on parse failure).

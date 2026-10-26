@@ -33,6 +33,118 @@ function themeasy_asset_ver( string $relative ) {
 }
 
 /**
+ * Whether the plugin's front-end layers load on demand on this request.
+ *
+ * The layers are the design tokens, the core, components, effects and
+ * accessibility CSS and the Bootstrap CSS under them (the premium build adds its
+ * core JS runtime). A Themeasy theme is built on them (its style.css depends on
+ * the Bootstrap layer), so there they load on every page. On any other theme
+ * they serve the Themeasy widgets alone: the FOUC preload enqueues them in
+ * <head> when a document of the page holds a Themeasy widget, and a document
+ * rendered later (a theme-builder header, a template shortcode) pulls them in
+ * as it renders, printed in the footer (backlog #469). The Elementor preview
+ * keeps them all, so a widget dropped on the canvas is styled at once.
+ *
+ * @return bool
+ */
+function themeasy_front_layers_on_demand(): bool {
+  static $on_demand = null;
+
+  if ( null === $on_demand ) {
+    $on_demand = !current_theme_supports( 'themeasy-compatible' ) && !themeasy_is_elementor_preview();
+  }
+
+  return $on_demand;
+}
+
+/**
+ * The handles of the front-end layers, in cascade order.
+ *
+ * The Bootstrap CSS comes in as the dependency of themeasy-core.
+ *
+ * @return array{style: string[], script: string[]}
+ */
+function themeasy_get_front_layer_handles(): array {
+  static $layers = null;
+
+  if ( null !== $layers ) {
+    return $layers;
+  }
+
+  /**
+   * Filters the handles of the front-end layers.
+   *
+   * @param array $layers { style: string[], script: string[] }
+   */
+  $layers = (array) apply_filters(
+    'themeasy/front_layers',
+    [
+      'style' => [
+        'themeasy-tokens',
+        'themeasy-core',
+        'themeasy-components',
+        'themeasy-effects',
+        'themeasy-accessibility',
+      ],
+      'script' => [],
+    ]
+  );
+
+  return $layers;
+}
+
+/**
+ * Put the front-end layers ahead of an asset's own dependencies when they load
+ * on demand, so a widget asset pulls them in wherever it prints.
+ *
+ * @param string   $type 'style' or 'script'.
+ * @param string[] $deps The asset's own dependencies.
+ * @return string[]
+ */
+function themeasy_with_front_layer_deps( string $type, array $deps ): array {
+  if ( !themeasy_front_layers_on_demand() ) {
+    return $deps;
+  }
+
+  $layers = themeasy_get_front_layer_handles();
+
+  return array_values( array_unique( array_merge( (array) ( $layers[$type] ?? [] ), $deps ) ) );
+}
+
+/**
+ * Enqueue the front-end layers (see themeasy_front_layers_on_demand()).
+ *
+ * A block theme renders the page's documents before wp_head, so a call that
+ * comes before the layers are registered waits for wp_enqueue_scripts.
+ *
+ * @return void
+ */
+function themeasy_enqueue_front_layers(): void {
+  static $enqueued = false;
+
+  if ( $enqueued ) {
+    return;
+  }
+
+  if ( !did_action( 'wp_enqueue_scripts' ) ) {
+    add_action( 'wp_enqueue_scripts', 'themeasy_enqueue_front_layers', 11 );
+
+    return;
+  }
+
+  $enqueued = true;
+  $layers = themeasy_get_front_layer_handles();
+
+  foreach ( (array) ( $layers['style'] ?? [] ) as $handle ) {
+    wp_enqueue_style( $handle );
+  }
+
+  foreach ( (array) ( $layers['script'] ?? [] ) as $handle ) {
+    wp_enqueue_script( $handle );
+  }
+}
+
+/**
  * Register vendor assets (JS/CSS).
  *
  * @return void
@@ -109,10 +221,12 @@ function themeasy_register_modules_assets() {
   // ------------------------------------------------------------------------
   // Module CSS: Lightbox
   // ------------------------------------------------------------------------
+  // Widgets declare the module as their own handle (the Image), so it carries
+  // the front-end layers too.
   wp_register_style(
     'themeasy-lightbox-module',
     THEMEASY_URL . 'assets/css/modules/lightbox.min.css',
-    ['themeasy-glightbox'],
+    themeasy_with_front_layer_deps( 'style', ['themeasy-glightbox'] ),
     themeasy_asset_ver( 'assets/css/modules/lightbox.min.css' )
   );
 
@@ -122,7 +236,7 @@ function themeasy_register_modules_assets() {
   wp_register_script(
     'themeasy-lightbox-module',
     THEMEASY_URL . 'assets/js/modules/lightbox.min.js',
-    ['themeasy-glightbox'],
+    themeasy_with_front_layer_deps( 'script', ['themeasy-glightbox'] ),
     themeasy_asset_ver( 'assets/js/modules/lightbox.min.js' ),
     true
   );
@@ -148,10 +262,12 @@ add_action( 'wp_enqueue_scripts', 'themeasy_register_modules_assets', 6 );
 /**
  * Enqueue core Themeasy assets.
  *
- * Loads the CSS layers in cascade order (core → components → effects →
- * accessibility), after the design token defaults they all consume. All of
- * them load globally for now. No core JS loads here: the widgets need none,
- * and the one that needs Bootstrap JS (the Accordion) declares it itself.
+ * Registers the CSS layers in cascade order (core → components → effects →
+ * accessibility), after the design token defaults they all consume, and
+ * enqueues them on every page unless they load on demand (off a Themeasy
+ * theme: themeasy_front_layers_on_demand()). No core JS loads here: the
+ * widgets need none, and the one that needs Bootstrap JS (the Accordion)
+ * declares it itself.
  *
  * @return void
  */
@@ -161,7 +277,7 @@ function themeasy_enqueue_core_assets() {
   // render on any theme. On a Themeasy theme, its style.css and the generated
   // settings.css outrank them (backlog #256).
   // ------------------------------------------------------------------------
-  wp_enqueue_style(
+  wp_register_style(
     'themeasy-tokens',
     THEMEASY_URL . 'assets/css/tokens.min.css',
     [],
@@ -171,7 +287,7 @@ function themeasy_enqueue_core_assets() {
   // ------------------------------------------------------------------------
   // Core CSS
   // ------------------------------------------------------------------------
-  wp_enqueue_style(
+  wp_register_style(
     'themeasy-core',
     THEMEASY_URL . 'assets/css/core.min.css',
     ['themeasy-bootstrap'],
@@ -181,7 +297,7 @@ function themeasy_enqueue_core_assets() {
   // ------------------------------------------------------------------------
   // Components CSS
   // ------------------------------------------------------------------------
-  wp_enqueue_style(
+  wp_register_style(
     'themeasy-components',
     THEMEASY_URL . 'assets/css/components.min.css',
     ['themeasy-core'],
@@ -191,7 +307,7 @@ function themeasy_enqueue_core_assets() {
   // ------------------------------------------------------------------------
   // Effects CSS
   // ------------------------------------------------------------------------
-  wp_enqueue_style(
+  wp_register_style(
     'themeasy-effects',
     THEMEASY_URL . 'assets/css/effects.min.css',
     ['themeasy-core'],
@@ -201,12 +317,22 @@ function themeasy_enqueue_core_assets() {
   // ------------------------------------------------------------------------
   // Accessibility CSS
   // ------------------------------------------------------------------------
-  wp_enqueue_style(
+  wp_register_style(
     'themeasy-accessibility',
     THEMEASY_URL . 'assets/css/accessibility.min.css',
     ['themeasy-effects'],
     themeasy_asset_ver( 'assets/css/accessibility.min.css' )
   );
+
+  if ( themeasy_front_layers_on_demand() ) {
+    return;
+  }
+
+  wp_enqueue_style( 'themeasy-tokens' );
+  wp_enqueue_style( 'themeasy-core' );
+  wp_enqueue_style( 'themeasy-components' );
+  wp_enqueue_style( 'themeasy-effects' );
+  wp_enqueue_style( 'themeasy-accessibility' );
 }
 add_action( 'wp_enqueue_scripts', 'themeasy_enqueue_core_assets', 10 );
 
@@ -306,6 +432,12 @@ function themeasy_register_asset_from_file( string $filename, string $path, stri
   $deps = themeasy_get_widget_asset_deps();
   $style_deps = array_values( array_filter( (array) ( $deps['style'][$handle] ?? [] ) ) );
   $script_deps = array_values( array_filter( (array) ( $deps['script'][$handle] ?? [] ) ) );
+
+  // Off a Themeasy theme the front-end layers ride every widget asset, so a
+  // widget printed outside the documents the FOUC preload scanned still gets
+  // them (backlog #469).
+  $style_deps = themeasy_with_front_layer_deps( 'style', $style_deps );
+  $script_deps = themeasy_with_front_layer_deps( 'script', $script_deps );
 
   // ------------------------------------------------------------------------
   // Register the asset based on its type. Use the file mtime for cache busting

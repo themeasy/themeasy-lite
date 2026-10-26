@@ -2238,7 +2238,7 @@ class PricingTable extends Widget_Base {
                           printf(
                             '<li class="tms-pricing-table__checklist-item"><span class="tms-pricing-table__checklist-text">%1$s</span>%2$s</li>',
                             esc_html( $text ),
-                            $icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                            wp_kses( $icon, themeasy_get_icon_kses_tags() )
                           );
                         }
 
@@ -2258,10 +2258,10 @@ class PricingTable extends Widget_Base {
 
                           <?php if ( in_array( $button_style, ['duocolor', 'duocolor-outline'], true ) ) : ?>
                             <span class="tms-button__duocolor-icon">
-                              <?php echo $button_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                              <?php echo wp_kses( $button_icon_html, themeasy_get_icon_kses_tags() ); ?>
                             </span>
                           <?php else : ?>
-                            <?php echo $button_icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                            <?php echo wp_kses( $button_icon_html, themeasy_get_icon_kses_tags() ); ?>
                           <?php endif; ?>
 
                       </a><!-- /.tms-button -->

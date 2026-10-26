@@ -5,7 +5,7 @@ Tags: elementor, elementor widgets, page builder, widgets, design
 Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,7 +57,7 @@ Yes. The widgets are built for Elementor — the free Elementor plugin is enough
 
 = Will it slow down my site? =
 
-No. Themeasy Lite ships no animation library, and a widget's own styles and scripts are enqueued only on pages where that widget is actually used. Its shared base styles load on every page: the design tokens, the layout and component styles the widgets build on, and a copy of Bootstrap's CSS scoped to the Themeasy widgets.
+No. Themeasy Lite ships no animation library, and its styles and scripts load only on the pages that use one of its widgets: each widget's own files, plus the shared base styles the widgets build on (the design tokens, the layout and component styles, and a copy of Bootstrap's CSS scoped to the Themeasy widgets). On a Themeasy theme, the shared base styles load on every page.
 
 == Screenshots ==
 
@@ -103,6 +103,22 @@ Plyr, (C) Sam Potts — https://github.com/sampotts/plyr
 
 == Changelog ==
 
+= 1.1.4 — 2026-10-26 =
+* Security: the bundled Freemius SDK is updated to 2.13.5, its security release of 2026-10-22.
+* Security hardening: every widget escapes its output where it prints it.
+* On a theme that is not a Themeasy theme, the plugin's styles and scripts load only on the pages that use one of its widgets.
+* Business Hours: the Today pill gains Typography and Border Radius controls.
+* Deleting the plugin now removes its temporary data.
+
+= 1.1.3 — 2026-10-21 =
+* Maintenance release, with no change to the free widgets.
+
+= 1.1.2 — 2026-10-21 =
+* Maintenance release, with no change to the free widgets.
+
+= 1.1.1 — 2026-10-19 =
+* Maintenance release, with no change to the free widgets.
+
 = 1.1.0 — 2026-10-19 =
 * Launch release: 18 free Elementor widgets and a consistent set of design controls, on any theme.
 * Fixes and polish across the widgets.
@@ -111,6 +127,18 @@ Plyr, (C) Sam Potts — https://github.com/sampotts/plyr
 * Stability and efficiency improvements following a comprehensive code audit.
 
 == Upgrade Notice ==
+
+= 1.1.4 =
+Security update: the Freemius SDK 2.13.5, and every widget's output escaped where it prints it.
+
+= 1.1.3 =
+Maintenance release, with no change to the free widgets.
+
+= 1.1.2 =
+Maintenance release, with no change to the free widgets.
+
+= 1.1.1 =
+Maintenance release, with no change to the free widgets.
 
 = 1.1.0 =
 Launch release, with fixes and polish across the widgets.

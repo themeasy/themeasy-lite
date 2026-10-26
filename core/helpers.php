@@ -182,23 +182,20 @@ function themeasy_get_kses_allowed_tags( $context = 'inline', $extra_allowed = [
 }
 
 /**
- * Converts an associative array into HTML attributes.
+ * Filters an associative array down to the HTML attributes it can print.
  *
- * Example:
- * ['id' => 'main', 'class' => 'wrapper'] → ' id="main" class="wrapper"'
- *
- * Values are escaped with esc_attr(). Names are normalized to a safe subset
- * (alphanumerics, colon, underscore, hyphen): browsers do not decode entities
- * in attribute-name position, so escaping cannot stop a hostile name from
- * splitting the attribute — stripping can. Mirrors Themeasy.htmlAttributes()
- * in JS.
+ * Skips null, '', false, arrays and objects. Names are normalized to a safe
+ * subset (alphanumerics, colon, underscore, hyphen): browsers do not decode
+ * entities in attribute-name position, so escaping cannot stop a hostile name
+ * from splitting the attribute — stripping can. Values come back raw: the
+ * caller escapes them where it prints.
  *
  * @param array $attributes Associative array of attributes.
- * @return string
+ * @return array<string, string> Safe name => raw value.
  * @since 1.0.0
  */
-function themeasy_html_attributes( array $attributes ): string {
-  $output = '';
+function themeasy_filter_html_attributes( array $attributes ): array {
+  $filtered = [];
 
   foreach ( $attributes as $key => $value ) {
     if ( $value === null || $value === '' || $value === false ) {
@@ -215,10 +212,53 @@ function themeasy_html_attributes( array $attributes ): string {
       continue;
     }
 
-    $output .= sprintf( ' %s="%s"', $safe_key, esc_attr( (string) $value ) );
+    $filtered[$safe_key] = (string) $value;
+  }
+
+  return $filtered;
+}
+
+/**
+ * Converts an associative array into HTML attributes.
+ *
+ * Example:
+ * ['id' => 'main', 'class' => 'wrapper'] → ' id="main" class="wrapper"'
+ *
+ * Values are escaped with esc_attr(), names filtered by
+ * themeasy_filter_html_attributes(). For markup built as a string; a template
+ * prints through themeasy_print_html_attributes(), which escapes at the echo.
+ * Mirrors Themeasy.htmlAttributes() in JS.
+ *
+ * @param array $attributes Associative array of attributes.
+ * @return string
+ * @since 1.0.0
+ */
+function themeasy_html_attributes( array $attributes ): string {
+  $output = '';
+
+  foreach ( themeasy_filter_html_attributes( $attributes ) as $name => $value ) {
+    $output .= sprintf( ' %s="%s"', $name, esc_attr( $value ) );
   }
 
   return $output;
+}
+
+/**
+ * Prints an associative array as HTML attributes, each escaped as it is echoed.
+ *
+ * The output equals themeasy_html_attributes(): a leading space before each
+ * attribute, so it sits right after a tag name or a class attribute.
+ *
+ *   <div class="<?php echo esc_attr( $classes ); ?>"<?php themeasy_print_html_attributes( $atts ); ?>>
+ *
+ * @param array $attributes Associative array of attributes.
+ * @return void
+ * @since 1.0.0
+ */
+function themeasy_print_html_attributes( array $attributes ): void {
+  foreach ( themeasy_filter_html_attributes( $attributes ) as $name => $value ) {
+    echo ' ' . esc_attr( $name ) . '="' . esc_attr( $value ) . '"';
+  }
 }
 
 /**
@@ -353,16 +393,14 @@ function themeasy_render_image_tag( string $src, string $alt = '', string $class
     return;
   }
 
-  $extra_attr = themeasy_html_attributes( $attributes );
-
   printf(
-    '<img src="%s" alt="%s"%s loading="lazy" decoding="async"%s />',
+    '<img src="%s" alt="%s"%s loading="lazy" decoding="async"',
     esc_url( $src ),
     esc_attr( $alt ),
-    $class ? ' class="' . esc_attr( $class ) . '"' : '',
-    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- values escaped by themeasy_html_attributes().
-    $extra_attr ? ' ' . $extra_attr : ''
+    $class ? ' class="' . esc_attr( $class ) . '"' : ''
   );
+  themeasy_print_html_attributes( $attributes );
+  echo ' />';
 }
 
 /**
@@ -406,10 +444,8 @@ function themeasy_render_attachment_image( int $image_id = 0, string $size = 'fu
     return;
   }
 
-  $extra_attr = themeasy_html_attributes( $attributes );
-
   printf(
-    '<img src="%s" alt="%s"%s%s%s%s%s%s%s decoding="async" />',
+    '<img src="%s" alt="%s"%s%s%s%s%s%s',
     esc_url( $src ),
     esc_attr( $alt ),
     $class ? ' class="' . esc_attr( $class ) . '"' : '',
@@ -417,10 +453,10 @@ function themeasy_render_attachment_image( int $image_id = 0, string $size = 'fu
     $height ? sprintf( ' height="%d"', (int) $height ) : '',
     $srcset ? sprintf( ' srcset="%s"', esc_attr( $srcset ) ) : '',
     $sizes  ? sprintf( ' sizes="%s"', esc_attr( $sizes ) ) : '',
-    $loading_priority === 'high' ? ' fetchpriority="high"' : ' loading="lazy"',
-    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- values escaped by themeasy_html_attributes().
-    $extra_attr ? ' ' . $extra_attr : ''
+    $loading_priority === 'high' ? ' fetchpriority="high"' : ' loading="lazy"'
   );
+  themeasy_print_html_attributes( $attributes );
+  echo ' decoding="async" />';
 }
 
 // ==============================
@@ -931,6 +967,54 @@ function themeasy_render_icon_html( array $icon, array $attributes = [] ): strin
   ob_start();
   \Elementor\Icons_Manager::render_icon( $icon, $attributes );
   return ob_get_clean();
+}
+
+/**
+ * wp_kses() tags for the glyph markup the icon helpers return.
+ *
+ * themeasy_render_icon_html() and themeasy_get_svg_icon() return HTML (an
+ * inline <svg>, a font icon's <i>, or Elementor's own icon markup), escaped at
+ * the echo:
+ *
+ *   echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() );
+ *
+ * The SVG half is the sanitizer's whitelist (SVG_Sanitizer::get_allowed_tags()),
+ * plus `data-*` on every tag for the animated set's settings. wp_kses() writes
+ * attribute names in lowercase (`viewbox`), which the HTML parser maps back to
+ * the SVG names (`viewBox`), so the browser builds the same tree; core's
+ * safecss_filter_attr() keeps the SVG presentation properties of a `style`.
+ * `php tests/icon-kses-parity.php` runs every shipped icon through it.
+ *
+ * @return array Allowed tags array compatible with wp_kses().
+ * @since 1.0.0
+ */
+function themeasy_get_icon_kses_tags(): array {
+  static $tags = null;
+
+  if ( null !== $tags ) {
+    return $tags;
+  }
+
+  $tags = \Themeasy\Core\SVG_Sanitizer::get_allowed_tags();
+
+  foreach ( $tags as $tag => $attributes ) {
+    $tags[$tag]['data-*'] = true;
+  }
+
+  // Font icons (Font Awesome, eicons, an icon set uploaded to Elementor).
+  $font_icon = [
+    'class' => true,
+    'aria-hidden' => true,
+    'aria-label' => true,
+    'role' => true,
+    'style' => true,
+    'data-*' => true,
+  ];
+
+  $tags['i'] = $font_icon;
+  $tags['span'] = $font_icon;
+
+  return $tags;
 }
 
 // ==============================

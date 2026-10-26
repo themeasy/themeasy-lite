@@ -1170,7 +1170,6 @@ class Divider extends Widget_Base {
     }
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
-    $wrapper_atts_output = themeasy_html_attributes( $wrapper_atts );
 
     // ------------------------------------------------------------------------
     // Render attributes.
@@ -1193,7 +1192,7 @@ class Divider extends Widget_Base {
     // Output.
     // ------------------------------------------------------------------------
     ?>
-    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php themeasy_print_html_attributes( $wrapper_atts ); ?>>
       <div class="tms-divider__inner">
 
         <?php if ( 'shape' === $skin && 'line' === $shape_style ) : ?>
@@ -1236,7 +1235,7 @@ class Divider extends Widget_Base {
 
           <?php if ( 'icon' === $element_type && $icon_html ) : ?>
             <span class="tms-divider__element tms-divider__element--icon" aria-hidden="true">
-              <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+              <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
             </span>
           <?php elseif ( 'text' === $element_type && '' !== $element_text ) : ?>
             <span <?php $this->print_render_attribute_string( 'element_text' ); ?>>

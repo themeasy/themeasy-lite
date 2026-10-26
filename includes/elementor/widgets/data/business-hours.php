@@ -1000,6 +1000,36 @@ class BusinessHours extends Widget_Base {
         ]
       );
 
+      // The Today pill mirrors the status badge: its own face and corner, so a
+      // square template doesn't ship the one capsule on the page (backlog #492).
+      $this->add_group_control(
+        Group_Control_Typography::get_type(),
+        [
+          'name' => 'today_badge_typography',
+          'label' => esc_html__( 'Today Pill Typography', 'themeasy-lite' ),
+          'selector' => '{{WRAPPER}} .tms-business-hours__today-pill',
+          'separator' => 'before',
+          'condition' => [
+            'today_badge_text!' => '',
+          ],
+        ]
+      );
+
+      $this->add_control(
+        'today_badge_radius',
+        [
+          'label' => esc_html__( 'Today Pill Border Radius', 'themeasy-lite' ),
+          'type' => Controls_Manager::DIMENSIONS,
+          'size_units' => ['px', 'em', '%'],
+          'selectors' => [
+            '{{WRAPPER}} .tms-business-hours__today-pill' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+          ],
+          'condition' => [
+            'today_badge_text!' => '',
+          ],
+        ]
+      );
+
     $this->end_controls_section();
 
     // ------------------------------------------------------------------------
@@ -1324,7 +1354,6 @@ class BusinessHours extends Widget_Base {
     $wrapper_atts['data-utc-offset'] = (string) $utc_offset;
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
-    $wrapper_atts_output = themeasy_html_attributes( $wrapper_atts );
 
     // ------------------------------------------------------------------------
     // Header pieces.
@@ -1360,7 +1389,6 @@ class BusinessHours extends Widget_Base {
     }
 
     $badge_classes_output = implode( ' ', array_filter( $badge_classes ) );
-    $badge_atts_output = themeasy_html_attributes( $badge_atts );
 
     // ------------------------------------------------------------------------
     // Render attributes.
@@ -1375,7 +1403,7 @@ class BusinessHours extends Widget_Base {
     // Output.
     // ------------------------------------------------------------------------
     ?>
-    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php themeasy_print_html_attributes( $wrapper_atts ); ?>>
       <div class="tms-business-hours__inner tms-animation__target">
 
         <?php if ( $has_header ) : ?>
@@ -1386,7 +1414,7 @@ class BusinessHours extends Widget_Base {
 
                 <?php if ( $icon_html ) : ?>
                   <span class="tms-business-hours__icon" aria-hidden="true">
-                    <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+                    <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
                   </span>
                 <?php endif; ?>
 
@@ -1400,7 +1428,7 @@ class BusinessHours extends Widget_Base {
             <?php endif; ?>
 
             <?php if ( $badge_show ) : ?>
-              <span class="<?php echo esc_attr( $badge_classes_output ); ?>"<?php echo $badge_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+              <span class="<?php echo esc_attr( $badge_classes_output ); ?>"<?php themeasy_print_html_attributes( $badge_atts ); ?>>
                 <span class="tms-business-hours__badge-dot" aria-hidden="true"></span>
                 <span class="tms-business-hours__badge-label"><?php echo esc_html( 'open' === $status ? $badge_open_text : $badge_closed_text ); ?></span>
               </span>
@@ -1427,7 +1455,7 @@ class BusinessHours extends Widget_Base {
             $row_classes_output = implode( ' ', array_filter( $row_classes ) );
 
             // Row data for the client-side re-sync (truthy strings only —
-            // themeasy_html_attributes() drops empty values by design).
+            // themeasy_print_html_attributes() drops empty values by design).
             $row_ranges = array_map(
               static function ( array $range ): string {
                 return $range[0] . '-' . $range[1];
@@ -1442,7 +1470,6 @@ class BusinessHours extends Widget_Base {
               'data-indeterminate' => $row['indeterminate'] ? 'true' : '',
             ];
 
-            $row_atts_output = themeasy_html_attributes( $row_atts );
 
             // Inline editing render attributes.
             $label_key = $this->get_repeater_setting_key( 'item_label', 'items', $row['index'] );
@@ -1454,7 +1481,7 @@ class BusinessHours extends Widget_Base {
             $this->add_inline_editing_attributes( $hours_key, 'none' );
             ?>
 
-            <div class="<?php echo esc_attr( $row_classes_output ); ?>"<?php echo $row_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+            <div class="<?php echo esc_attr( $row_classes_output ); ?>"<?php themeasy_print_html_attributes( $row_atts ); ?>>
 
               <dt class="tms-business-hours__day">
                 <span <?php $this->print_render_attribute_string( $label_key ); ?>>

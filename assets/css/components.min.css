@@ -2331,6 +2331,16 @@ a:hover>.tms-badge .tms-badge__icon {
 	border-color: var(--tms-border-color);
 }
 
+/* The column follows a tall panel (both widgets set `sticky-top` on it), but
+ * Bootstrap's `top: 0; z-index: 1020` painted it over the page's own fixed
+ * header while the panel scrolled. Nothing overlaps the column, so it needs no
+ * z-index; Sticky Offset (`tabs_sticky_offset`) keeps it clear of the header.
+ * The stacked layout below 992px sets it back to static. Backlog #497. */
+.vertical-tab > .nav-pills.sticky-top {
+	top: var(--tms-tabs-sticky-offset, 0px);
+	z-index: auto;
+}
+
 /* Space between the tab items: none on the Underline strip, 15px between the
  * Filled pills. The Filled rule comes second so it wins at equal specificity. */
 .tms-tabs > .nav {

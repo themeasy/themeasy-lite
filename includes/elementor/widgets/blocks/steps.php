@@ -573,13 +573,12 @@ class Steps extends Widget_Base {
     }
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
-    $wrapper_atts_output = themeasy_html_attributes( $wrapper_atts );
 
     // ------------------------------------------------------------------------
     // Output.
     // ------------------------------------------------------------------------
     ?>
-    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php themeasy_print_html_attributes( $wrapper_atts ); ?>>
       <div class="<?php echo esc_attr( $col_class ); ?>">
 
         <?php foreach ( $items as $index => $item ) : ?>
@@ -606,7 +605,7 @@ class Steps extends Widget_Base {
 
             <?php if ( $icon_html ) : ?>
               <span class="tms-steps__icon" aria-hidden="true">
-                <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
               </span>
             <?php else : ?>
               <span class="tms-steps__number"><?php echo esc_html( $index + 1 ); ?></span>

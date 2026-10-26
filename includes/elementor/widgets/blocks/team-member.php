@@ -1440,7 +1440,7 @@ class TeamMember extends Widget_Base {
 
               <li class="tms-team-member__social-item">
                 <a <?php $this->print_render_attribute_string( $social_link_key ); ?>>
-                  <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+                  <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
                   <?php if ( '' !== $social_label ) : ?>
                     <span <?php $this->print_render_attribute_string( $label_key ); ?>>
                       <?php echo esc_html( $social_label ); ?>

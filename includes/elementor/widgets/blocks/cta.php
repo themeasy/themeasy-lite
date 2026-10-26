@@ -1575,9 +1575,9 @@ class Cta extends Widget_Base {
           <?php endif; ?>
 
           <?php if ( $title ) : ?>
-            <<?php echo esc_html( $title_tag ); ?> <?php $this->print_render_attribute_string( 'title' ); ?>>
+            <<?php echo tag_escape( $title_tag ); ?> <?php $this->print_render_attribute_string( 'title' ); ?>>
               <?php echo wp_kses_post( $title ); ?>
-            </<?php echo esc_html( $title_tag ); ?>>
+            </<?php echo tag_escape( $title_tag ); ?>>
           <?php endif; ?>
 
           <?php if ( $description ) : ?>
@@ -1622,7 +1622,7 @@ class Cta extends Widget_Base {
       );
 
       if ( $icon_html ) {
-        echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() );
       }
 
       return;
@@ -1698,7 +1698,7 @@ class Cta extends Widget_Base {
         <?php echo wp_kses( $label, themeasy_get_kses_allowed_tags() ); ?>
       </span>
       <?php if ( $icon_html ) : ?>
-        <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+        <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
       <?php endif; ?>
     </a>
     <?php

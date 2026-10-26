@@ -778,7 +778,6 @@ class Button extends Widget_Base {
     }
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
-    $wrapper_atts_output = themeasy_html_attributes( $wrapper_atts );
     $button_classes_output = implode( ' ', array_filter( $button_classes ) );
 
     // ------------------------------------------------------------------------
@@ -829,7 +828,7 @@ class Button extends Widget_Base {
     // Output.
     // ------------------------------------------------------------------------
     ?>
-    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php themeasy_print_html_attributes( $wrapper_atts ); ?>>
       <a <?php $this->print_render_attribute_string( 'button_link' ); ?>>
 
         <span <?php $this->print_render_attribute_string( 'button_label' ); ?>>
@@ -839,10 +838,10 @@ class Button extends Widget_Base {
         <?php if ( $icon_html ) : ?>
           <?php if ( $is_duocolor ) : ?>
             <span class="tms-button__duocolor-icon">
-              <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+              <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
             </span>
           <?php else : ?>
-            <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+            <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
           <?php endif; ?>
         <?php endif; ?>
 

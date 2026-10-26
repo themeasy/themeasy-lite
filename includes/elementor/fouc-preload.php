@@ -15,6 +15,9 @@
  * This pass covers the structural widget CSS only. The per-element settings CSS
  * (Elementor post-{id}.css) is handled by Elementor.
  *
+ * Off a Themeasy theme the same scan decides whether the plugin's front-end
+ * layers load at all (themeasy_front_layers_on_demand(), backlog #469).
+ *
  * @package Themeasy\Elementor
  * @since 1.0.0
  */
@@ -61,6 +64,12 @@ function themeasy_preload_widget_styles(): void {
     }
   }
 
+  // The front-end layers, when they load on demand: in <head>, before the
+  // widget styles, as soon as one of these documents holds a Themeasy widget.
+  if ( themeasy_front_layers_on_demand() && themeasy_has_themeasy_widget( array_keys( $widget_types ) ) ) {
+    themeasy_enqueue_front_layers();
+  }
+
   if ( empty( $widget_types ) ) {
     return;
   }
@@ -68,6 +77,48 @@ function themeasy_preload_widget_styles(): void {
   themeasy_enqueue_widget_style_depends( array_keys( $widget_types ) );
 }
 add_action( 'wp_enqueue_scripts', 'themeasy_preload_widget_styles', 11 );
+
+/**
+ * Enqueue the front-end layers for a document rendered outside the ones the
+ * preload scanned in <head> (backlog #469).
+ *
+ * A theme-builder header or footer, a template shortcode, a Loop item: when it
+ * holds a Themeasy widget, the layers load as it renders, printed in the
+ * footer. The widget assets depend on the layers too, but this pass also
+ * reaches the widgets that declare no asset of their own and a document the
+ * Element Cache serves (it replays only the handles its first render added).
+ * The scan shares the preload's per-document cache, so a document read in
+ * <head> is not read again.
+ *
+ * @param \Elementor\Core\Base\Document $document The document about to render.
+ * @return void
+ */
+function themeasy_enqueue_front_layers_for_document( $document ): void {
+  if ( !themeasy_front_layers_on_demand() || !is_object( $document ) || !method_exists( $document, 'get_main_id' ) ) {
+    return;
+  }
+
+  if ( themeasy_has_themeasy_widget( themeasy_collect_document_widget_types( (int) $document->get_main_id() ) ) ) {
+    themeasy_enqueue_front_layers();
+  }
+}
+add_action( 'elementor/frontend/before_get_builder_content', 'themeasy_enqueue_front_layers_for_document' );
+
+/**
+ * Whether a list of widget types holds a Themeasy widget.
+ *
+ * @param string[] $widget_types Widget type slugs.
+ * @return bool
+ */
+function themeasy_has_themeasy_widget( array $widget_types ): bool {
+  foreach ( $widget_types as $type ) {
+    if ( 0 === strpos( (string) $type, 'themeasy-' ) ) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 /**
  * Gather the above-the-fold Elementor document IDs that render on this request.

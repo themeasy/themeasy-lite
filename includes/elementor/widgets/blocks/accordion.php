@@ -335,7 +335,6 @@ class Accordion extends Widget_Base {
         if ( !$allow_multiple_open ) {
           $collapse_atts['data-bs-parent'] = '#' . $parent_id;
         }
-        $collapse_atts_output = themeasy_html_attributes( $collapse_atts );
 
         // -- Render attributes --
         $title_key = $this->get_repeater_setting_key( 'title', 'accordion_items', $index );
@@ -364,7 +363,7 @@ class Accordion extends Widget_Base {
           </h2>
 
           <div id="<?php echo esc_attr( $collapse_id ); ?>"
-            class="accordion-collapse collapse <?php echo esc_attr( $content_class ); ?>"<?php echo $collapse_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+            class="accordion-collapse collapse <?php echo esc_attr( $content_class ); ?>"<?php themeasy_print_html_attributes( $collapse_atts ); ?>>
             <div class="accordion-body">
 
               <div <?php $this->print_render_attribute_string( $desc_key ); ?>>

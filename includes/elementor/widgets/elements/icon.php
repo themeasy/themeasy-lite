@@ -440,7 +440,6 @@ class Icon extends Widget_Base {
     }
 
     $wrapper_classes_output = implode( ' ', array_filter( $wrapper_classes ) );
-    $wrapper_atts_output = themeasy_html_attributes( $wrapper_atts );
 
     // ------------------------------------------------------------------------
     // Render attributes.
@@ -464,14 +463,14 @@ class Icon extends Widget_Base {
     // Output.
     // ------------------------------------------------------------------------
     ?>
-    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php echo $wrapper_atts_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>>
+    <div class="<?php echo esc_attr( $wrapper_classes_output ); ?>"<?php themeasy_print_html_attributes( $wrapper_atts ); ?>>
 
       <?php if ( $has_link ) : ?>
         <a <?php $this->print_render_attribute_string( 'link' ); ?>>
       <?php endif; ?>
 
       <?php if ( $icon_html ) : ?>
-        <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+        <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
       <?php endif; ?>
 
       <?php if ( $has_link ) : ?>

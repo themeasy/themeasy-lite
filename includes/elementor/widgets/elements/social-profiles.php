@@ -705,11 +705,11 @@ class SocialProfiles extends Widget_Base {
         <li class="tms-social-profiles__list-item">
           <?php if ( $url ) : ?>
             <a <?php $this->print_render_attribute_string( $link_key ); ?>>
-              <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+              <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
             </a>
           <?php else : ?>
             <span <?php $this->print_render_attribute_string( $link_key ); ?>>
-              <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
+              <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
             </span>
           <?php endif; ?>
         </li>
@@ -732,7 +732,7 @@ class SocialProfiles extends Widget_Base {
       // Escaping helper. The template has no esc_url() to fall back on, so
       // every href built from a setting goes through safeUrl — it returns ''
       // for an unsafe scheme, which the markup below treats as "no link".
-      // Never re-inline the guard (see includes/elementor/CLAUDE.md).
+      // Never re-inline the guard (see .claude/rules/elementor-content-template.md, "URLs").
       // ------------------------------------------------------------------------
       var safeUrl = ( window.Themeasy && window.Themeasy.safeUrl )
         ? window.Themeasy.safeUrl

@@ -1053,7 +1053,7 @@ class IconList extends Widget_Base {
           <li class="<?php echo esc_attr( implode( ' ', $item_classes ) ); ?>">
 
             <?php if ( $icon_html ) : ?>
-              <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+              <?php echo wp_kses( $icon_html, themeasy_get_icon_kses_tags() ); ?>
             <?php endif; ?>
 
             <?php if ( '' !== $badge_text ) : ?>
