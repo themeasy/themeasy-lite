@@ -58,8 +58,7 @@ if ( !function_exists( 'themeasy_fs' ) ) {
       // The Upgrade/Pricing funnel routes to the Themeasy site, never the SDK's
       // in-WP pricing (owner decision). Hide the Freemius pricing page AND the
       // plugin-row upgrade link entirely; the branded Themeasy page owns the
-      // funnel and links out to the hosted checkouts: every checkout starts on
-      // the Themeasy site, never in wp-admin.
+      // funnel and links out, to the site or the hosted checkout.
       $themeasy_fs->add_filter( 'is_pricing_page_visible', '__return_false' );
 
       // Every SDK link to its pricing page (the hidden Account page's Upgrade

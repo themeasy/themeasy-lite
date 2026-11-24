@@ -1,0 +1,401 @@
+/*!
+ * Themeasy — Before / After Widget Styles
+ *
+ * Image comparison slider with three skins (handle / reveal / hover), both
+ * horizontal and vertical orientation. Public design tokens (--tms-*) only —
+ * never private (--themeasy-*).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Wrapper & frame
+ * 02. Images (before + after clip)
+ * 03. Slider + divider line
+ * 04. Handle (skin: handle)
+ * 05. Skin modifiers (reveal / hover)
+ * 06. Orientation (horizontal / vertical)
+ * 07. Labels
+ * 08. Dragging / focus / reduced motion
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & frame
+ * ------------------------------------------------------------------------ */
+
+/* #region Wrapper */
+
+.tms-before-after {
+  --tms-before-after-position: 50%;
+  --tms-before-after-ratio: 16 / 9;
+  --tms-before-after-divider-width: 2px;
+  --tms-before-after-divider-color: var(--tms-white, #fff);
+  --tms-before-after-handle-size: 44px;
+  --tms-before-after-label-offset: 16px;
+  --tms-before-after-duration: 0.25s;
+  --tms-before-after-timing: ease-out;
+
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tms-before-after__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--tms-before-after-ratio);
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+/* When aspect-ratio is "auto" (use native image), let the before image drive height. */
+
+.tms-before-after[style*='--tms-before-after-ratio: auto'] .tms-before-after__frame {
+  aspect-ratio: auto;
+}
+
+/* #endregion Wrapper */
+
+/* ------------------------------------------------------------------------
+ * 02. Images (before + after clip)
+ * ------------------------------------------------------------------------ */
+
+/* #region Images */
+
+.tms-before-after__image {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.tms-before-after__image .tms-before-after__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.tms-before-after__image--before {
+  z-index: 1;
+}
+
+/* The after image is clipped to the portion revealed by the slider. The inner
+   wrapper keeps the full-size image so clipping reveals without stretching. */
+
+.tms-before-after__image--after {
+  z-index: 2;
+  clip-path: inset(0 0 0 var(--tms-before-after-position));
+  transition: clip-path var(--tms-before-after-duration) var(--tms-before-after-timing);
+}
+
+.tms-before-after__image--after .tms-before-after__image-inner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* #endregion Images */
+
+/* ------------------------------------------------------------------------
+ * 03. Slider + divider line
+ * ------------------------------------------------------------------------ */
+
+/* #region Slider */
+
+.tms-before-after__slider {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  cursor: ew-resize;
+  background: transparent;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tms-before-after__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--tms-before-after-position);
+  width: var(--tms-before-after-divider-width);
+  margin-left: calc(var(--tms-before-after-divider-width) * -0.5);
+  background-color: var(--tms-before-after-divider-color);
+  pointer-events: none;
+  transition: left var(--tms-before-after-duration) var(--tms-before-after-timing);
+}
+
+/* #endregion Slider */
+
+/* ------------------------------------------------------------------------
+ * 04. Handle (skin: handle)
+ * ------------------------------------------------------------------------ */
+
+/* #region Handle */
+
+.tms-before-after__handle {
+  position: absolute;
+  top: 50%;
+  left: var(--tms-before-after-position);
+  width: var(--tms-before-after-handle-size);
+  height: var(--tms-before-after-handle-size);
+  margin-top: calc(var(--tms-before-after-handle-size) * -0.5);
+  margin-left: calc(var(--tms-before-after-handle-size) * -0.5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--tms-before-after-handle-size) * 0.1);
+  color: var(--tms-heading-color, #111);
+  background-color: var(--tms-white, #fff);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition:
+    left var(--tms-before-after-duration) var(--tms-before-after-timing),
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+  pointer-events: none;
+}
+
+.tms-before-after__handle-arrow {
+  width: calc(var(--tms-before-after-handle-size) * 0.4);
+  height: calc(var(--tms-before-after-handle-size) * 0.4);
+  display: block;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+
+/* Feather chevrons are outline (stroke) icons — keep them visible on any color. */
+
+.tms-before-after__handle-arrow[fill='none'] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* #endregion Handle */
+
+/* ------------------------------------------------------------------------
+ * 05. Skin modifiers (reveal / hover)
+ * ------------------------------------------------------------------------ */
+
+/* #region Skins */
+
+/* Reveal skin: just the divider line, no handle. Cursor stays ew-resize. */
+
+.tms-before-after--skin-reveal .tms-before-after__handle {
+  display: none;
+}
+
+/* Hover skin: divider follows pointer; no handle, smooth cursor. */
+
+.tms-before-after--skin-hover .tms-before-after__handle {
+  display: none;
+}
+
+.tms-before-after--skin-hover .tms-before-after__slider {
+  cursor: crosshair;
+}
+
+/* Subtle scale on handle when hovering the comparison area. */
+
+@media (hover: hover) {
+  .tms-before-after:hover .tms-before-after__handle {
+    transform: scale(1.06);
+  }
+}
+
+/* #endregion Skins */
+
+/* ------------------------------------------------------------------------
+ * 06. Orientation (horizontal / vertical)
+ * ------------------------------------------------------------------------ */
+
+/* #region Orientation */
+
+/* Vertical: divider moves top→bottom, clip-path cuts from top. */
+
+.tms-before-after--vertical {
+  touch-action: pan-x;
+}
+
+.tms-before-after--vertical .tms-before-after__image--after {
+  clip-path: inset(var(--tms-before-after-position) 0 0 0);
+}
+
+.tms-before-after--vertical .tms-before-after__slider {
+  cursor: ns-resize;
+}
+
+.tms-before-after--vertical.tms-before-after--skin-hover .tms-before-after__slider {
+  cursor: crosshair;
+}
+
+.tms-before-after--vertical .tms-before-after__line {
+  top: var(--tms-before-after-position);
+  left: 0;
+  right: 0;
+  bottom: auto;
+  width: auto;
+  height: var(--tms-before-after-divider-width);
+  margin-left: 0;
+  margin-top: calc(var(--tms-before-after-divider-width) * -0.5);
+  transition: top var(--tms-before-after-duration) var(--tms-before-after-timing);
+}
+
+.tms-before-after--vertical .tms-before-after__handle {
+  top: var(--tms-before-after-position);
+  left: 50%;
+  margin-top: calc(var(--tms-before-after-handle-size) * -0.5);
+  margin-left: calc(var(--tms-before-after-handle-size) * -0.5);
+  flex-direction: column;
+  transition:
+    top var(--tms-before-after-duration) var(--tms-before-after-timing),
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* #endregion Orientation */
+
+/* ------------------------------------------------------------------------
+ * 07. Labels
+ * ------------------------------------------------------------------------ */
+
+/* #region Labels */
+
+.tms-before-after__label {
+  position: absolute;
+  z-index: 4;
+  display: inline-block;
+  max-width: calc(50% - var(--tms-before-after-label-offset) * 2);
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  color: var(--tms-white, #fff);
+  background-color: rgba(0, 0, 0, 0.55);
+  border-radius: 4px;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Before label sits in the before (visible) image area. */
+
+.tms-before-after__image--before .tms-before-after__label--before {
+  left: var(--tms-before-after-label-offset);
+  top: var(--tms-before-after-label-offset);
+}
+
+.tms-before-after--labels-corners-bottom .tms-before-after__image--before .tms-before-after__label--before {
+  top: auto;
+  bottom: var(--tms-before-after-label-offset);
+}
+
+.tms-before-after--labels-center .tms-before-after__image--before .tms-before-after__label--before {
+  left: var(--tms-before-after-label-offset);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* After label sits in the after (clipped) image-inner area. */
+
+.tms-before-after__image--after .tms-before-after__label--after {
+  right: var(--tms-before-after-label-offset);
+  top: var(--tms-before-after-label-offset);
+}
+
+.tms-before-after--labels-corners-bottom .tms-before-after__image--after .tms-before-after__label--after {
+  top: auto;
+  bottom: var(--tms-before-after-label-offset);
+}
+
+.tms-before-after--labels-center .tms-before-after__image--after .tms-before-after__label--after {
+  right: var(--tms-before-after-label-offset);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Vertical orientation flips the natural side for each label. */
+
+.tms-before-after--vertical .tms-before-after__image--before .tms-before-after__label--before {
+  left: 50%;
+  top: var(--tms-before-after-label-offset);
+  transform: translateX(-50%);
+}
+
+.tms-before-after--vertical .tms-before-after__image--after .tms-before-after__label--after {
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: var(--tms-before-after-label-offset);
+  transform: translateX(-50%);
+}
+
+/* #endregion Labels */
+
+/* ------------------------------------------------------------------------
+ * 08. Dragging / focus / reduced motion
+ * ------------------------------------------------------------------------ */
+
+/* #region States */
+
+/* During an active pointer drag, turn off transitions so the divider tracks
+   the cursor 1:1 without lag. The JS toggles this modifier on pointerdown /
+   pointerup. */
+
+.tms-before-after--dragging .tms-before-after__image--after,
+.tms-before-after--dragging .tms-before-after__line,
+.tms-before-after--dragging .tms-before-after__handle {
+  transition: none !important;
+}
+
+/* Editor preview before the runtime re-inits: no interaction, no easing. */
+
+.tms-before-after--static .tms-before-after__slider {
+  pointer-events: none;
+}
+
+.tms-before-after--static .tms-before-after__image--after,
+.tms-before-after--static .tms-before-after__line,
+.tms-before-after--static .tms-before-after__handle {
+  transition: none;
+}
+
+.tms-before-after__slider:focus-visible {
+  outline: 2px solid var(--tms-primary-color, #2c5cdc);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-before-after,
+  .tms-before-after__image--after,
+  .tms-before-after__line,
+  .tms-before-after__handle {
+    transition: none !important;
+  }
+
+  @media (hover: hover) {
+    .tms-before-after:hover .tms-before-after__handle {
+      transform: none;
+    }
+  }
+}
+
+/* #endregion States */

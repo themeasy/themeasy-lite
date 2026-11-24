@@ -45,3 +45,51 @@
 .glightbox-clean .gprev:hover {
   background: color-mix(in srgb, var(--tms-black-color) 100%, transparent);
 }
+
+/* Plyr's stylesheet is inserted at the top of <head>, so a theme reset of every button (Hello Elementor) wins over its
+   base: a #c36 border and text, a wide padding. Plyr's own base again, at its own weight, from this later sheet; its
+   hover, focus and menu rules weigh more and still win. */
+.plyr__control {
+  padding: calc(0.7 * var(--plyr-control-spacing, 10px));
+  color: inherit;
+  border: 0;
+  border-radius: var(--plyr-control-radius, 4px);
+  background: transparent;
+  transition: all 0.1s ease-in-out;
+}
+
+.plyr__control--overlaid {
+  padding: calc(1.5 * var(--plyr-control-spacing, 10px));
+  color: var(--plyr-video-control-color, #fff);
+  border-radius: 100%;
+  background: var(--plyr-video-control-background-hover, var(--plyr-color-main, #00b2ff));
+  transition: 0.3s;
+}
+
+/* The reset's focus colors and white focus ring; :where() keeps Plyr's hover and focus-visible rules above these. */
+.plyr .plyr__control:where(:focus:not(.plyr__control--overlaid)) {
+  color: inherit;
+  background-color: transparent;
+}
+
+.plyr .plyr__control:where(:focus-visible) {
+  box-shadow: none;
+}
+
+.plyr .plyr__control--overlaid:where(:focus) {
+  color: var(--plyr-video-control-color, #fff);
+  background: var(--plyr-video-control-background-hover, var(--plyr-color-main, #00b2ff));
+}
+
+/* GLightbox's close, previous and next buttons: the browser's own padding, transition and focus ring, as on other
+   themes. */
+.glightbox-container .gbtn {
+  padding: revert;
+  transition: revert;
+}
+
+.glightbox-container .gbtn:focus-visible {
+  outline: revert;
+  outline-offset: revert;
+  box-shadow: none;
+}

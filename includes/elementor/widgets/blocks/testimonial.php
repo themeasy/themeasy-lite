@@ -1157,7 +1157,7 @@ class Testimonial extends Widget_Base {
     // indistinguishable from a chosen one by value alone. The default stays a
     // legitimate drop target in the editor (content_template() still shows it); on
     // the front it is a grey box posing as a person, so it renders no portrait at
-    // all — same treatment as testimonial-carousel and testimonial-wall.
+    // all.
     $person_image = is_array( $settings['person_image'] ?? null ) ? $settings['person_image'] : [];
     $person_image_id = absint( $person_image['id'] ?? 0 );
     $person_image_url = $person_image['url'] ?? '';
@@ -1361,7 +1361,7 @@ class Testimonial extends Widget_Base {
       var personName      = settings.person_name || '';
       var occupationInfo  = settings.occupation_info || '';
       var testimonialText = sanitizeInline( settings.testimonial_text || '', 'rich' );
-      var personImageUrl  = settings.person_image.url || '';
+      var personImageUrl  = safeUrl( settings.person_image.url || '' );
       var personImageAlt  = settings.person_image.alt || '';
       var companyLogoUrl  = safeUrl( ( settings.company_logo && settings.company_logo.url ) || '' );
       var companyLogoAlt  = ( settings.company_logo && settings.company_logo.alt ) || '';

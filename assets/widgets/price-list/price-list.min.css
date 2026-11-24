@@ -1,0 +1,316 @@
+/*!
+ * Themeasy — Price List
+ *
+ * The classic price menu: repeater rows of title + description + price joined
+ * by a dotted leader line sitting on the text baseline, with an optional image,
+ * badge pill, crossed-out original price and a featured (accent-washed) row.
+ * Structure and every interaction are pure CSS — no JavaScript: the hover wash,
+ * linked-title accent and image zoom are transitions that fully relax under
+ * (prefers-reduced-motion: reduce). Per-item links are stretched overlay
+ * anchors, so rows stay keyboard-focusable and the focus ring mirrors the
+ * hover wash geometry.
+ *
+ * Tokens consumed: --tms-primary-color, --tms-heading-color, --tms-body-color,
+ * --tms-border-color, --tms-radius-md, --tms-radius-pill (public --tms-*
+ * design API).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+.tms-price-list {
+  /* Structural knobs driven by Elementor controls. */
+  --tms-price-list-columns: 1;
+  --tms-price-list-column-gap: 3rem;
+  --tms-price-list-item-gap: 0.875rem;
+  --tms-price-list-image-size: 4.5rem;
+  --tms-price-list-image-gap: 1.125rem;
+  --tms-price-list-image-ratio: 1 / 1;
+  --tms-price-list-leader-style: dotted;
+  --tms-price-list-leader-weight: 2px;
+  --tms-price-list-leader-spacing: 0.625em;
+  --tms-price-list-leader-offset: 0px;
+  --tms-price-list-leader-color: color-mix(in srgb, var(--tms-heading-color, #111827) 30%, transparent);
+  --tms-price-list-description-spacing: 0.375rem;
+  --tms-price-list-accent: var(--tms-primary-color, #5b6cff);
+  --tms-price-list-hover-wash: color-mix(in srgb, var(--tms-heading-color, #111827) 4%, transparent);
+  --tms-price-list-item-padding: 10px 15px;
+  --tms-price-list-item-radius: var(--tms-radius-md, 10px);
+  --tms-price-list-divider-style: solid;
+  --tms-price-list-divider-weight: 1px;
+  --tms-price-list-divider-color: var(--tms-border-color, rgba(15, 23, 42, 0.1));
+  position: relative;
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------------
+ * Items — a CSS grid so multi-column menus keep perfect row rhythm. Items
+ * flow left-to-right, top-to-bottom; minmax(0, 1fr) lets long titles wrap
+ * instead of overflowing the track.
+ * ---------------------------------------------------------------------- */
+.tms-price-list__items {
+  display: grid;
+  grid-template-columns: repeat(var(--tms-price-list-columns, 1), minmax(0, 1fr));
+  gap: var(--tms-price-list-item-gap) var(--tms-price-list-column-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ------------------------------------------------------------------------
+ * Row — image + body side by side, and the plate that carries every
+ * highlight state. The wash is the row's OWN background, not a pseudo with
+ * negative insets painted behind it: the old pseudo bled outside the widget
+ * (hence a vw-capped "bleed" knob) and no padding control could reach the
+ * row's real box. The row is a grid item, so it already spans the full
+ * track — the padding insets the content instead of widening the plate.
+ * ---------------------------------------------------------------------- */
+.tms-price-list__item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tms-price-list-image-gap);
+  padding: var(--tms-price-list-item-padding);
+  border-radius: var(--tms-price-list-item-radius);
+  transition: background-color 0.25s ease;
+}
+
+/* The highlight wash: transparent by default, tinted on hover. */
+@media (hover: hover) {
+  .tms-price-list__item:not(.tms-price-list__item--featured):hover {
+    background-color: var(--tms-price-list-hover-wash);
+  }
+}
+
+/* Keyboard parity: a focused row link paints the same wash as hover. */
+.tms-price-list__item:not(.tms-price-list__item--featured):has(.tms-price-list__link:focus-visible) {
+  background-color: var(--tms-price-list-hover-wash);
+}
+
+/* The featured row: a faint accent wash + a hairline accent ring so it
+ * anchors the menu without shifting the shared text alignment. */
+.tms-price-list__item--featured {
+  background: var(--tms-price-list-featured-bg, color-mix(in srgb, var(--tms-price-list-accent) 8%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tms-price-list-accent) 25%, transparent);
+}
+
+/* Optional divider, centered in the row gap. In multi-column layouts every
+ * non-last row draws one, which reads as a consistent underline grid. */
+.tms-price-list--divider .tms-price-list__item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: calc(var(--tms-price-list-item-gap) / -2);
+  border-block-end: var(--tms-price-list-divider-weight) var(--tms-price-list-divider-style) var(--tms-price-list-divider-color);
+}
+
+/* ------------------------------------------------------------------------
+ * Image.
+ * ---------------------------------------------------------------------- */
+.tms-price-list__media {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--tms-price-list-image-size);
+  overflow: hidden;
+  border-radius: var(--tms-radius-md, 10px);
+}
+
+.tms-price-list__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--tms-price-list-image-ratio);
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+@media (hover: hover) {
+  .tms-price-list__item:hover .tms-price-list__img {
+    transform: scale(1.05);
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * Header row — title, badge, leader line and prices share one baseline.
+ * The leader is an empty span: with align-items: baseline its bottom edge
+ * IS the text baseline, so the dotted line sits exactly where a classic
+ * print menu draws it.
+ * ---------------------------------------------------------------------- */
+.tms-price-list__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tms-price-list__header {
+  display: flex;
+  align-items: center;
+}
+
+.tms-price-list__title {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: normal;
+  overflow-wrap: break-word;
+  color: var(--tms-heading-color, #111827);
+  transition: color 0.25s ease;
+}
+
+/* Title accent only on rows that actually link somewhere (click affordance);
+ * plain rows keep the neutral wash + image zoom. */
+@media (hover: hover) {
+  .tms-price-list__item:has(.tms-price-list__link):hover .tms-price-list__title {
+    color: var(--tms-price-list-accent);
+  }
+}
+
+.tms-price-list__item:has(.tms-price-list__link:focus-visible) .tms-price-list__title {
+  color: var(--tms-price-list-accent);
+}
+
+/* Anatomy from the shared .tms-tag--micro (components.min.css); the list owns
+   the spacing from the title and the soft accent tint. */
+.tms-price-list .tms-price-list__badge {
+  margin-inline-start: 1em;
+  color: var(--tms-price-list-accent);
+  background-color: color-mix(in srgb, var(--tms-price-list-accent) 12%, transparent);
+}
+
+/* Phones: title + badge + leader + price do not fit one 300px line, and the
+ * title absorbed all the shrinking until it split mid-word (backlog #284).
+ * With a badge the header becomes a two-row grid: "title ....... price" on
+ * the first row, the badge under it. A grid, not a wrapping flex row: in a
+ * wrapping row a long title takes the whole line and pushes the price below
+ * it, away from its leader (#284 follow-up, 2026-10-01). The title track is
+ * minmax(0, auto), so it wraps inside its column and the price stays put. */
+@media (max-width: 767px) {
+  .tms-price-list__header:has(.tms-price-list__badge) {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(1.5rem, 1fr) auto;
+  }
+
+  /* Pinned to the last track, so a row without a leader still ends right. */
+  .tms-price-list__header:has(.tms-price-list__badge) .tms-price-list__prices {
+    grid-row: 1;
+    grid-column: 3;
+  }
+
+  .tms-price-list .tms-price-list__badge {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-self: start;
+    margin-inline-start: 0;
+    margin-block-start: 0.375rem;
+  }
+}
+
+.tms-price-list__leader {
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  margin-inline: var(--tms-price-list-leader-spacing);
+  border-block-end-width: var(--tms-price-list-leader-weight);
+  border-block-end-style: var(--tms-price-list-leader-style);
+  border-block-end-color: var(--tms-price-list-leader-color);
+  transform: translateY(var(--tms-price-list-leader-offset));
+}
+
+.tms-price-list__prices {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  gap: 0.5em;
+  white-space: nowrap;
+}
+
+.tms-price-list__price {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+  color: var(--tms-heading-color, #111827);
+  transition: color 0.25s ease;
+}
+
+.tms-price-list__price-old {
+  font-size: 0.875rem;
+  line-height: 1.35;
+  text-decoration-thickness: 1px;
+  color: color-mix(in srgb, var(--tms-body-color, #4b5563) 70%, transparent);
+}
+
+/* ------------------------------------------------------------------------
+ * Description.
+ * ---------------------------------------------------------------------- */
+.tms-price-list__description {
+  margin: var(--tms-price-list-description-spacing) 0 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+  color: var(--tms-body-color, #4b5563);
+}
+
+/* ------------------------------------------------------------------------
+ * Link — a stretched overlay anchor that makes the whole row clickable while
+ * keeping the markup semantic and the target keyboard-focusable. It mirrors
+ * the wash geometry so the focus ring hugs the highlight.
+ * ---------------------------------------------------------------------- */
+.tms-price-list__link {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.tms-price-list__link-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.tms-price-list__link:focus-visible {
+  outline: 2px solid var(--tms-price-list-accent);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------------
+ * Reduced motion — the menu is fully static: no washes fading, no zoom.
+ * ---------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .tms-price-list__item,
+  .tms-price-list__title,
+  .tms-price-list__price,
+  .tms-price-list__img {
+    transition: none;
+  }
+
+  .tms-price-list__item:hover .tms-price-list__img {
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * Responsive.
+ * ---------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .tms-price-list {
+    --tms-price-list-image-size: 3.75rem;
+  }
+
+  .tms-price-list__title {
+    font-size: 1rem;
+  }
+
+  .tms-price-list__price {
+    font-size: 1rem;
+  }
+}

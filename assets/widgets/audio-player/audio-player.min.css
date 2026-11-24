@@ -1,0 +1,769 @@
+/*!
+ * Themeasy — Audio Player
+ *
+ * Custom chrome for the .tms-audio-player widget: cover art, track info with an
+ * animated equalizer, a buffered-aware range scrubber with tabular time labels,
+ * a transport row (prev / -15s / play / +15s / next / speed / mute) and an
+ * optional playlist. Two skins reflow the same DOM through named grid areas —
+ * card (cover beside a stacked column) and compact (one slim row that folds its
+ * timeline onto a second line on small screens).
+ *
+ * Layering / degradation:
+ * - The custom chrome is display:none until JS adds --enhanced (or the editor
+ *   ships --static), and the native <audio controls> element is only clipped
+ *   away once one of those classes is present — so with no JS the visitor gets
+ *   a working native player plus playlist rows that link straight to the files.
+ * - prefers-reduced-motion stops the equalizer and every transition; the player
+ *   itself stays fully usable.
+ *
+ * Tokens consumed: --tms-primary-color, --tms-heading-color, --tms-body-color,
+ * --tms-muted-color, --tms-border-color, --tms-surface-color,
+ * --tms-button-text-color, --tms-font-size-sm, --tms-font-size-xs,
+ * --tms-radius-md, --tms-radius-sm, --tms-transition-base (public --tms-* API).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Root & tokens
+ * 02. Progressive-enhancement gate
+ * 03. Layout (skins + grid areas)
+ * 04. Cover
+ * 05. Track info + equalizer
+ * 06. Timeline (scrubber + time labels)
+ * 07. Transport buttons
+ * 08. Playlist
+ * 09. Focus states
+ * 10. Responsive collapses
+ * 11. Reduced motion
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Root & tokens
+ * ------------------------------------------------------------------------ */
+
+.tms-audio-player {
+  --tms-audio-player-gap: 1rem;
+  --tms-audio-player-cover-size: 104px;
+  --tms-audio-player-play-size: 52px;
+  --tms-audio-player-control-size: 22px;
+  --tms-audio-player-progress-height: 6px;
+  --tms-audio-player-thumb-size: 14px;
+  --tms-audio-player-progress: 0%;
+  --tms-audio-player-buffered: 0%;
+  --tms-audio-player-track-color: var(--tms-border-color, #e5e7eb);
+  --tms-audio-player-buffered-color: var(--tms-muted-color, #9ca3af);
+  --tms-audio-player-fill-color: var(--tms-primary-color, #2563eb);
+  --tms-audio-player-handle-color: var(--tms-primary-color, #2563eb);
+  --tms-audio-player-eq-color: var(--tms-primary-color, #2563eb);
+  --tms-audio-player-divider-color: var(--tms-border-color, #e5e7eb);
+  --tms-audio-player-duration: var(--tms-transition-base, 0.3s ease);
+
+  /* Composed lazily: updating --progress / --buffered on the root repaints
+     both scrubber pseudo-elements without restating the gradients. */
+  --tms-audio-player-track-image:
+    linear-gradient(
+      to right,
+      var(--tms-audio-player-fill-color) 0 var(--tms-audio-player-progress),
+      transparent var(--tms-audio-player-progress)
+    ),
+    linear-gradient(
+      to right,
+      var(--tms-audio-player-buffered-color) 0 var(--tms-audio-player-buffered),
+      transparent var(--tms-audio-player-buffered)
+    );
+
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  color: var(--tms-body-color, #4b5563);
+}
+
+.tms-audio-player--compact {
+  --tms-audio-player-cover-size: 48px;
+  --tms-audio-player-play-size: 42px;
+  --tms-audio-player-control-size: 18px;
+}
+
+/* ------------------------------------------------------------------------
+ * 02. Progressive-enhancement gate
+ *
+ * The custom chrome stays hidden until JS (--enhanced) or the editor
+ * (--static) vouches for it; only then is the native player clipped away.
+ * With neither class the native element IS the player.
+ * ------------------------------------------------------------------------ */
+
+.tms-audio-player__native {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+.tms-audio-player--enhanced .tms-audio-player__native,
+.tms-audio-player--static .tms-audio-player__native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.tms-audio-player__ui {
+  display: none;
+}
+
+.tms-audio-player--enhanced .tms-audio-player__ui,
+.tms-audio-player--static .tms-audio-player__ui {
+  display: grid;
+}
+
+/* ------------------------------------------------------------------------
+ * 03. Layout (skins + grid areas)
+ * ------------------------------------------------------------------------ */
+
+.tms-audio-player__ui {
+  column-gap: var(--tms-audio-player-gap);
+  row-gap: calc(var(--tms-audio-player-gap) * 0.55);
+  align-items: center;
+}
+
+/* Card: a stacked column, with the artwork riding alongside it. */
+
+.tms-audio-player--card .tms-audio-player__ui {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'head'
+    'timeline'
+    'transport';
+}
+
+.tms-audio-player--card.tms-audio-player--with-cover .tms-audio-player__ui {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'cover head'
+    'cover timeline'
+    'cover transport';
+}
+
+/* Compact: one slim row — controls, then the title, then the timeline.
+   The three tracks encode which piece may yield when the row runs out of
+   width. The seek gets a hard floor: it is the only control with no button
+   substitute, and with a 0 floor a long title (a content-sized head track
+   growing to max-content) squeezed it to nothing. The head yields instead —
+   it truncates to its own ellipsis, and its 0 floor keeps the row inside the
+   box in a narrow column. The transport is max-content so the buttons can
+   never be shrunk under their own width and painted over the title. */
+
+.tms-audio-player--compact .tms-audio-player__ui {
+  grid-template-columns: max-content minmax(0, auto) minmax(10rem, 1fr);
+  grid-template-areas: 'transport head timeline';
+}
+
+.tms-audio-player--compact.tms-audio-player--with-cover .tms-audio-player__ui {
+  grid-template-columns: max-content max-content minmax(0, auto) minmax(10rem, 1fr);
+  grid-template-areas: 'cover transport head timeline';
+}
+
+/* ------------------------------------------------------------------------
+ * 04. Cover
+ * ------------------------------------------------------------------------ */
+
+.tms-audio-player__cover {
+  position: relative;
+  grid-area: cover;
+  align-self: center;
+  width: var(--tms-audio-player-cover-size);
+  max-width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--tms-radius-md, 10px);
+  background-color: var(--tms-surface-color, #f3f4f6);
+}
+
+/* Shown through a coverless track — the layout never collapses mid-playlist. */
+
+.tms-audio-player__cover-fallback {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(120% 120% at 22% 12%, rgba(255, 255, 255, 0.3), transparent 62%),
+    linear-gradient(135deg, var(--tms-primary-color, #2563eb), var(--tms-heading-color, #111827));
+  opacity: 0.9;
+}
+
+/* An author display rule outranks the UA [hidden] rule, so hiding the cover
+ * from JS (a track with no artwork) needs this to actually take effect. */
+.tms-audio-player__cover .tms-audio-player__cover-img[hidden] {
+  display: none;
+}
+
+.tms-audio-player__cover .tms-audio-player__cover-img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ------------------------------------------------------------------------
+ * 05. Track info + equalizer
+ * ------------------------------------------------------------------------ */
+
+.tms-audio-player__head {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.tms-audio-player__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.tms-audio-player__title {
+  overflow: hidden;
+  font-weight: var(--tms-semibold-font-weight, 600);
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--tms-heading-color, #111827);
+}
+
+.tms-audio-player__artist {
+  overflow: hidden;
+  font-size: var(--tms-font-size-sm, 0.875rem);
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--tms-muted-color, #6c757d);
+}
+
+.tms-audio-player__eq {
+  display: inline-flex;
+  flex: none;
+  align-items: flex-end;
+  gap: 2px;
+  color: var(--tms-audio-player-eq-color);
+}
+
+.tms-audio-player__head-eq {
+  height: 0.875rem;
+}
+
+.tms-audio-player__eq-bar {
+  width: 2px;
+  height: 100%;
+  border-radius: 1px;
+  background-color: currentColor;
+  transform: scaleY(0.35);
+  transform-origin: bottom center;
+}
+
+/* The bars only dance while audio is actually playing. Negative delays and
+   slightly different durations keep the four columns out of lockstep. */
+
+.tms-audio-player--playing .tms-audio-player__eq-bar {
+  animation: tms-audio-player-eq 900ms ease-in-out infinite alternate;
+}
+
+.tms-audio-player--playing .tms-audio-player__eq-bar:nth-child(2) {
+  animation-duration: 760ms;
+  animation-delay: -300ms;
+}
+
+.tms-audio-player--playing .tms-audio-player__eq-bar:nth-child(3) {
+  animation-duration: 1040ms;
+  animation-delay: -620ms;
+}
+
+.tms-audio-player--playing .tms-audio-player__eq-bar:nth-child(4) {
+  animation-duration: 840ms;
+  animation-delay: -160ms;
+}
+
+@keyframes tms-audio-player-eq {
+  0% {
+    transform: scaleY(0.22);
+  }
+
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * 06. Timeline (scrubber + time labels)
+ * ------------------------------------------------------------------------ */
+
+.tms-audio-player__timeline {
+  grid-area: timeline;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.tms-audio-player__time {
+  flex: none;
+  font-size: var(--tms-font-size-xs, 0.75rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--tms-muted-color, #6c757d);
+}
+
+/* The input box carries the touch target; the runnable-track pseudo-elements
+   carry the visible bar, so a 6px track still gets a 20px hit area. The
+   -webkit- and -moz- rules cannot be grouped — one unknown selector would
+   invalidate the whole list. */
+
+.tms-audio-player__scrubber {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.tms-audio-player__scrubber::-webkit-slider-runnable-track {
+  height: var(--tms-audio-player-progress-height);
+  border-radius: 999px;
+  background-color: var(--tms-audio-player-track-color);
+  background-image: var(--tms-audio-player-track-image);
+  background-repeat: no-repeat;
+}
+
+.tms-audio-player__scrubber::-moz-range-track {
+  height: var(--tms-audio-player-progress-height);
+  border-radius: 999px;
+  background-color: var(--tms-audio-player-track-color);
+  background-image: var(--tms-audio-player-track-image);
+  background-repeat: no-repeat;
+}
+
+/* Firefox would otherwise paint its own filled portion over our gradient. */
+
+.tms-audio-player__scrubber::-moz-range-progress {
+  height: var(--tms-audio-player-progress-height);
+  background-color: transparent;
+}
+
+.tms-audio-player__scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--tms-audio-player-thumb-size);
+  height: var(--tms-audio-player-thumb-size);
+  /* Chrome anchors the thumb to the track's top edge, not its centre. */
+  margin-top: calc((var(--tms-audio-player-progress-height) - var(--tms-audio-player-thumb-size)) / 2);
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--tms-audio-player-handle-color);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  transition: transform var(--tms-audio-player-duration);
+}
+
+.tms-audio-player__scrubber::-moz-range-thumb {
+  width: var(--tms-audio-player-thumb-size);
+  height: var(--tms-audio-player-thumb-size);
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--tms-audio-player-handle-color);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  transition: transform var(--tms-audio-player-duration);
+}
+
+.tms-audio-player__scrubber:hover::-webkit-slider-thumb,
+.tms-audio-player__scrubber:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.25);
+}
+
+.tms-audio-player__scrubber:hover::-moz-range-thumb,
+.tms-audio-player__scrubber:focus-visible::-moz-range-thumb {
+  transform: scale(1.25);
+}
+
+/* ------------------------------------------------------------------------
+ * 07. Transport buttons
+ * ------------------------------------------------------------------------ */
+
+.tms-audio-player__transport {
+  grid-area: transport;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.tms-audio-player__extras {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-inline-start: auto;
+}
+
+.tms-audio-player__button {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background-color: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--tms-audio-player-duration),
+    background-color var(--tms-audio-player-duration),
+    transform var(--tms-audio-player-duration);
+}
+
+/* Stacked children (play/pause, volume/muted, arc + "15") share one cell. */
+
+.tms-audio-player__button > * {
+  grid-area: 1 / 1;
+}
+
+.tms-audio-player__button:active {
+  transform: scale(0.94);
+}
+
+/* The glyphs carry their own fill / stroke attributes: a blanket
+   `fill: currentColor` here would turn the outline icons into solid blobs. */
+
+.tms-audio-player__icon {
+  display: block;
+  transition:
+    opacity var(--tms-audio-player-duration),
+    transform var(--tms-audio-player-duration);
+}
+
+.tms-audio-player__button--play {
+  width: var(--tms-audio-player-play-size);
+  height: var(--tms-audio-player-play-size);
+  color: var(--tms-button-text-color, #ffffff);
+  border-radius: 50%;
+  background-color: var(--tms-primary-color, #2563eb);
+  box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.45);
+}
+
+/* A theme reset that styles every button (Hello Elementor) repaints the play button on hover and focus, and
+   its focus rule (0,2,1) drops the shadow: the rest look stays. */
+.tms-audio-player .tms-audio-player__button--play,
+.tms-audio-player .tms-audio-player__button--play:focus {
+  box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.45);
+  color: var(--tms-button-text-color, #ffffff);
+  background-color: var(--tms-primary-color, #2563eb);
+}
+
+.tms-audio-player__button--play .tms-audio-player__icon {
+  width: calc(var(--tms-audio-player-play-size) * 0.42);
+  height: calc(var(--tms-audio-player-play-size) * 0.42);
+}
+
+/* Optical centring: the play wedge is right-heavy, the pause bars are not. */
+
+.tms-audio-player__icon--play {
+  transform: translateX(5%) scale(1);
+}
+
+.tms-audio-player__icon--pause {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.tms-audio-player--playing .tms-audio-player__icon--play {
+  opacity: 0;
+  transform: translateX(5%) scale(0.6);
+}
+
+.tms-audio-player--playing .tms-audio-player__icon--pause {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Secondary buttons hold a >=40px touch target whatever the icon size. */
+
+.tms-audio-player__button--secondary {
+  width: max(40px, calc(var(--tms-audio-player-control-size) * 1.9));
+  height: max(40px, calc(var(--tms-audio-player-control-size) * 1.9));
+  color: var(--tms-body-color, #4b5563);
+  border-radius: 50%;
+}
+
+/* A theme reset that styles every button (Hello Elementor)
+  paints the secondary buttons on hover and focus: the rest look stays. */
+.tms-audio-player .tms-audio-player__button--secondary {
+  box-shadow: none;
+  color: var(--tms-body-color, #4b5563);
+  background-color: transparent;
+}
+
+.tms-audio-player__button--secondary .tms-audio-player__icon {
+  width: var(--tms-audio-player-control-size);
+  height: var(--tms-audio-player-control-size);
+}
+
+@media (hover: hover) {
+  .tms-audio-player__button--secondary:hover {
+    color: var(--tms-heading-color, #111827);
+  }
+}
+
+.tms-audio-player__skip-amount {
+  font-size: calc(var(--tms-audio-player-control-size) * 0.42);
+  font-weight: var(--tms-semibold-font-weight, 600);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.tms-audio-player__speed-label {
+  font-size: calc(var(--tms-audio-player-control-size) * 0.64);
+  font-weight: var(--tms-semibold-font-weight, 600);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.tms-audio-player__icon--muted {
+  opacity: 0;
+}
+
+.tms-audio-player--muted .tms-audio-player__icon--volume {
+  opacity: 0;
+}
+
+.tms-audio-player--muted .tms-audio-player__icon--muted {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------------
+ * 08. Playlist
+ * ------------------------------------------------------------------------ */
+
+.tms-audio-player__playlist {
+  margin: var(--tms-audio-player-gap) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--tms-audio-player-divider-color);
+}
+
+.tms-audio-player__item + .tms-audio-player__item {
+  border-top: 1px solid var(--tms-audio-player-divider-color);
+}
+
+.tms-audio-player__item-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.5rem;
+  text-decoration: none;
+  border-radius: var(--tms-radius-sm, 6px);
+  transition:
+    color var(--tms-audio-player-duration),
+    background-color var(--tms-audio-player-duration);
+}
+
+/* A row whose file has not been picked yet is a placeholder, not a link. */
+
+.tms-audio-player__item-link:not([href]) {
+  cursor: default;
+}
+
+.tms-audio-player__item-index,
+.tms-audio-player__item-eq {
+  flex: none;
+  width: 1.5rem;
+}
+
+.tms-audio-player__item-index {
+  font-size: var(--tms-font-size-xs, 0.75rem);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  line-height: 1;
+  color: var(--tms-muted-color, #6c757d);
+}
+
+.tms-audio-player__item-eq {
+  height: 0.75rem;
+  justify-content: center;
+}
+
+/* The equalizer takes the number's slot on the playing row — same fixed
+   width on both, so the titles never shift when the track changes. */
+
+.tms-audio-player__item-eq {
+  display: none;
+}
+
+.tms-audio-player__item--active .tms-audio-player__item-eq {
+  display: inline-flex;
+}
+
+.tms-audio-player__item--active .tms-audio-player__item-index {
+  display: none;
+}
+
+.tms-audio-player__item-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--tms-font-size-sm, 0.875rem);
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--tms-heading-color, #111827);
+}
+
+.tms-audio-player__item-duration {
+  flex: none;
+  font-size: var(--tms-font-size-xs, 0.75rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--tms-muted-color, #6c757d);
+}
+
+@media (hover: hover) {
+  .tms-audio-player__item-link[href]:hover {
+    background-color: var(--tms-surface-color, #f3f4f6);
+  }
+}
+
+.tms-audio-player__item--active .tms-audio-player__item-title {
+  color: var(--tms-primary-color, #2563eb);
+}
+
+/* ------------------------------------------------------------------------
+ * 09. Focus states
+ * ------------------------------------------------------------------------ */
+
+.tms-audio-player__button:focus-visible,
+.tms-audio-player__scrubber:focus-visible,
+.tms-audio-player__item-link:focus-visible {
+  outline: 2px solid var(--tms-primary-color, #2563eb);
+  outline-offset: 2px;
+}
+
+/* Editor preview: the engine never runs, so nothing here should invite a
+   click that would do nothing. */
+
+.tms-audio-player--static .tms-audio-player__scrubber {
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------------
+ * 10. Responsive collapses
+ * ------------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+  /* Compact folds its timeline onto a second line rather than squeezing it. */
+
+  .tms-audio-player--compact .tms-audio-player__ui {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'transport head'
+      'timeline timeline';
+  }
+
+  .tms-audio-player--compact.tms-audio-player--with-cover .tms-audio-player__ui {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      'cover transport head'
+      'timeline timeline timeline';
+  }
+}
+
+@media (max-width: 575px) {
+  .tms-audio-player--card .tms-audio-player__ui,
+  .tms-audio-player--card.tms-audio-player--with-cover .tms-audio-player__ui {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'cover'
+      'head'
+      'timeline'
+      'transport';
+    justify-items: stretch;
+    text-align: center;
+  }
+
+  .tms-audio-player--card .tms-audio-player__cover {
+    margin-inline: auto;
+  }
+
+  .tms-audio-player--card .tms-audio-player__head,
+  .tms-audio-player--card .tms-audio-player__transport {
+    justify-content: center;
+  }
+
+  /* Centred transport: the extras keep their own spacing instead of being
+     shoved to an edge that no longer exists. */
+
+  .tms-audio-player--card .tms-audio-player__extras {
+    margin-inline-start: 0;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * 11. Reduced motion
+ * ------------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-audio-player--playing .tms-audio-player__eq-bar {
+    animation: none;
+    transform: scaleY(0.7);
+  }
+
+  .tms-audio-player__button,
+  .tms-audio-player__icon,
+  .tms-audio-player__item-link {
+    transition: none;
+  }
+
+  .tms-audio-player__button:active {
+    transform: none;
+  }
+
+  .tms-audio-player__scrubber::-webkit-slider-thumb {
+    transition: none;
+  }
+
+  .tms-audio-player__scrubber::-moz-range-thumb {
+    transition: none;
+  }
+
+  .tms-audio-player__scrubber:hover::-webkit-slider-thumb,
+  .tms-audio-player__scrubber:focus-visible::-webkit-slider-thumb {
+    transform: none;
+  }
+
+  .tms-audio-player__scrubber:hover::-moz-range-thumb,
+  .tms-audio-player__scrubber:focus-visible::-moz-range-thumb {
+    transform: none;
+  }
+}

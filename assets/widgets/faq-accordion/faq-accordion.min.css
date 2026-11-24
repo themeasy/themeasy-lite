@@ -1,0 +1,383 @@
+/*!
+ * Themeasy — FAQ Accordion Widget Styles
+ *
+ * Editorial FAQ list: 1px dividers, large question typography, optional
+ * leading counters (pure CSS counters) and a morphing plus/minus or rotating
+ * chevron indicator, optionally seated on a background shape (circle by
+ * default). Items stack in a flex column, so the gap between them is a
+ * single token. Panels collapse with the CSS grid 0fr/1fr technique —
+ * height-accurate motion with zero JS measurement. Collapse only engages
+ * when JS has enhanced the widget (`--js`) or in the editor (`--static`);
+ * with no JS every answer stays visible.
+ *
+ * Public tokens (--tms-*) are consumed — never private (--themeasy-*).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Wrapper & items
+ * 02. Trigger row (number, question, indicator)
+ * 03. Indicators (node, shape, plus morph, chevron)
+ * 04. Panel collapse (grid 0fr/1fr)
+ * 05. Answer body
+ * 06. Responsive overrides
+ * 07. Accessibility (focus, reduced motion)
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & items
+ * ------------------------------------------------------------------------ */
+
+/* #region Wrapper */
+
+.tms-faq-accordion {
+  --tms-faq-accordion-divider-color: var(--tms-border-color, #e5e7eb);
+  --tms-faq-accordion-duration: 0.4s;
+  --tms-faq-accordion-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --tms-faq-accordion-pad: 1.5rem;
+  --tms-faq-accordion-gap: 1.25rem;
+  --tms-faq-accordion-number-width: 2.5rem;
+  --tms-faq-accordion-item-gap: 0px;
+  --tms-faq-accordion-icon-thickness: 2px;
+  --tms-faq-accordion-icon-color: var(--tms-heading-color, #11131a);
+  --tms-faq-accordion-icon-open-color: var(--tms-faq-accordion-icon-color);
+
+  /* Background shape tokens — consumed only under `--indicator-shaped`, so a
+   * value left behind by a disabled shape stays inert. Open-state tokens
+   * default to their normal counterpart; the shaped modifier re-points them. */
+  --tms-faq-accordion-node-size: 2.5em;
+  --tms-faq-accordion-node-bg: transparent;
+  --tms-faq-accordion-node-open-bg: var(--tms-faq-accordion-node-bg);
+  --tms-faq-accordion-node-border-color: currentColor;
+  --tms-faq-accordion-node-open-border-color: var(--tms-faq-accordion-node-border-color);
+
+  /* Flex column instead of block flow: the item gap is a real `gap` (no
+   * first/last-item margin to cancel, nothing to collapse) and the items
+   * still stretch to the full width. */
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--tms-faq-accordion-item-gap);
+  width: 100%;
+  border-top: 1px solid var(--tms-faq-accordion-divider-color);
+  counter-reset: tms-faq;
+}
+
+/* Shaped indicator: the node rests on the surface tone and inverts into a
+ * solid primary fill with a white glyph when its item opens. Every value is
+ * a token on the wrapper, so the Indicator controls (which write the same
+ * tokens at a higher specificity) win in both states independently. */
+
+.tms-faq-accordion--indicator-shaped {
+  --tms-faq-accordion-node-bg: var(--tms-surface-color, #f8f9fa);
+  --tms-faq-accordion-node-open-bg: var(--tms-primary-color, #2563eb);
+  --tms-faq-accordion-node-open-border-color: var(--tms-faq-accordion-node-open-bg);
+  --tms-faq-accordion-icon-open-color: var(--tms-white-color, #fff);
+}
+
+/* The divider owns its own channel (::after) instead of the item's
+ * `border-bottom`: the Item Border control group writes all four borders of
+ * this very element, so sharing the channel made authoring a border silently
+ * erase every divider. Set Divider Color to transparent to drop the lines
+ * when the items are styled as cards. */
+
+.tms-faq-accordion .tms-faq-accordion__item {
+  position: relative;
+  counter-increment: tms-faq;
+}
+
+.tms-faq-accordion .tms-faq-accordion__item::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background-color: var(--tms-faq-accordion-divider-color);
+  pointer-events: none;
+}
+
+/* Item > Open > Border Color recolors the divider by overriding
+ * --tms-faq-accordion-divider-color on the open item itself, so the colour at
+ * rest is kept one name away, where that override cannot reach it. */
+.tms-faq-accordion {
+  --tms-faq-accordion-divider-rest: var(--tms-faq-accordion-divider-color);
+}
+
+/* An item that draws its own bottom border is a card, and that border is the
+ * open state's channel. The divider keeps its rest colour there (transparent
+ * in card mode): recolored, it came back on the open item alone, as a straight
+ * line across the card's rounded bottom corners. */
+.tms-faq-accordion--item-bordered .tms-faq-accordion__item--open::after {
+  background-color: var(--tms-faq-accordion-divider-rest);
+}
+
+/* #endregion Wrapper */
+
+/* ------------------------------------------------------------------------
+ * 02. Trigger row (number, question, indicator)
+ * ------------------------------------------------------------------------ */
+
+/* #region Trigger */
+
+.tms-faq-accordion .tms-faq-accordion__header {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.tms-faq-accordion .tms-faq-accordion__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--tms-faq-accordion-gap);
+  width: 100%;
+  margin: 0;
+  padding: var(--tms-faq-accordion-pad) 0;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  /* A theme reset may keep button text on one line (Hello Elementor): the question wraps. */
+  white-space: normal;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.tms-faq-accordion .tms-faq-accordion__number {
+  flex: 0 0 auto;
+  min-width: var(--tms-faq-accordion-number-width);
+  color: var(--tms-muted-color, #6c757d);
+  font-family: var(--tms-accent-font);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+.tms-faq-accordion .tms-faq-accordion__number::before {
+  content: counter(tms-faq, decimal-leading-zero);
+}
+
+.tms-faq-accordion .tms-faq-accordion__question {
+  flex: 1 1 auto;
+  color: var(--tms-heading-color, #11131a);
+  font-size: clamp(1.125rem, 1vw + 0.75rem, 1.375rem);
+  font-weight: 600;
+  line-height: 1.35;
+  transition: color var(--tms-faq-accordion-duration) var(--tms-faq-accordion-ease);
+}
+
+.tms-faq-accordion .tms-faq-accordion__trigger:hover .tms-faq-accordion__question {
+  color: var(--tms-primary-color, #2563eb);
+}
+
+/* #endregion Trigger */
+
+/* ------------------------------------------------------------------------
+ * 03. Indicators (node, shape, plus morph, chevron)
+ * ------------------------------------------------------------------------ */
+
+/* #region Indicators */
+
+/* The icon span is the NODE; the glyph inside is always 1em (the node's
+ * font-size = Icon Size). Unshaped, the node hugs the glyph; shaped, it grows
+ * to the node size (2.5em by default, so it tracks the Icon Size) and the
+ * glyph stays centered in it. */
+
+.tms-faq-accordion .tms-faq-accordion__icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 1em;
+  height: 1em;
+  color: var(--tms-faq-accordion-icon-color);
+  font-size: 1rem;
+  line-height: 1;
+  transition:
+    color var(--tms-faq-accordion-duration) var(--tms-faq-accordion-ease),
+    background-color var(--tms-faq-accordion-duration) var(--tms-faq-accordion-ease),
+    border-color var(--tms-faq-accordion-duration) var(--tms-faq-accordion-ease);
+}
+
+.tms-faq-accordion .tms-faq-accordion__item--open .tms-faq-accordion__icon {
+  color: var(--tms-faq-accordion-icon-open-color);
+}
+
+/* Background shape. The Border group writes style + width on this node
+ * (scoped to the shaped modifier as well); its color rides the tokens so the
+ * Open tab can recolor it. */
+
+.tms-faq-accordion--indicator-shaped .tms-faq-accordion__icon {
+  width: var(--tms-faq-accordion-node-size);
+  height: var(--tms-faq-accordion-node-size);
+  background-color: var(--tms-faq-accordion-node-bg);
+  border-color: var(--tms-faq-accordion-node-border-color);
+  border-radius: 50%;
+}
+
+.tms-faq-accordion--indicator-shaped .tms-faq-accordion__item--open .tms-faq-accordion__icon {
+  background-color: var(--tms-faq-accordion-node-open-bg);
+  border-color: var(--tms-faq-accordion-node-open-border-color);
+}
+
+/* Plus / minus: two 1em CSS bars centered in the node; the vertical bar
+ * rotates flat when open. */
+
+.tms-faq-accordion--indicator-plus .tms-faq-accordion__icon::before,
+.tms-faq-accordion--indicator-plus .tms-faq-accordion__icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1em;
+  height: var(--tms-faq-accordion-icon-thickness);
+  background-color: currentColor;
+  border-radius: 999px;
+  translate: -50% -50%;
+  transition: rotate var(--tms-faq-accordion-duration) var(--tms-faq-accordion-ease);
+}
+
+.tms-faq-accordion--indicator-plus .tms-faq-accordion__icon::after {
+  rotate: 90deg;
+}
+
+.tms-faq-accordion--indicator-plus .tms-faq-accordion__item--open .tms-faq-accordion__icon::before {
+  rotate: 180deg;
+}
+
+.tms-faq-accordion--indicator-plus .tms-faq-accordion__item--open .tms-faq-accordion__icon::after {
+  rotate: 180deg;
+}
+
+/* Chevron: static SVG glyph, rotates 180deg when open. The glyph turns, not
+ * the node — a rotating shape would flip an asymmetric border or radius. */
+
+.tms-faq-accordion .tms-faq-accordion__chevron {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--tms-faq-accordion-icon-thickness);
+  transition: transform var(--tms-faq-accordion-duration) var(--tms-faq-accordion-ease);
+}
+
+.tms-faq-accordion--indicator-chevron .tms-faq-accordion__item--open .tms-faq-accordion__chevron {
+  transform: rotate(180deg);
+}
+
+/* #endregion Indicators */
+
+/* ------------------------------------------------------------------------
+ * 04. Panel collapse (grid 0fr/1fr)
+ * ------------------------------------------------------------------------ */
+
+/* #region Panel */
+
+.tms-faq-accordion .tms-faq-accordion__panel {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows var(--tms-faq-accordion-duration) var(--tms-faq-accordion-ease);
+}
+
+.tms-faq-accordion .tms-faq-accordion__body {
+  min-height: 0;
+  overflow: hidden;
+  visibility: visible;
+  transition: visibility 0s;
+}
+
+/* Collapse only when JS enhanced the widget (or in the static editor
+ * preview) — with no JS all answers stay readable. */
+
+.tms-faq-accordion--js .tms-faq-accordion__item:not(.tms-faq-accordion__item--open) .tms-faq-accordion__panel,
+.tms-faq-accordion--static .tms-faq-accordion__item:not(.tms-faq-accordion__item--open) .tms-faq-accordion__panel {
+  grid-template-rows: 0fr;
+}
+
+.tms-faq-accordion--js .tms-faq-accordion__item:not(.tms-faq-accordion__item--open) .tms-faq-accordion__body,
+.tms-faq-accordion--static .tms-faq-accordion__item:not(.tms-faq-accordion__item--open) .tms-faq-accordion__body {
+  visibility: hidden;
+  transition: visibility 0s var(--tms-faq-accordion-duration);
+}
+
+/* #endregion Panel */
+
+/* ------------------------------------------------------------------------
+ * 05. Answer body
+ * ------------------------------------------------------------------------ */
+
+/* #region Answer */
+
+.tms-faq-accordion .tms-faq-accordion__answer {
+  padding-bottom: var(--tms-faq-accordion-pad);
+  color: var(--tms-body-color, #4a4f5a);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Answers align with the question edge when counters are shown. */
+
+.tms-faq-accordion--numbered .tms-faq-accordion__answer {
+  padding-inline-start: calc(var(--tms-faq-accordion-number-width) + var(--tms-faq-accordion-gap));
+}
+
+.tms-faq-accordion .tms-faq-accordion__answer > :first-child {
+  margin-top: 0;
+}
+
+.tms-faq-accordion .tms-faq-accordion__answer > :last-child {
+  margin-bottom: 0;
+}
+
+/* #endregion Answer */
+
+/* ------------------------------------------------------------------------
+ * 06. Responsive overrides
+ * ------------------------------------------------------------------------ */
+
+/* #region Responsive */
+
+@media (max-width: 767px) {
+  .tms-faq-accordion {
+    --tms-faq-accordion-pad: 1.125rem;
+    --tms-faq-accordion-gap: 0.875rem;
+    --tms-faq-accordion-number-width: 2rem;
+  }
+}
+
+/* #endregion Responsive */
+
+/* ------------------------------------------------------------------------
+ * 07. Accessibility (focus, reduced motion)
+ * ------------------------------------------------------------------------ */
+
+/* #region Accessibility */
+
+.tms-faq-accordion .tms-faq-accordion__trigger:focus-visible {
+  outline: 2px solid var(--tms-primary-color, #2563eb);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-faq-accordion .tms-faq-accordion__panel,
+  .tms-faq-accordion .tms-faq-accordion__body,
+  .tms-faq-accordion .tms-faq-accordion__question,
+  .tms-faq-accordion .tms-faq-accordion__icon,
+  .tms-faq-accordion .tms-faq-accordion__chevron,
+  .tms-faq-accordion .tms-faq-accordion__icon::before,
+  .tms-faq-accordion .tms-faq-accordion__icon::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* #endregion Accessibility */

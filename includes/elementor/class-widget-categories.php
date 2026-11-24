@@ -82,11 +82,15 @@ class Widget_Categories {
    */
   public static function free_widget_order(): array {
     return [
-      'text' => ['section-intro', 'blockquote'],
-      'media' => ['image', 'video'],
-      'elements' => ['button', 'icon', 'icon-list', 'divider', 'social-profiles'],
-      'blocks' => ['card', 'cta', 'team-member', 'testimonial', 'logo-wall', 'accordion', 'steps'],
-      'data' => ['pricing-table', 'business-hours'],
+      'text' => ['headline', 'section-intro', 'text-editor', 'blockquote', 'code-terminal', 'table-of-contents'],
+      'media' => ['image', 'video', 'audio-player', 'image-accordion', 'before-after', 'hotspot-image'],
+      'elements' => [
+        'button', 'slide-button', 'icon', 'icon-list', 'badge-list', 'divider', 'social-share-row', 'social-profiles',
+      ],
+      'blocks' => [
+        'card', 'card-extended', 'cta', 'team-member', 'testimonial', 'logo-wall', 'accordion', 'faq-accordion', 'steps',
+      ],
+      'data' => ['star-rating', 'pricing-table', 'price-list', 'comparison-table', 'countdown-timer', 'business-hours'],
     ];
   }
 

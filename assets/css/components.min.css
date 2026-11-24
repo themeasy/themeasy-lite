@@ -1039,8 +1039,7 @@
 	vertical-align: middle;
 	box-shadow: none !important;
 	border-radius: var(--tms-radius-sm, 0.5rem);
-	/* Hairline, like the .form-control fields beside it (and every WooCommerce
-	   control: checkout radios, the shop filter's category checkboxes). */
+	/* Hairline, like the .form-control fields beside it. */
 	border: 1px solid;
 	border-color: var(--tms-border-color);
 	background-color: transparent;
@@ -1354,15 +1353,15 @@
   height: 58px;
   right: 8px;
   display: flex;
-  /* The submit wrapper is also a .tms-form__row, which wpcf7.min.css sets to a
-   * column: without an explicit row, align-items centred the button across
-   * and left it pinned to the top of the 58px box (backlog #229). */
+  /* The submit wrapper is also a form row, which is a column elsewhere: without
+   * an explicit row, align-items centred the button across and left it pinned
+   * to the top of the 58px box (backlog #229). */
   flex-direction: row;
   align-items: center;
   /* The button is absolutely positioned INSIDE the field here, so Button
    * Spacing would offset it from its static position instead of adding air
-   * above it. This out-specifies the token rule in wpcf7.min.css (4 classes
-   * to 3), so the control is inert on an inline form by construction. */
+   * above it. This out-specifies the spacing token rule (4 classes to 3), so
+   * the control is inert on an inline form by construction. */
   margin-top: 0;
 }
 
@@ -1449,8 +1448,7 @@
   display: none;
 }
 
-/* --tms-custom-select-width / -height: per-instance overrides (Product Grid
-   sort selector controls). Desktop only: below 992px the select fills its row
+/* --tms-custom-select-width / -height: per-instance overrides. Desktop only: below 992px the select fills its row
    at a 48px touch height (see the media query at the end of this region). */
 .tms-custom-select__trigger,
 .tms-select__trigger {
@@ -1462,8 +1460,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  /* --tms-custom-select-radius: per-instance override (Product Grid sort
-     selector control), read by the open state and the dropdown too. */
+  /* --tms-custom-select-radius: per-instance override, read by the open state and the dropdown too. */
   border-radius: var(--tms-custom-select-radius, var(--tms-radius-sm, 0.25rem));
   /* Hairline like every field: invisible at rest (surface on surface), it is
      the width an authored Border Color shows. */
@@ -2843,7 +2840,7 @@ a:hover>.tms-badge .tms-badge__icon {
   flex-shrink: 0;
 }
 
-/* Authored prev/next glyph (Post Grid / Archive Results icon controls). The
+/* Authored prev/next glyph. The
  * widget owns this wrapper — the icon helper returns a bare 1em SVG — so the
  * Icon Size control drives it through font-size. Both fill and stroke rules
  * are required: Feather and anything with fill="none" are stroke sets. */

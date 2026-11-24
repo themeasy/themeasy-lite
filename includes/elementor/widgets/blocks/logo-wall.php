@@ -6,8 +6,7 @@
  * framed by a single collapsed 1px divider (the modern "table wall" look),
  * with an optional outer frame and per-cell hover treatments (desaturate to
  * color, grayscale, zoom) plus a micro-label that reveals the brand name on
- * hover. Pure CSS — no JS, no carousel; complements the Client Logos widget
- * (which owns the gap-based grid / carousel / marquee skins).
+ * hover. Pure CSS, no JS.
  *
  * @package Themeasy
  * @since 1.0.0
@@ -703,8 +702,7 @@ class LogoWall extends Widget_Base {
           // untouched repeater row is indistinguishable from a chosen one by
           // value alone. That default is a legitimate drop target in the editor
           // (content_template() still shows it), but on the front it is a grey
-          // box posing as a client's brand — so it counts as "no image" here,
-          // exactly as in the sibling client-logos.php.
+          // box posing as a client's brand — so it counts as "no image" here.
           if ( $logo_url === Utils::get_placeholder_image_src() ) {
             $logo_url = '';
             $logo_id = 0;

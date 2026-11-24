@@ -1,0 +1,342 @@
+/*!
+ * Themeasy — Headline
+ *
+ * Intro text block with an optional pre-title (eyebrow), a multi-part title
+ * (up to three independently styled segments with optional icons), and a
+ * description. Supports stacked / split / vertical-label layouts, outline,
+ * gradient and masked-image text styles. Fully visible without JS.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+.tms-headline__wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.tms-headline {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tms-headline.tms-headline--split > * {
+  width: -webkit-fill-available;
+}
+
+.tms-headline > * {
+  margin: 0;
+}
+
+/* Pre-title (eyebrow). Color explicitly set so the pre-title keeps its
+ * heading color without depending on the theme's h1-h6 rule when the plugin
+ * runs on a third-party theme. The accent metrics are the widget default —
+ * overridden by the Elementor typography control's generated CSS at higher
+ * specificity. */
+.tms-headline .tms-headline__pre-title {
+  width: fit-content;
+  display: block;
+  color: var(--tms-heading-color, #f5f6fa);
+  font-family: var(--tms-accent-font);
+  font-size: var(--tms-font-size-xs);
+  font-weight: var(--tms-accent-font-weight);
+  line-height: var(--tms-accent-line-height);
+  letter-spacing: var(--tms-accent-letter-spacing);
+  text-transform: uppercase;
+}
+
+.tms-headline.tms-headline--split .tms-headline__pre-title {
+  position: absolute;
+  top: 0;
+}
+
+.tms-headline.tms-headline--vertical-label .tms-headline__pre-title {
+  position: absolute;
+  top: 0.5rem;
+  right: 100%;
+  transform: rotate(-90deg);
+  transform-origin: right top;
+  white-space: nowrap;
+}
+
+/* Title.
+ *
+ * Three flows, selected by the Title Flow control. The modifier rides the
+ * CONTAINER, in the same family as --stacked / --split / --vertical-label, and
+ * deliberately NOT the title element: every part-wide rule below reaches the
+ * parts through [class*="tms-headline__title-"], and a modifier on the title
+ * would match that substring too (`tms-headline__title--x` contains
+ * `tms-headline__title-`), quietly widening every one of them.
+ *
+ *   --title-inline  the parts merge into ONE continuous text run: they wrap
+ *                   together, break between each other, and an icon sits IN the
+ *                   sentence. render() joins the parts with a real space here,
+ *                   because a margin would be no break opportunity.
+ *   --title-block   each part owns its line (the long-standing "Display Block").
+ *   --title-row     the parts are flex items side by side, never wrapping
+ *                   between them (the long-standing default).
+ *
+ * Every saved headline predates the control, so the widget constructor derives
+ * the flow from the old `title_display_block` key — see headline.php. */
+.tms-headline .tms-headline__title {
+  display: block;
+  color: var(--tms-heading-color, #f5f6fa);
+}
+
+.tms-headline--title-row .tms-headline__title {
+  display: flex;
+}
+
+/* The Row separation is about one word space, sized in each part's OWN font,
+   so a row keeps reading as separate words at any type size. A fixed `gap` on
+   the title cannot do that: rem ignores the type size (0.5rem = 8px glued two
+   160px parts into one word), and em would resolve against the title element,
+   not against the per-part typography that actually sets the size. 0.25em sits
+   at the wide end of a space's advance in the display families (measured 0.2em
+   in Inter), so Row reads a touch airier than the same parts Inline. The
+   ancestor sits in :where() to land the rule at exactly 0,2,0: above the
+   shared `.tms-text-style { margin: 0 }` reset (0,1,0), which silently zeroed
+   it, and below the per-part Margin control ({{WRAPPER}} = 0,4,0), which stays
+   the author's knob for this gap in Row. Logical property: the separation
+   follows the reading direction in RTL. */
+:where(.tms-headline--title-row .tms-headline__title)
+  > [class*="tms-headline__title-"] + [class*="tms-headline__title-"] {
+  margin-inline-start: 0.25em;
+}
+
+.tms-headline--title-inline .tms-headline__title > [class*="tms-headline__title-"] {
+  display: inline;
+}
+
+.tms-headline--title-block .tms-headline__title > [class*="tms-headline__title-"] {
+  display: block;
+}
+
+/* Split takes the pre-title out of flow (absolute, top: 0), so the band it
+ * occupies has to be reserved by hand on the title. The reservation is gated on
+ * the pre-title actually being rendered — render() and content_template() both
+ * omit the element when the field is empty ("Leave blank to hide") — otherwise
+ * an empty kicker leaves a dead band above the title. Stacked needs no gate
+ * (the pre-title stays in flow: no element, no row-gap) and vertical-label
+ * reserves on the horizontal axis instead. Static fallback for the
+ * vertical_spacing control, whose selector carries the same :has() gate and
+ * overrides this with calc( {{SIZE}}{{UNIT}} * 2 ) — 3rem is that expression at
+ * the 1.5rem default. */
+.tms-headline.tms-headline--split:has(> .tms-headline__pre-title) .tms-headline__title {
+  padding-top: 3rem;
+}
+
+/* Static fallback for the label gutter. The live value comes from the
+ * horizontal_spacing control, whose selector overrides this with
+ * max( 1.25rem, {{SIZE}}{{UNIT}} ) — 1.5rem is that expression at the 1.5rem
+ * default. The gutter only has to clear the rotated pre-title's line box
+ * (~11-16px measured), so it tracks the control value directly with a 1.25rem
+ * floor — never a multiple of it. It lives on the CONTAINER, not the title:
+ * the label strip runs down the widget's left edge, so a description that
+ * wraps below the title (see the flex bases in the media query) must clear it
+ * too. The absolutely positioned pre-title anchors at `right: 100%` — the
+ * padding box's left edge — so its rotated line box lands inside this padding
+ * strip, never over the children. Any element that must share the title's
+ * axis has to reproduce the EXPRESSION, not this constant; a static rule
+ * cannot read the control. Gated on the pre-title being rendered, for the same
+ * reason the split reservation above is: with no label there is nothing to
+ * clear, and the strip would only indent the content. */
+.tms-headline.tms-headline--vertical-label:has(> .tms-headline__pre-title) {
+  padding-left: 1.5rem;
+}
+
+/* Leading stops at the title parts — never `*`, for the same reason the color
+   rule below does not use it. line-height is INHERITED, so any box inside a part
+   picks it up on its own; an explicit declaration on a descendant outranks
+   inheritance regardless of specificity, which would freeze it at this base
+   value and make the Typography control (and any Display preset) a no-op. */
+.tms-headline .tms-headline__title-1,
+.tms-headline .tms-headline__title-2,
+.tms-headline .tms-headline__title-3 {
+  line-height: 1.2;
+}
+
+/* Color stops at the title parts and their links — never `*`. The catch-all's
+   0,2,0 specificity silently beat the inline color utilities an author opts
+   into, so `<span class="tms-text-accent">` inside a title rendered in the
+   heading color (backlog #124). Everything else already inherits the same
+   value: measured on the sandbox,
+   <mark> and <strong> compute rgb(21,21,21) with and without the catch-all.
+   An <a> does not — it carries its own rule — so it keeps an explicit pin,
+   which is what the catch-all was doing for it. */
+.tms-headline .tms-headline__title-1,
+.tms-headline .tms-headline__title-1 a,
+.tms-headline .tms-headline__title-2,
+.tms-headline .tms-headline__title-2 a,
+.tms-headline .tms-headline__title-3,
+.tms-headline .tms-headline__title-3 a {
+  color: var(--tms-heading-color, #f5f6fa);
+}
+
+/* Description. */
+.tms-headline .tms-headline__description {
+  font-size: var(--tms-font-size-md);
+  color: var(--tms-body-color, #c7ccd6);
+}
+
+.tms-headline.tms-headline--split .tms-headline__description,
+.tms-headline.tms-headline--vertical-label .tms-headline__description {
+  padding-bottom: 0.3rem;
+}
+
+/* Title icons — the leading-neutral inline box.
+ *
+ * The icon is a real inline-level box in the text run, so it flows, wraps and
+ * breaks with the words around it. Two independent problems are solved here,
+ * and both were measured on the sandbox before this model replaced the old
+ * flex one (2026-09-17):
+ *
+ * 1. THE BOX. The wrapper used to make the PART a flex container, which turned
+ *    every text node around the icon into its own anonymous flex item: a title
+ *    reading "Design that [icon] moves people" rendered as three independent
+ *    columns, each wrapping on its own. That is what forced the icon to sit at
+ *    the edge of a block, and it is why the whole feature was gated behind
+ *    "Display Block". The part is now left alone; only the wrapper is styled.
+ *
+ * 2. THE LEADING. An inline glyph taller than the text ascent grows its own
+ *    line box, so one big icon silently pushed its line away from the previous
+ *    one (measured: leading 67px -> 98px with a 1.5em icon). Here the wrapper's
+ *    LAYOUT box is pinned to the text cap zone (width = the icon size, height =
+ *    1cap) and the glyph is taken out of flow inside it, so the glyph's size is
+ *    pure paint. Measured against a no-icon control: 67/68 with no icon, 67/67
+ *    at 1em, 68/67 with 1.5em + 3em icons — a 3x icon moves the leading by 0px.
+ *
+ * The wrapper has no in-flow line boxes (the glyph is absolute), so its
+ * baseline is its bottom margin edge: the box sits exactly on the text
+ * baseline and rises one cap height. Centering the glyph on that box therefore
+ * lands it on the optical centre of the caps zone — the same result the old
+ * `calc(50% - 0.5cap)` shift produced, but as pure geometry, with no unit that
+ * has to resolve against the right font-size.
+ *
+ * `height: 1cap` ships behind an em fallback: without it, a browser with no
+ * `cap` support would drop the declaration, collapse the wrapper to `auto`
+ * (= 0, the glyph being absolute) and stack the icon on top of the text. */
+.tms-headline [class*="tms-headline__title-"] .icon-wrapper {
+  position: relative;
+  display: inline-block;
+  width: var(--tms-title-icon-size, 1em);
+  height: 0.7em;
+  height: 1cap;
+  margin-inline: var(--tms-title-icon-gap, 0.25em);
+  vertical-align: baseline;
+  line-height: 0;
+}
+
+.tms-headline [class*="tms-headline__title-"] .icon-wrapper > svg,
+.tms-headline [class*="tms-headline__title-"] .icon-wrapper > .icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--tms-title-icon-size, 1em);
+  height: var(--tms-title-icon-size, 1em);
+  /* Plain `left`, not `inset-inline-start`: the -50% pull is the same in both
+     writing directions, so a logical property would mirror it wrongly in RTL.
+     The author nudge rides the same translate instead of a margin, which would
+     re-enter layout on the wrapper and undo the leading neutrality. No
+     font-size is set here on purpose: the glyph keeps inheriting the TITLE's,
+     so an em-based offset measures against the text, not against the icon. */
+  translate: -50% calc(-50% + var(--tms-title-icon-offset, 0px));
+  line-height: 1;
+  fill: currentColor;
+}
+
+/* Font-icon libraries (Elementor's own tabs) render an <i>, whose glyph is
+   sized by font-size alone — width/height above only bound its box. The ty-*
+   tabs and uploaded SVGs never reach here: this stack always renders those as
+   inline SVG (see themeasy_render_icon_html). */
+.tms-headline [class*="tms-headline__title-"] .icon-wrapper > i {
+  font-size: var(--tms-title-icon-size, 1em);
+  text-align: center;
+}
+
+.tms-headline [class*="tms-headline__title-"] .icon-wrapper > svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* Vertical alignment variants.
+ *
+ * The glyph is always centred on the wrapper box, so the ONLY thing a variant
+ * changes is that box's height — which is why the leading stays neutral in
+ * every one of them. Reading the box as "rises H above the baseline", the
+ * glyph's centre lands at H/2:
+ *
+ *   (default) cap    H = 1cap            centre of the caps zone
+ *   baseline         H = the icon size   the glyph's BOTTOM on the baseline
+ *   middle           H = 1ex             centre of the x-height zone
+ *   top              H = 2cap - size     the glyph's TOP on the cap line
+ *
+ * `top` clamps at 0: an icon taller than 2cap would ask for a negative height,
+ * which is invalid and would silently drop the whole declaration. */
+.tms-headline [class*="tms-headline__title-"].tms-headline__title--icon-align-baseline .icon-wrapper {
+  height: var(--tms-title-icon-size, 1em);
+}
+
+.tms-headline [class*="tms-headline__title-"].tms-headline__title--icon-align-middle .icon-wrapper {
+  height: 1ex;
+}
+
+.tms-headline [class*="tms-headline__title-"].tms-headline__title--icon-align-top .icon-wrapper {
+  height: max(0px, calc(1.4em - var(--tms-title-icon-size, 1em)));
+  height: max(0px, calc(2cap - var(--tms-title-icon-size, 1em)));
+}
+
+/* "Beside" placement — the pre-2026-09 look, kept as an explicit choice: the
+   part becomes a baseline-aligned flex row, so the icon holds its own column
+   and the text block wraps next to it instead of flowing around the glyph.
+   Only meaningful when the part is a block (Block and Row flows); in Inline
+   flow the part is an inline box and `display: flex` would blockify it, so the
+   render only emits this class outside Inline. */
+.tms-headline [class*="tms-headline__title-"].tms-headline__title--icon-beside {
+  display: flex;
+  align-items: baseline;
+  gap: var(--tms-title-icon-gap, 0.25em);
+}
+
+.tms-headline [class*="tms-headline__title-"].tms-headline__title--icon-beside .icon-wrapper {
+  margin-inline: 0;
+}
+
+/* Responsive: split / vertical-label become horizontal at tablet and up.
+ *
+ * vertical-label sizes title and description against the HOST COLUMN, not the
+ * viewport, so the row is opt-in by fit: the wrap + flex bases below let the
+ * description drop under the title whenever the column cannot hold two real
+ * columns. The bases are the wrap threshold — title 22ch resolves against the
+ * heading font (the element's own size), description 30ch against the body
+ * font; when their sum plus the column-gap exceeds the host column, the
+ * description wraps to its own full-width line instead of being crushed or
+ * pushed out of the widget box (both children asking for 100% via
+ * -webkit-fill-available was the leak). flex-shrink stays 1 with min-width:
+ * auto, so a shrinking title floors at its longest word and never breaks
+ * mid-word. The rules live inside the media query on purpose: below 768px the
+ * container is a column and a flex-basis would act on the vertical axis. */
+@media (min-width: 768px) {
+  .tms-headline.tms-headline--split,
+  .tms-headline.tms-headline--vertical-label {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .tms-headline.tms-headline--vertical-label {
+    flex-wrap: wrap;
+  }
+
+  .tms-headline.tms-headline--vertical-label .tms-headline__title {
+    flex: 1 1 22ch;
+  }
+
+  .tms-headline.tms-headline--vertical-label .tms-headline__description {
+    flex: 1 1 30ch;
+  }
+}

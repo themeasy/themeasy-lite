@@ -1,0 +1,696 @@
+/*!
+ * Themeasy — Hotspot Image Widget Styles
+ *
+ * Interactive image with positioned pins (hotspots) that reveal rich tooltips.
+ * Ships three skins (dot / marker / numbered) and two triggers (hover / click)
+ * with keyboard and reduced-motion friendly fallbacks.
+ *
+ * Public tokens (--tms-*) only — never private (--themeasy-*).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Wrapper & frame
+ * 02. Hotspot base
+ * 03. Skin: Dot
+ * 04. Skin: Marker
+ * 05. Skin: Numbered
+ * 06. Pulse animation
+ * 07. Tooltip
+ * 08. Tooltip arrow
+ * 09. Tooltip positions
+ * 10. Triggers (hover / click)
+ * 11. Accessibility (focus, reduced motion)
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & frame
+ * ------------------------------------------------------------------------ */
+
+/* #region Wrapper */
+
+.tms-hotspot-image {
+  --tms-hotspot-size: 28px;
+  --tms-hotspot-pulse-duration: 1.8s;
+  --tms-hotspot-tooltip-bg: #1f2937;
+
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.tms-hotspot-image__frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.tms-hotspot-image__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: inherit;
+}
+
+.tms-hotspot-image__hotspots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Zero-size anchor placed at the hotspot's X/Y coordinate. All children
+   (button + tooltip) are absolutely positioned relative to this origin,
+   so each hotspot's tooltip stays attached to its own pin. */
+
+.tms-hotspot-image__point {
+  --tms-hotspot-size: 28px;
+  --tms-hotspot-tooltip-offset: 14px;
+
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* #endregion Wrapper */
+
+/* ------------------------------------------------------------------------
+ * 02. Hotspot base
+ * ------------------------------------------------------------------------ */
+
+/* #region Hotspot base */
+
+.tms-hotspot-image__hotspot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--tms-hotspot-size);
+  height: var(--tms-hotspot-size);
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  background-color: var(--tms-primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+  font: inherit;
+  line-height: 1;
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+/* A theme reset that styles every button (Hello Elementor)
+  turns the hotspot #c36 on hover and focus: the rest look stays. */
+.tms-hotspot-image .tms-hotspot-image__hotspot {
+  box-shadow: none;
+  color: #fff;
+  background-color: var(--tms-primary-color);
+}
+
+.tms-hotspot-image__hotspot-ring {
+  /* Default pulse = the pin's own fill at 45%. `--tms-hotspot-bg` is written by
+     the Background Color control; unset, the pin is the primary color. */
+  --tms-hotspot-pulse-fallback: color-mix(
+    in srgb,
+    var(--tms-hotspot-bg, var(--tms-primary-color, #4f46e5)) 45%,
+    transparent
+  );
+
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.tms-hotspot-image__hotspot-inner {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* The glyph is 1em, so it scales with the pin: 2/3 of its size by default (16px
+   on the 24px default pin), or the Icon Size control. */
+.tms-hotspot-image__hotspot-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--tms-hotspot-size) * 2 / 3);
+  line-height: 1;
+}
+
+.tms-hotspot-image__hotspot-icon svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-hotspot-image__hotspot-icon svg[fill='none'] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-hotspot-image__hotspot-icon img {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+
+.tms-hotspot-image__hotspot-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: calc(var(--tms-hotspot-size) * 0.45);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.tms-hotspot-image__hotspot:hover,
+.tms-hotspot-image__hotspot:focus-visible,
+.tms-hotspot-image__hotspot--open {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* #endregion Hotspot base */
+
+/* ------------------------------------------------------------------------
+ * 03. Skin: Dot
+ * ------------------------------------------------------------------------ */
+
+/* #region Dot */
+
+.tms-hotspot-image--skin-dot .tms-hotspot-image__hotspot-inner {
+  width: 55%;
+  height: 55%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+}
+
+/* #endregion Dot */
+
+/* ------------------------------------------------------------------------
+ * 04. Skin: Marker
+ * ------------------------------------------------------------------------ */
+
+/* #region Marker */
+
+.tms-hotspot-image--skin-marker .tms-hotspot-image__hotspot {
+  /* Marker sits above its anchor point, mimicking a map pin: a round head (the
+     base 50% radius) plus the tail below. Origin is the 0,0 point; the pin body
+     floats up by 100% of its own height and scales from its tip, so hover
+     growth never drifts it off the coordinate. */
+  transform: translate(-50%, -100%);
+  transform-origin: 50% 100%;
+}
+
+.tms-hotspot-image--skin-marker .tms-hotspot-image__hotspot::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: inherit;
+  transform: translateX(-50%) rotate(45deg);
+  z-index: -1;
+  border-radius: 0;
+}
+
+.tms-hotspot-image--skin-marker .tms-hotspot-image__hotspot:hover,
+.tms-hotspot-image--skin-marker .tms-hotspot-image__hotspot:focus-visible,
+.tms-hotspot-image--skin-marker .tms-hotspot-image__hotspot--open {
+  transform: translate(-50%, -100%) scale(1.1);
+}
+
+/* #endregion Marker */
+
+/* ------------------------------------------------------------------------
+ * 05. Skin: Numbered
+ * ------------------------------------------------------------------------ */
+
+/* #region Numbered */
+
+.tms-hotspot-image--skin-numbered .tms-hotspot-image__hotspot {
+  /* Numbers need slightly larger default to read well. */
+  min-width: var(--tms-hotspot-size);
+  min-height: var(--tms-hotspot-size);
+}
+
+/* #endregion Numbered */
+
+/* ------------------------------------------------------------------------
+ * 06. Pulse animation
+ * ------------------------------------------------------------------------ */
+
+/* #region Pulse */
+
+.tms-hotspot-image--pulse .tms-hotspot-image__hotspot .tms-hotspot-image__hotspot-ring::before,
+.tms-hotspot-image--pulse .tms-hotspot-image__hotspot .tms-hotspot-image__hotspot-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--tms-hotspot-pulse-color, var(--tms-hotspot-pulse-fallback));
+  pointer-events: none;
+  animation: tms-hotspot-pulse var(--tms-hotspot-pulse-duration, 1.8s) ease-out infinite;
+}
+
+.tms-hotspot-image--pulse .tms-hotspot-image__hotspot .tms-hotspot-image__hotspot-ring::after {
+  animation-delay: calc(var(--tms-hotspot-pulse-duration, 1.8s) / 2);
+}
+
+/* The disc grows by its shadow spread, not by `transform: scale()`: a scaled box
+   counts in the scrollable overflow, so a pin near the right edge widened the page
+   (backlog #425). A spread of 0.7 x the pin size is the old scale(2.4) outline. */
+@keyframes tms-hotspot-pulse {
+  0% {
+    opacity: 0.75;
+    box-shadow: 0 0 0 0 var(--tms-hotspot-pulse-color, var(--tms-hotspot-pulse-fallback));
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 0 0 0 calc(var(--tms-hotspot-size, 28px) * 0.7)
+      var(--tms-hotspot-pulse-color, var(--tms-hotspot-pulse-fallback));
+  }
+}
+
+/* #endregion Pulse */
+
+/* ------------------------------------------------------------------------
+ * 07. Tooltip
+ * ------------------------------------------------------------------------ */
+
+/* #region Tooltip */
+
+/* At rest the tooltip is out of the layout, not just hidden: visibility and
+   opacity leave the box in place, it still counts in the page's scrollable
+   width, and a pin near the right edge of a full-width image ran it past the
+   screen (backlog #421, the Social Share Row fix of #413). The JS gives it a
+   box while it measures the placement. */
+
+.tms-hotspot-image__tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  display: none;
+  /* The anchor (.tms-hotspot-image__point) is zero-size, so without a width of
+     its own the box shrinks to min-content and never reaches Max Width. */
+  width: max-content;
+  min-width: 180px;
+  max-width: 260px;
+  padding: 0.875rem 1rem;
+  background-color: var(--tms-hotspot-tooltip-bg, #1f2937);
+  color: #fff;
+  border-radius: 8px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    visibility 0s linear 0.2s,
+    display 0s linear 0.2s;
+  /* Keeps the box displayed until the fade-out ends. A browser without it
+     drops the tooltip at once, which is the only thing it loses. */
+  transition-behavior: allow-discrete;
+}
+
+/* The media bleeds to the tooltip edges: the Padding control mirrors its sides
+   into these vars, and the top corners follow the tooltip's own radius. */
+.tms-hotspot-image__tooltip-media {
+  margin:
+    calc(-1 * var(--tms-hotspot-tooltip-padding-top, 0.875rem))
+    calc(-1 * var(--tms-hotspot-tooltip-padding-right, 1rem))
+    0.75rem
+    calc(-1 * var(--tms-hotspot-tooltip-padding-left, 1rem));
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  overflow: hidden;
+}
+
+.tms-hotspot-image__tooltip-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tms-hotspot-image__tooltip-heading {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: inherit;
+}
+
+.tms-hotspot-image__tooltip-description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: inherit;
+}
+
+.tms-hotspot-image__tooltip-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--tms-accent-color, #fff);
+  transition: opacity 0.2s ease;
+}
+
+.tms-hotspot-image__tooltip-link:hover,
+.tms-hotspot-image__tooltip-link:focus-visible {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* #endregion Tooltip */
+
+/* ------------------------------------------------------------------------
+ * 08. Tooltip arrow
+ * ------------------------------------------------------------------------ */
+
+/* #region Arrow */
+
+.tms-hotspot-image__tooltip-arrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: inherit;
+  pointer-events: none;
+}
+
+.tms-hotspot-image--no-arrow .tms-hotspot-image__tooltip-arrow {
+  display: none;
+}
+
+/* #endregion Arrow */
+
+/* ------------------------------------------------------------------------
+ * 09. Tooltip positions
+ * ------------------------------------------------------------------------ */
+
+/* #region Positions */
+
+/* Tooltips anchor from the point origin (0,0). Layout via top/bottom/left/right
+   keeps them attached to the pin; transform handles centering plus the JS edge
+   shift (--tms-hotspot-tooltip-shift, set only when the tooltip would leave the
+   viewport), which the arrow undoes so it keeps pointing at the pin. */
+
+/* Top (default) */
+.tms-hotspot-image__tooltip[data-position='top'] {
+  left: 0;
+  top: auto;
+  bottom: calc(var(--tms-hotspot-size, 28px) / 2 + var(--tms-hotspot-tooltip-offset, 14px));
+  transform: translateX(calc(-50% + var(--tms-hotspot-tooltip-shift, 0px)));
+}
+
+.tms-hotspot-image__tooltip[data-position='top'] .tms-hotspot-image__tooltip-arrow {
+  left: calc(50% - var(--tms-hotspot-tooltip-shift, 0px));
+  bottom: -5px;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* Bottom */
+.tms-hotspot-image__tooltip[data-position='bottom'] {
+  left: 0;
+  top: calc(var(--tms-hotspot-size, 28px) / 2 + var(--tms-hotspot-tooltip-offset, 14px));
+  transform: translateX(calc(-50% + var(--tms-hotspot-tooltip-shift, 0px)));
+}
+
+.tms-hotspot-image__tooltip[data-position='bottom'] .tms-hotspot-image__tooltip-arrow {
+  left: calc(50% - var(--tms-hotspot-tooltip-shift, 0px));
+  top: -5px;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* Right */
+.tms-hotspot-image__tooltip[data-position='right'] {
+  left: calc(var(--tms-hotspot-size, 28px) / 2 + var(--tms-hotspot-tooltip-offset, 14px));
+  top: 0;
+  transform: translateY(calc(-50% + var(--tms-hotspot-tooltip-shift, 0px)));
+}
+
+.tms-hotspot-image__tooltip[data-position='right'] .tms-hotspot-image__tooltip-arrow {
+  left: -5px;
+  top: calc(50% - var(--tms-hotspot-tooltip-shift, 0px));
+  transform: translateY(-50%) rotate(45deg);
+}
+
+/* Left */
+.tms-hotspot-image__tooltip[data-position='left'] {
+  left: auto;
+  right: calc(var(--tms-hotspot-size, 28px) / 2 + var(--tms-hotspot-tooltip-offset, 14px));
+  top: 0;
+  transform: translateY(calc(-50% + var(--tms-hotspot-tooltip-shift, 0px)));
+}
+
+.tms-hotspot-image__tooltip[data-position='left'] .tms-hotspot-image__tooltip-arrow {
+  right: -5px;
+  top: calc(50% - var(--tms-hotspot-tooltip-shift, 0px));
+  transform: translateY(-50%) rotate(45deg);
+}
+
+/* Marker skin anchors the pin above the origin (translate -100% on Y).
+   Shift tooltips to account for the pin body extending upward. */
+.tms-hotspot-image--skin-marker .tms-hotspot-image__tooltip[data-position='top'] {
+  bottom: calc(var(--tms-hotspot-size, 28px) + var(--tms-hotspot-tooltip-offset, 14px));
+}
+
+.tms-hotspot-image--skin-marker .tms-hotspot-image__tooltip[data-position='bottom'] {
+  top: var(--tms-hotspot-tooltip-offset, 14px);
+}
+
+.tms-hotspot-image--skin-marker .tms-hotspot-image__tooltip[data-position='left'],
+.tms-hotspot-image--skin-marker .tms-hotspot-image__tooltip[data-position='right'] {
+  top: calc(-1 * var(--tms-hotspot-size, 28px) / 2);
+}
+
+/* #endregion Positions */
+
+/* ------------------------------------------------------------------------
+ * 10. Triggers (hover / click)
+ * ------------------------------------------------------------------------ */
+
+/* #region Triggers */
+
+/* Reveal transitions: show immediately, hide with delay so visibility does not
+   collapse before the fade-out finishes. Positioning is handled via
+   top/bottom/left/right — transforms only center + edge-shift. */
+
+/* Hover trigger — mouse. */
+@media (hover: hover) {
+  .tms-hotspot-image--trigger-hover .tms-hotspot-image__point:hover .tms-hotspot-image__tooltip {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity 0.2s ease,
+      visibility 0s linear;
+  }
+}
+
+/* Hover trigger — keyboard. Keyed on :focus-visible rather than :focus-within:
+   a tap focuses the button on Android, which would hold the tooltip open against
+   the tap toggle below. Browsers without :has() keep :focus-within. */
+.tms-hotspot-image--trigger-hover .tms-hotspot-image__point:has(:focus-visible) .tms-hotspot-image__tooltip {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity 0.2s ease,
+    visibility 0s linear;
+}
+
+@supports not selector(:has(*)) {
+  .tms-hotspot-image--trigger-hover .tms-hotspot-image__point:focus-within .tms-hotspot-image__tooltip {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity 0.2s ease,
+      visibility 0s linear;
+  }
+}
+
+/* JS-driven open state: the click trigger, and a tap on the hover trigger
+   (touch screens have no hover, and iOS Safari never focuses a tapped button). */
+.tms-hotspot-image__point--open .tms-hotspot-image__tooltip {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity 0.2s ease,
+    visibility 0s linear;
+}
+
+/* Entrance. A box that comes from display: none has no previous style to
+   animate from, so the fade starts here. */
+@media (hover: hover) {
+  @starting-style {
+    .tms-hotspot-image--trigger-hover .tms-hotspot-image__point:hover .tms-hotspot-image__tooltip {
+      opacity: 0;
+    }
+  }
+}
+
+@starting-style {
+  .tms-hotspot-image--trigger-hover .tms-hotspot-image__point:has(:focus-visible) .tms-hotspot-image__tooltip,
+  .tms-hotspot-image__point--open .tms-hotspot-image__tooltip {
+    opacity: 0;
+  }
+}
+
+/* Escape (JS) dismisses a hovered/focused tooltip until the pointer and focus
+   leave the point (WCAG 1.4.13 "dismissible"). Same specificity as the reveal
+   rules above, and later, so it wins while both match. */
+.tms-hotspot-image--trigger-hover .tms-hotspot-image__point.tms-hotspot-image__point--dismissed
+  .tms-hotspot-image__tooltip {
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    visibility 0s linear 0.2s,
+    display 0s linear 0.2s;
+  transition-behavior: allow-discrete;
+}
+
+/* Hover bridge. The point is a zero-size anchor, so the Offset gap between the
+   pin and its tooltip belongs to neither: crossing it drops the point's :hover
+   and the tooltip turns pointer-events: none instantly, before the pointer can
+   reach it (WCAG 1.4.13 "hoverable"). While the point is hovered, the tooltip's
+   ::before fills that gap with an invisible trapezoid running from the
+   tooltip's near edge (full width) to the pin's far edge (pin width), so every
+   straight path from the pin to any point of the tooltip stays inside the
+   point. It inherits pointer-events from the tooltip, so it only catches the
+   pointer while the tooltip is open — it never widens the area that opens it. */
+@media (hover: hover) {
+  .tms-hotspot-image--trigger-hover .tms-hotspot-image__point:hover .tms-hotspot-image__tooltip::before {
+    content: '';
+  }
+
+  /* The bridge overlaps its own pin: the hovered point becomes a stacking
+     context with the pin above its tooltip, so the pin keeps its :hover styling
+     and clicks, and the open tooltip still sits above every other pin. */
+  .tms-hotspot-image--trigger-hover .tms-hotspot-image__point:hover,
+  .tms-hotspot-image--trigger-hover .tms-hotspot-image__point:hover .tms-hotspot-image__hotspot {
+    z-index: 6;
+  }
+}
+
+/* Bridge geometry (boxless until the hover rule above gives it content). The
+   narrow end follows the edge shift, so it stays centered on the pin. */
+.tms-hotspot-image__tooltip::before {
+  --tms-hotspot-bridge-depth: calc(var(--tms-hotspot-tooltip-offset, 14px) + var(--tms-hotspot-size, 28px));
+  --tms-hotspot-bridge-half: calc(var(--tms-hotspot-size, 28px) / 2);
+  --tms-hotspot-bridge-center: calc(50% - var(--tms-hotspot-tooltip-shift, 0px));
+
+  position: absolute;
+}
+
+.tms-hotspot-image__tooltip[data-position='top']::before {
+  top: 100%;
+  right: 0;
+  left: 0;
+  height: var(--tms-hotspot-bridge-depth);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    calc(var(--tms-hotspot-bridge-center) + var(--tms-hotspot-bridge-half)) 100%,
+    calc(var(--tms-hotspot-bridge-center) - var(--tms-hotspot-bridge-half)) 100%
+  );
+}
+
+.tms-hotspot-image__tooltip[data-position='bottom']::before {
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  height: var(--tms-hotspot-bridge-depth);
+  clip-path: polygon(
+    calc(var(--tms-hotspot-bridge-center) - var(--tms-hotspot-bridge-half)) 0,
+    calc(var(--tms-hotspot-bridge-center) + var(--tms-hotspot-bridge-half)) 0,
+    100% 100%,
+    0 100%
+  );
+}
+
+.tms-hotspot-image__tooltip[data-position='right']::before {
+  top: 0;
+  right: 100%;
+  bottom: 0;
+  width: var(--tms-hotspot-bridge-depth);
+  clip-path: polygon(
+    0 calc(var(--tms-hotspot-bridge-center) - var(--tms-hotspot-bridge-half)),
+    100% 0,
+    100% 100%,
+    0 calc(var(--tms-hotspot-bridge-center) + var(--tms-hotspot-bridge-half))
+  );
+}
+
+.tms-hotspot-image__tooltip[data-position='left']::before {
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: var(--tms-hotspot-bridge-depth);
+  clip-path: polygon(
+    0 0,
+    100% calc(var(--tms-hotspot-bridge-center) - var(--tms-hotspot-bridge-half)),
+    100% calc(var(--tms-hotspot-bridge-center) + var(--tms-hotspot-bridge-half)),
+    0 100%
+  );
+}
+
+/* #endregion Triggers */
+
+/* ------------------------------------------------------------------------
+ * 11. Accessibility (focus, reduced motion)
+ * ------------------------------------------------------------------------ */
+
+/* #region Accessibility */
+
+.tms-hotspot-image__hotspot:focus-visible {
+  outline: 2px solid var(--tms-primary-color);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-hotspot-image--pulse .tms-hotspot-image__hotspot .tms-hotspot-image__hotspot-ring::before,
+  .tms-hotspot-image--pulse .tms-hotspot-image__hotspot .tms-hotspot-image__hotspot-ring::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .tms-hotspot-image__hotspot,
+  .tms-hotspot-image__tooltip {
+    transition-duration: 0.01s !important;
+  }
+}
+
+/* #endregion Accessibility */

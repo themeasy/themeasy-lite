@@ -1,0 +1,198 @@
+/*!
+ * Themeasy — Card Extended
+ *
+ * Extended card with an overlapping image, a vertical side label, title,
+ * description, an overlay icon and a horizontal icon list (custom icons or a
+ * star rating). Pure-CSS layout and transitions; fully visible with no JS and
+ * degrades gracefully under reduced motion.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+.tms-card-extended {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  height: 100%;
+  padding: 0;
+  background: none;
+}
+
+/* Image (mobile-first: full width, stacked) */
+.tms-card-extended .tms-image {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.tms-card-extended .tms-image .tms-image__img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-height: 35vh;
+  border-radius: 0.25rem;
+  object-fit: cover;
+  pointer-events: none;
+  transition: opacity 0.4s ease, filter 0.4s ease;
+}
+
+/* Text box (mobile-first: in flow) */
+.tms-card-extended .tms-card-extended__body {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  background-color: var(--tms-bg-color, #fff);
+  box-shadow: 0 10px 10px 0 rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.4s ease, background-color 0.4s ease;
+}
+
+.tms-card-extended.tms-card-extended--no-image .tms-card-extended__body {
+  position: relative;
+  left: 0;
+  width: 100%;
+  height: auto;
+}
+
+.tms-card-extended:not(.tms-card-extended--no-image) .tms-card-extended__body .tms-card__description {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* Overlay icon */
+.tms-card-extended .tms-card-extended__overlay-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: block;
+  font-size: 1.75rem;
+  color: var(--tms-heading-color, #1a1a1a);
+}
+
+.tms-card-extended .tms-card-extended__overlay-icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-card-extended .tms-card-extended__overlay-icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+/* Vertical label */
+.tms-card-extended .tms-vertical-label {
+  position: absolute;
+  top: auto;
+  right: 1rem;
+  bottom: calc(100% + 1.75rem);
+  left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.tms-card-extended .tms-vertical-label .tms-vertical-label__line {
+  display: block;
+  width: 2px;
+  height: 40px;
+  background-color: var(--tms-heading-color, #1a1a1a);
+}
+
+.tms-card-extended .tms-vertical-label .tms-vertical-label__text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tms-heading-color, #1a1a1a);
+}
+
+/* Icon list */
+.tms-card-extended .tms-card-extended__body .tms-card__icons {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 1.5rem;
+  line-height: 0;
+}
+
+.tms-card-extended .tms-horizontal-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tms-card-extended .tms-horizontal-icons .tms-horizontal-icons__item {
+  display: inline-flex;
+}
+
+.tms-card-extended .tms-horizontal-icons .tms-horizontal-icons__link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.tms-card-extended .tms-horizontal-icons .tms-horizontal-icons__icon {
+  display: inline-flex;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--tms-heading-color, #1a1a1a);
+  transition: color 0.25s ease;
+}
+
+.tms-card-extended .tms-horizontal-icons .tms-horizontal-icons__icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  transition: fill 0.25s ease, stroke 0.25s ease;
+}
+
+.tms-card-extended .tms-horizontal-icons .tms-horizontal-icons__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-card-extended .tms-horizontal-icons .tms-horizontal-icons--disabled {
+  opacity: 0.3;
+}
+
+/* Desktop: overlapping card layout */
+@media (min-width: 768px) {
+  .tms-card-extended .tms-image {
+    width: 80%;
+    margin-bottom: 50px;
+  }
+
+  .tms-card-extended:not(.tms-card-extended--no-image) .tms-card-extended__body {
+    position: absolute;
+    bottom: -50px;
+    left: 100px;
+    width: 80%;
+  }
+
+  .tms-card-extended .tms-vertical-label {
+    right: 50px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-card-extended .tms-image .tms-image__img,
+  .tms-card-extended .tms-card-extended__body,
+  .tms-card-extended .tms-horizontal-icons .tms-horizontal-icons__icon {
+    transition: none;
+  }
+}

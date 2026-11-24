@@ -1339,6 +1339,7 @@ class Card extends Widget_Base {
       var title       = sanitizeInline( settings.title || '', 'rich' );
       var description = sanitizeInline( settings.description || '', 'rich' );
       var image       = settings.image || {};
+      var imageUrl    = safeUrl( image.url || '' );
       var headerType  = settings.card_header_type || '';
       var linkType    = settings.link_type || '';
       var heightMode  = settings.block_height || '';
@@ -1419,8 +1420,8 @@ class Card extends Widget_Base {
 
             <# if ( headerType === 'icon' && iconMarkup ) { #>
               {{{ iconMarkup }}}
-            <# } else if ( headerType === 'image' && image.url ) { #>
-              <img src="{{ image.url }}" alt="{{ image.alt || '' }}" class="tms-card__image" />
+            <# } else if ( headerType === 'image' && imageUrl ) { #>
+              <img src="{{ imageUrl }}" alt="{{ image.alt || '' }}" class="tms-card__image" />
             <# } #>
 
           </div><!-- /.tms-card__header -->

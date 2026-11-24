@@ -21,6 +21,7 @@
  * 05. Underline Styles
  * 06. Helper Classes
  * 07. Widget Layout
+ * 08. Font Smoothing
  *
  * ------------------------------------------------------------------------ */
 
@@ -231,9 +232,8 @@
    an Elementor `selectors` binding: a MEDIA control's {{URL}} reaches the
    generated stylesheet unescaped whenever the attachment id is empty, which lets
    anyone who can edit the page break out of the declaration and inject CSS.
-   The token is read here, on the shared primitive, so all six consumers
-   (headline, slider, scrolling-text, text-marquee, text-scramble, typed-text)
-   share one definition — and it inherits to the `*` descendants for free.
+   The token is read here, on the shared primitive, so every consumer
+   shares one definition — and it inherits to the `*` descendants for free.
    Without a picture the fallback keeps the fill transparent-but-inert rather
    than clipping the glyphs out of nothing. */
 .tms-text-style--masked-image,
@@ -422,6 +422,13 @@
   z-index: 1;
 }
 
+/* A number while it counts: every digit as wide as the next, so the figure holds still
+ * instead of shimmering with each frame. The script removes the class on the
+ * last frame, and the number rests in the font's own figures, as before. */
+.tms-is-counting {
+  font-variant-numeric: tabular-nums;
+}
+
 /* #endregion Helper Classes */
 
 /* #region Inline Text Color */
@@ -505,14 +512,37 @@
  *
  * The same holds at every width wherever the Container sizes the widget to
  * its content: a row Container, or a column one aligned anywhere but stretch.
- * Image Accordion panels (flex-basis 0 over absolute content) and Card Deck
- * cards (absolute in their stage) give it nothing to measure: the accordion
- * shrank to its gaps (18px, every panel 0px wide) and read as an empty widget,
- * in the editor and on the page. Elementor gives its own Video, Maps and
- * Swiper widgets the same width.
+ * Image Accordion panels (flex-basis 0 over absolute content) give it nothing
+ * to measure: the accordion shrank to its gaps (18px, every panel 0px wide) and
+ * read as an empty widget, in the editor and on the page. Elementor gives its
+ * own Video widget the same width.
  */
+.elementor-widget-themeasy-before-after,
+.elementor-widget-themeasy-image-accordion,
 .elementor-widget-themeasy-video {
   width: 100%;
 }
 
 /* #endregion Widget Layout */
+
+/* ------------------------------------------------------------------------
+ * 08. Font Smoothing
+ * ------------------------------------------------------------------------ */
+
+/* #region Font Smoothing */
+
+/*
+ * Grayscale antialiasing, the finish of a Framer site (owner's decision,
+ * 2026-11-11: on every site, no setting). macOS only: Windows and Linux ignore
+ * both properties. They inherit, so the root reaches headings, body text,
+ * buttons and form fields. The page root on a Themeasy theme (the plugin's
+ * body class, Canvas pages included); on any other theme, the Themeasy widgets
+ * alone, so the host theme's own text keeps its rendering.
+ */
+.tms-themeasy-theme,
+[class*="elementor-widget-themeasy-"] {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* #endregion Font Smoothing */

@@ -1,0 +1,320 @@
+/*!
+ * Themeasy — Countdown Timer
+ *
+ * Three skins share the base ticker layout and differ only in how each unit
+ * presents the current value: boxes (a card per unit), inline (flowing digits
+ * with optional separators) and circles (a radial ring per unit that fills
+ * toward the next tick). Public --tms-* tokens are consumed with literal
+ * fallbacks so light/dark themes both render; the widget is fully visible with
+ * no JS and tick transitions bow out under prefers-reduced-motion.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Wrapper & base ticker
+ * 02. Unit (shared)
+ * 03. Value, label, SR-only label
+ * 04. Skin: Boxes
+ * 05. Skin: Inline
+ * 06. Skin: Circles (radial rings)
+ * 07. Expire message
+ * 08. Reduced motion
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & base ticker
+ * ------------------------------------------------------------------------ */
+
+/* #region Wrapper */
+
+.tms-countdown-timer {
+  --tms-countdown-gap: 16px;
+  --tms-countdown-value-gap: 4px;
+  --tms-countdown-tick-duration: 240ms;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--tms-countdown-gap);
+}
+
+.tms-countdown-timer__ticker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: inherit;
+  gap: var(--tms-countdown-gap);
+}
+
+/* Hidden state: when the expire action is "hide" and the timer has ended. */
+.tms-countdown-timer[data-expired="hide"] {
+  display: none;
+}
+
+/* #endregion Wrapper */
+
+/* ------------------------------------------------------------------------
+ * 02. Unit (shared)
+ * ------------------------------------------------------------------------ */
+
+/* #region Unit */
+
+.tms-countdown-timer__unit {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tms-countdown-value-gap);
+  line-height: 1;
+  text-align: center;
+}
+
+/* #endregion Unit */
+
+/* ------------------------------------------------------------------------
+ * 03. Value, label, SR-only label
+ * ------------------------------------------------------------------------ */
+
+/* #region Value + label */
+
+.tms-countdown-timer__value {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  line-height: 1;
+  transition: transform var(--tms-countdown-tick-duration) ease,
+              opacity var(--tms-countdown-tick-duration) ease;
+}
+
+/* Subtle tick feedback when the value changes. The class is toggled by JS. */
+.tms-countdown-timer__unit--ticking .tms-countdown-timer__value {
+  transform: translateY(-2px);
+  opacity: 0.65;
+}
+
+.tms-countdown-timer__label {
+  display: inline-block;
+  font-size: 0.8125em;
+  letter-spacing: 0.02em;
+}
+
+/* Always-present, screen-reader only label so assistive tech can announce the
+   unit (days/hours/...) without depending on visible markup. */
+.tms-countdown-timer__sr-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* #endregion Value + label */
+
+/* ------------------------------------------------------------------------
+ * 04. Skin: Boxes
+ * ------------------------------------------------------------------------ */
+
+/* #region Boxes */
+
+.tms-countdown-timer--skin-boxes .tms-countdown-timer__ticker {
+  flex-wrap: wrap;
+}
+
+.tms-countdown-timer--skin-boxes .tms-countdown-timer__unit {
+  background-color: var(--tms-surface, rgba(0, 0, 0, 0.04));
+  border-radius: var(--tms-radius-md, 8px);
+}
+
+.tms-countdown-timer--skin-boxes .tms-countdown-timer__value {
+  font-size: 2.5em;
+  font-weight: 700;
+}
+
+/* #endregion Boxes */
+
+/* ------------------------------------------------------------------------
+ * 05. Skin: Inline
+ * ------------------------------------------------------------------------ */
+
+/* #region Inline */
+
+/* Baseline, not center: a unit is a column (value over label) whose baseline
+   is the value's, so the separator sits on the digits' line instead of
+   dropping toward the labels (#513). */
+.tms-countdown-timer--skin-inline .tms-countdown-timer__ticker {
+  align-items: baseline;
+  gap: calc(var(--tms-countdown-gap) / 2);
+}
+
+.tms-countdown-timer--skin-inline .tms-countdown-timer__unit {
+  gap: calc(var(--tms-countdown-value-gap) / 2);
+}
+
+.tms-countdown-timer--skin-inline .tms-countdown-timer__value {
+  font-size: 2.25em;
+  font-weight: 700;
+}
+
+.tms-countdown-timer__separator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 2.25em;
+  font-weight: 700;
+  opacity: 0.5;
+  user-select: none;
+}
+
+/* #endregion Inline */
+
+/* ------------------------------------------------------------------------
+ * 06. Skin: Circles (radial rings)
+ * ------------------------------------------------------------------------ */
+
+/* #region Circles */
+
+.tms-countdown-timer--skin-circles {
+  --tms-countdown-ring-size: 120px;
+  --tms-countdown-ring-thickness: 6px;
+  --tms-countdown-ring-track: rgba(0, 0, 0, 0.1);
+  --tms-countdown-ring-progress: var(--tms-primary-color, #3772ff);
+  --tms-countdown-ring-inner: transparent;
+}
+
+.tms-countdown-timer--skin-circles .tms-countdown-timer__unit {
+  gap: var(--tms-countdown-value-gap, 8px);
+}
+
+.tms-countdown-timer--skin-circles .tms-countdown-timer__ring {
+  position: relative;
+  width: var(--tms-countdown-ring-size);
+  height: var(--tms-countdown-ring-size);
+  border-radius: 50%;
+}
+
+/* Track: the faded full ring. */
+.tms-countdown-timer--skin-circles .tms-countdown-timer__ring-track {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--tms-countdown-ring-track);
+  /*
+   * Mask out the center so only the ring remains visible.
+   * We rely on an SVG-style "radial donut" created via radial-gradient mask.
+   */
+  -webkit-mask:
+    radial-gradient(circle at center,
+      transparent calc(50% - var(--tms-countdown-ring-thickness)),
+      #000 calc(50% - var(--tms-countdown-ring-thickness) + 1px));
+  mask:
+    radial-gradient(circle at center,
+      transparent calc(50% - var(--tms-countdown-ring-thickness)),
+      #000 calc(50% - var(--tms-countdown-ring-thickness) + 1px));
+}
+
+/* Progress: conic gradient driven by --progress (0-360deg). */
+.tms-countdown-timer--skin-circles .tms-countdown-timer__ring-progress {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    var(--tms-countdown-ring-progress) calc(var(--progress, 0) * 1deg),
+    transparent 0
+  );
+  -webkit-mask:
+    radial-gradient(circle at center,
+      transparent calc(50% - var(--tms-countdown-ring-thickness)),
+      #000 calc(50% - var(--tms-countdown-ring-thickness) + 1px));
+  mask:
+    radial-gradient(circle at center,
+      transparent calc(50% - var(--tms-countdown-ring-thickness)),
+      #000 calc(50% - var(--tms-countdown-ring-thickness) + 1px));
+  transition: background var(--tms-countdown-tick-duration) linear;
+}
+
+/* Optional solid center disc (reserved for theming; transparent by default). */
+.tms-countdown-timer--skin-circles .tms-countdown-timer__ring-inner {
+  position: absolute;
+  inset: var(--tms-countdown-ring-thickness);
+  border-radius: 50%;
+  background: var(--tms-countdown-ring-inner);
+}
+
+/*
+ * Value is absolutely centered on top of the ring. Its containing block is the
+ * whole unit (ring + label), so the box takes the ring's height from the top:
+ * the ring is the unit's first child (#521).
+ */
+.tms-countdown-timer--skin-circles .tms-countdown-timer__value {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--tms-countdown-ring-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75em;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+/* The ring block becomes the main flex child that reserves height/width. */
+.tms-countdown-timer--skin-circles .tms-countdown-timer__unit {
+  min-width: var(--tms-countdown-ring-size);
+}
+
+/* #endregion Circles */
+
+/* ------------------------------------------------------------------------
+ * 07. Expire message
+ * ------------------------------------------------------------------------ */
+
+/* #region Expire */
+
+.tms-countdown-timer__expire {
+  margin: 0;
+}
+
+/* When expired + action=message, the ticker is hidden and the message revealed. */
+.tms-countdown-timer[data-expired="message"] .tms-countdown-timer__ticker {
+  display: none;
+}
+
+.tms-countdown-timer[data-expired="message"] .tms-countdown-timer__expire[hidden] {
+  display: block;
+}
+
+/* #endregion Expire */
+
+/* ------------------------------------------------------------------------
+ * 08. Reduced motion
+ * ------------------------------------------------------------------------ */
+
+/* #region Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-countdown-timer__value,
+  .tms-countdown-timer--skin-circles .tms-countdown-timer__ring-progress {
+    transition: none;
+  }
+
+  .tms-countdown-timer__unit--ticking .tms-countdown-timer__value {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* #endregion Reduced motion */

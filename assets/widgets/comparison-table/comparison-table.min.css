@@ -1,0 +1,642 @@
+/*!
+ * Themeasy — Comparison Table
+ *
+ * A semantic plan-vs-feature comparison matrix rendered as a real <table>.
+ * Plans are the column headers (name, price, subtitle, badge, CTA); each feature
+ * row places a check, a cross, a neutral dash or a text value per plan. Any plan
+ * column can be flagged featured to get the accent header + tinted-column card
+ * treatment.
+ *
+ * Layering / graceful degradation:
+ * - Structure, the sticky plan header, the pinned feature-label column with
+ *   horizontal scroll on narrow screens, row-hover highlighting and the
+ *   hover/focus tooltips are ALL pure CSS — the widget is fully usable with no
+ *   JavaScript and in the editor (the --static modifier disables stickiness so
+ *   it never fights the Elementor canvas).
+ *
+ * Tokens consumed: --tms-primary-color, --tms-surface-color, --tms-border-color,
+ * --tms-heading-color, --tms-body-color, --tms-muted-color, --tms-success-color,
+ * --tms-white-color, --tms-radius-lg (public --tms-* design API), each with a
+ * literal fallback so dark mode and missing tokens both degrade cleanly.
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+.tms-comparison-table {
+  --tms-ct-accent: var(--tms-primary-color, #5b6cff);
+  --tms-ct-surface: var(--tms-surface-color, #ffffff);
+  --tms-ct-border: var(--tms-border-color, #e6e8ef);
+  --tms-ct-heading: var(--tms-heading-color, #1D2023);
+  --tms-ct-body: var(--tms-body-color, #555b6e);
+  --tms-ct-muted: var(--tms-muted-color, #8a90a2);
+  --tms-ct-success: var(--tms-success-color, #16a34a);
+  --tms-ct-radius: var(--tms-radius-lg, 16px);
+
+  /* Per-corner radius fan-out. The table cannot clip its cells (overflow must
+   * stay visible for the sticky header), so the radius is emulated on the
+   * frame, the table surface and each corner cell from these four variables —
+   * the Border Radius control (DIMENSIONS) overrides them individually. */
+  --tms-ct-radius-tl: var(--tms-ct-radius);
+  --tms-ct-radius-tr: var(--tms-ct-radius);
+  --tms-ct-radius-br: var(--tms-ct-radius);
+  --tms-ct-radius-bl: var(--tms-ct-radius);
+  --tms-ct-col-min: 180px;
+  --tms-ct-cell-pad-y: 16px;
+  --tms-ct-cell-pad-x: 20px;
+  --tms-ct-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tms-ct-transition: 0.25s var(--tms-ct-ease);
+
+  /* Accent-derived surfaces. rgba() is the baseline; the color-mix() upgrade
+   * (tracking --tms-ct-accent) lives in the @supports block below — custom
+   * properties keep the LAST declaration regardless of support, so an in-rule
+   * override would discard this fallback in engines without color-mix(). */
+  --tms-ct-featured-tint: rgba(91, 108, 255, 0.06);
+  --tms-ct-featured-tint-strong: rgba(91, 108, 255, 0.12);
+  --tms-ct-featured-edge: rgba(91, 108, 255, 0.24);
+
+  /* Featured column paint. These are OVERLAY layers (see the featured block),
+   * not the cells' background-color — the Featured Column / Header Background
+   * controls swap them, so a picked opaque color still covers whatever the row
+   * underneath paints. */
+  --tms-ct-featured-layer: var(--tms-ct-featured-tint);
+  --tms-ct-featured-head-layer: var(--tms-ct-featured-tint-strong);
+
+  position: relative;
+  width: 100%;
+}
+
+@supports (color: color-mix(in srgb, red, blue)) {
+  .tms-comparison-table {
+    --tms-ct-featured-tint: color-mix(in srgb, var(--tms-ct-accent) 6%, transparent);
+    --tms-ct-featured-tint-strong: color-mix(in srgb, var(--tms-ct-accent) 12%, transparent);
+    --tms-ct-featured-edge: color-mix(in srgb, var(--tms-ct-accent) 24%, transparent);
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * Scroll frame — owns the outer border / radius / shadow.
+ *
+ * Desktop: overflow is visible so the sticky header can pin against the page
+ * scroll and the table fits via table-layout:fixed (no horizontal scroll).
+ * Narrow screens flip this to overflow-x:auto (see the responsive block) to
+ * scroll the matrix sideways while the feature column stays pinned.
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table__scroll {
+  position: relative;
+  overflow: visible;
+  border-radius: var(--tms-ct-radius-tl) var(--tms-ct-radius-tr) var(--tms-ct-radius-br) var(--tms-ct-radius-bl);
+}
+
+.tms-comparison-table__table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  border-radius: var(--tms-ct-radius-tl) var(--tms-ct-radius-tr) var(--tms-ct-radius-br) var(--tms-ct-radius-bl);
+  background-color: var(--tms-ct-surface);
+  color: var(--tms-ct-body);
+}
+
+/* ------------------------------------------------------------------------
+ * Content-table theme reset. The theme ships generic styling for every real
+ * <table> in post content (outer border + bottom margin, zebra rows, and
+ * first/last-row padding bumps at pseudo-class specificity, e.g.
+ * `table tbody tr:first-child > th` = 0,1,4) — the doubled class here
+ * outranks all of those so the widget's own geometry always wins. The
+ * default cell paddings live in this block for the same reason.
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table .tms-comparison-table__table {
+  margin: 0;
+  border: 0;
+}
+
+.tms-comparison-table .tms-comparison-table__table tr {
+  background-color: transparent;
+}
+
+.tms-comparison-table .tms-comparison-table__cell,
+.tms-comparison-table .tms-comparison-table__feature {
+  padding: var(--tms-ct-cell-pad-y) var(--tms-ct-cell-pad-x);
+}
+
+.tms-comparison-table .tms-comparison-table__group-label {
+  padding: 14px var(--tms-ct-cell-pad-x);
+}
+
+.tms-comparison-table .tms-comparison-table__group-cell {
+  padding: 0;
+}
+
+/* ------------------------------------------------------------------------
+ * Shared cell geometry
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table__corner,
+.tms-comparison-table__plan,
+.tms-comparison-table__feature,
+.tms-comparison-table__cell {
+  margin: 0;
+  vertical-align: middle;
+  font-weight: inherit;
+}
+
+.tms-comparison-table__corner,
+.tms-comparison-table__feature {
+  width: clamp(160px, 28%, 320px);
+  text-align: left;
+}
+
+.tms-comparison-table__cell {
+  text-align: center;
+}
+
+.tms-comparison-table__feature {
+  background-color: var(--tms-ct-surface);
+}
+
+/* ------------------------------------------------------------------------
+ * Plan header
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table__head .tms-comparison-table__corner,
+.tms-comparison-table__plan {
+  background-color: var(--tms-ct-surface);
+  vertical-align: bottom;
+}
+
+.tms-comparison-table__corner {
+  border-top-left-radius: var(--tms-ct-radius-tl);
+  padding: var(--tms-ct-cell-pad-y) var(--tms-ct-cell-pad-x);
+}
+
+.tms-comparison-table__corner-label {
+  display: inline-block;
+  color: var(--tms-ct-muted);
+  font-family: var(--tms-accent-font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tms-comparison-table__plan {
+  padding: 0;
+}
+
+.tms-comparison-table__head tr > .tms-comparison-table__plan:last-child {
+  border-top-right-radius: var(--tms-ct-radius-tr);
+}
+
+/* Bottom corners of the table surface (the last body row may end on a feature
+ * row or on a group band — round whichever cell sits in the corner). */
+.tms-comparison-table__body tr:last-child > .tms-comparison-table__feature,
+.tms-comparison-table__body tr:last-child > .tms-comparison-table__group-label {
+  border-bottom-left-radius: var(--tms-ct-radius-bl);
+}
+
+.tms-comparison-table__body tr:last-child > td:last-child {
+  border-bottom-right-radius: var(--tms-ct-radius-br);
+}
+
+/* Tight name/subtitle cluster; the price block and the CTA push themselves
+ * apart with their own margins for a clear vertical rhythm. */
+.tms-comparison-table__plan-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 20px;
+  text-align: center;
+}
+
+/* Anatomy from the shared .tms-tag--micro (components.min.css); the table
+ * owns the gap to the plan name and the accent fill. */
+.tms-comparison-table .tms-comparison-table__badge {
+  margin-bottom: 10px;
+  background-color: var(--tms-ct-accent);
+  color: var(--tms-white-color, #ffffff);
+}
+
+.tms-comparison-table__plan-name {
+  color: var(--tms-ct-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.tms-comparison-table__plan-subtitle {
+  color: var(--tms-ct-muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Figure: follows the heading family (contract "numbers are heading"), like the
+   pricing-table price. Without it the price inherited the body font while the
+   plan name beside it read as a card heading. */
+.tms-comparison-table__plan-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 10px;
+  color: var(--tms-ct-heading);
+  font-family: var(--tms-heading-font);
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.tms-comparison-table__plan-period {
+  color: var(--tms-ct-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------------
+ * CTA button — outline by default, solid accent inside the featured column.
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 18px;
+  border: 1px solid var(--tms-ct-border);
+  border-radius: 10px;
+  background-color: transparent;
+  color: var(--tms-ct-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--tms-ct-transition), background-color var(--tms-ct-transition),
+    border-color var(--tms-ct-transition), transform var(--tms-ct-transition);
+}
+
+.tms-comparison-table__button:hover {
+  border-color: var(--tms-ct-accent);
+  color: var(--tms-ct-accent);
+  transform: translateY(-1px);
+}
+
+.tms-comparison-table__button:focus-visible {
+  outline: 2px solid var(--tms-ct-accent);
+  outline-offset: 2px;
+}
+
+.tms-comparison-table__plan--featured .tms-comparison-table__button {
+  border-color: var(--tms-ct-accent);
+  background-color: var(--tms-ct-accent);
+  color: var(--tms-white-color, #ffffff);
+}
+
+.tms-comparison-table__plan--featured .tms-comparison-table__button:hover {
+  color: var(--tms-white-color, #ffffff);
+  filter: brightness(1.06);
+}
+
+/* ------------------------------------------------------------------------
+ * Feature rows
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table__row .tms-comparison-table__feature,
+.tms-comparison-table__row .tms-comparison-table__cell {
+  border-top: 1px solid var(--tms-ct-border);
+}
+
+.tms-comparison-table__feature-label {
+  color: var(--tms-ct-heading);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ------------------------------------------------------------------------
+ * Tooltip — pure CSS, opens on hover and keyboard focus. The trigger flows
+ * inline after the label (the <th> must stay a real table-cell: a flex
+ * display there detaches it from the row box and the cell stops filling the
+ * row height, leaking the table background below it).
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table__tooltip {
+  position: relative;
+  display: inline-flex;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.tms-comparison-table__tooltip-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--tms-ct-muted);
+  cursor: help;
+  transition: color var(--tms-ct-transition);
+}
+
+/* A theme reset that styles every button (Hello Elementor)
+  paints the tooltip trigger on hover and focus: the rest look stays. */
+.tms-comparison-table .tms-comparison-table__tooltip-trigger {
+  box-shadow: none;
+  color: var(--tms-ct-muted);
+  background: transparent;
+}
+
+.tms-comparison-table__tooltip-trigger svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-comparison-table__tooltip-trigger:hover,
+.tms-comparison-table__tooltip-trigger:focus-visible {
+  color: var(--tms-ct-accent);
+}
+
+.tms-comparison-table__tooltip-trigger:focus-visible {
+  outline: 2px solid var(--tms-ct-accent);
+  outline-offset: 2px;
+}
+
+/* Expand the tap target to ~40px without enlarging the 16px visual glyph. */
+.tms-comparison-table__tooltip-trigger::after {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+}
+
+.tms-comparison-table__tooltip-bubble {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  z-index: 10;
+  width: max-content;
+  max-width: 220px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: var(--tms-ct-heading);
+  color: var(--tms-white-color, #ffffff);
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: left;
+  white-space: normal;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 4px);
+  transition: opacity var(--tms-ct-transition), transform var(--tms-ct-transition),
+    visibility var(--tms-ct-transition);
+  pointer-events: none;
+}
+
+.tms-comparison-table__tooltip-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-top-color: var(--tms-ct-heading);
+  transform: translateX(-50%);
+}
+
+.tms-comparison-table__tooltip:hover .tms-comparison-table__tooltip-bubble,
+.tms-comparison-table__tooltip:focus-within .tms-comparison-table__tooltip-bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+/* ------------------------------------------------------------------------
+ * Cell values + icons (Icons contract: fill set, plus a stroke pair for
+ * outline icon sets that ship fill="none").
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table__value {
+  display: inline-block;
+  color: var(--tms-ct-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.tms-comparison-table__value--empty {
+  color: var(--tms-ct-muted);
+}
+
+.tms-comparison-table__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.tms-comparison-table__icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-comparison-table__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-comparison-table__icon--check {
+  color: var(--tms-ct-success);
+}
+
+.tms-comparison-table__icon--cross {
+  color: var(--tms-ct-muted);
+}
+
+/* ------------------------------------------------------------------------
+ * Group heading row — one label cell + one empty cell per plan, so the
+ * featured column tint runs through the band uninterrupted.
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table__group-label,
+.tms-comparison-table__group-cell {
+  border-top: 1px solid var(--tms-ct-border);
+  background-color: var(--tms-ct-surface);
+}
+
+.tms-comparison-table__group-label {
+  color: var(--tms-ct-muted);
+  font-family: var(--tms-accent-font);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ------------------------------------------------------------------------
+ * Featured column — a continuous accent band built from per-cell tints and
+ * inset shadows only: the accent top bar is one more inset layer (a real
+ * border/radius here would shift the row and let the table background leak
+ * through the rounded corners).
+ *
+ * The tint paints as a background LAYER (a two-stop gradient), never as the
+ * cell's background-color, so it composites OVER whatever the row underneath
+ * paints instead of replacing it: a custom Group Heading band now runs edge to
+ * edge through the featured column, and the row-hover highlight keeps the
+ * column readable instead of flattening it to the same tint as its neighbours.
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table__plan--featured {
+  background-image: linear-gradient(var(--tms-ct-featured-head-layer), var(--tms-ct-featured-head-layer));
+  box-shadow: inset 0 3px 0 var(--tms-ct-accent),
+    inset 1px 0 0 var(--tms-ct-featured-edge),
+    inset -1px 0 0 var(--tms-ct-featured-edge);
+}
+
+.tms-comparison-table__cell--featured,
+.tms-comparison-table__group-cell--featured {
+  background-image: linear-gradient(var(--tms-ct-featured-layer), var(--tms-ct-featured-layer));
+  box-shadow: inset 1px 0 0 var(--tms-ct-featured-edge),
+    inset -1px 0 0 var(--tms-ct-featured-edge);
+}
+
+.tms-comparison-table__body tr:last-child .tms-comparison-table__cell--featured,
+.tms-comparison-table__body tr:last-child .tms-comparison-table__group-cell--featured {
+  box-shadow: inset 1px 0 0 var(--tms-ct-featured-edge),
+    inset -1px 0 0 var(--tms-ct-featured-edge),
+    inset 0 -1px 0 var(--tms-ct-featured-edge);
+}
+
+/* ------------------------------------------------------------------------
+ * Row hover highlight (opt-in via the --row-hover modifier).
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table--row-hover .tms-comparison-table__row:hover .tms-comparison-table__feature,
+.tms-comparison-table--row-hover .tms-comparison-table__row:hover .tms-comparison-table__cell {
+  background-color: var(--tms-ct-featured-tint);
+}
+
+/* ------------------------------------------------------------------------
+ * Sticky plan header (desktop). Disabled in the editor preview.
+ * ---------------------------------------------------------------------- */
+.tms-comparison-table--sticky .tms-comparison-table__corner,
+.tms-comparison-table--sticky .tms-comparison-table__plan {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.tms-comparison-table--sticky .tms-comparison-table__corner {
+  z-index: 5;
+}
+
+.tms-comparison-table--static .tms-comparison-table__corner,
+.tms-comparison-table--static .tms-comparison-table__plan,
+.tms-comparison-table--static .tms-comparison-table__feature {
+  position: static;
+}
+
+/* Sequential/empty sr-only helper, scoped to the widget. */
+.tms-comparison-table__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ------------------------------------------------------------------------
+ * Narrow screens — scroll the matrix sideways, pin the feature column.
+ *
+ * table-layout flips to auto so the per-column min-width forces the table
+ * wider than the frame; the frame becomes the horizontal scroll container and
+ * the first column sticks to the left edge while the plans scroll under it.
+ * (The page-level sticky header is intentionally traded for the scroll here.)
+ * ---------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .tms-comparison-table__scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .tms-comparison-table__table {
+    table-layout: auto;
+    min-width: 100%;
+  }
+
+  .tms-comparison-table__plan,
+  .tms-comparison-table__cell {
+    min-width: var(--tms-ct-col-min);
+  }
+
+  .tms-comparison-table__corner,
+  .tms-comparison-table__feature {
+    width: clamp(150px, 42vw, 240px);
+    min-width: clamp(150px, 42vw, 240px);
+  }
+
+  .tms-comparison-table:not(.tms-comparison-table--static) .tms-comparison-table__corner,
+  .tms-comparison-table:not(.tms-comparison-table--static) .tms-comparison-table__feature,
+  .tms-comparison-table:not(.tms-comparison-table--static) .tms-comparison-table__group-label {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+  }
+
+  .tms-comparison-table:not(.tms-comparison-table--static) .tms-comparison-table__corner {
+    z-index: 6;
+  }
+
+  /* Keep the pinned column readable above the scrolled featured tint. The edge
+   * is a divider: it takes the Row Divider Color when one is authored. */
+  .tms-comparison-table:not(.tms-comparison-table--static) .tms-comparison-table__feature,
+  .tms-comparison-table:not(.tms-comparison-table--static) .tms-comparison-table__group-label {
+    box-shadow: 1px 0 0 var(--tms-ct-divider, var(--tms-ct-border));
+  }
+}
+
+@media (max-width: 600px) {
+  .tms-comparison-table {
+    --tms-ct-cell-pad-x: 14px;
+    --tms-ct-cell-pad-y: 12px;
+  }
+
+  .tms-comparison-table__plan-inner {
+    padding: 22px 14px;
+  }
+
+  .tms-comparison-table__plan-price {
+    font-size: 1.5rem;
+  }
+
+  .tms-comparison-table__plan-name {
+    font-size: 1.05rem;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * Reduced motion — drop the hover lift and tooltip easing; nothing is
+ * hidden behind motion, so the table stays fully functional.
+ * ---------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .tms-comparison-table__button,
+  .tms-comparison-table__tooltip-trigger,
+  .tms-comparison-table__tooltip-bubble {
+    transition: none;
+  }
+
+  .tms-comparison-table__button:hover {
+    transform: none;
+  }
+}

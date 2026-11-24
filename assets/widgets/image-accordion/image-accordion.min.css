@@ -1,0 +1,751 @@
+/*!
+ * Themeasy — Image Accordion Widget Styles
+ *
+ * Horizontal (or vertical) accordion of image panels. Each panel expands on
+ * click or hover, revealing overlay content (icon, title, description, CTA).
+ *
+ * Skins:
+ *   - classic         — overlay bar + gradient reveal
+ *   - bordered        — minimal framing with borders, no gradient
+ *   - stacked-labels  — rotated vertical label on collapsed state, horizontal on active
+ *
+ * Public tokens (--tms-*) are consumed — never private (--themeasy-*).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Wrapper & base structure
+ * 02. Panel (item) layout
+ * 03. Media + overlay
+ * 04. Content (icon, title, description, button)
+ * 05. Button states
+ * 06. Orientation: vertical
+ * 07. Trigger: hover
+ * 08. Skin: Classic
+ * 09. Skin: Bordered
+ * 10. Skin: Stacked Labels
+ * 11. Responsive fallback (mobile stack)
+ * 12. Accessibility (focus, reduced motion)
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & base structure
+ * ------------------------------------------------------------------------ */
+
+/* #region Wrapper */
+
+.tms-image-accordion {
+  --tms-image-accordion-duration: 0.6s;
+  --tms-image-accordion-timing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --tms-image-accordion-active-flex: 4;
+  --tms-image-accordion-collapsed-flex: 1;
+  --tms-image-accordion-height: 480px;
+  --tms-image-accordion-gap: 6px;
+  --tms-image-accordion-content-gap: 0.625rem;
+  --tms-image-accordion-overlay-gradient-stop: rgba(0, 0, 0, 0.75);
+
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: var(--tms-image-accordion-height);
+  gap: var(--tms-image-accordion-gap);
+}
+
+/* #endregion Wrapper */
+
+/* ------------------------------------------------------------------------
+ * 02. Panel (item) layout
+ * ------------------------------------------------------------------------ */
+
+/* #region Panel */
+
+.tms-image-accordion .tms-image-accordion__item {
+  position: relative;
+  flex: var(--tms-image-accordion-collapsed-flex) 1 0%;
+  min-width: 0;
+
+  /* Intentionally no `min-height` here. Inheriting the wrapper's min-height
+     would force every child to take the full wrapper height, which in column
+     (vertical) orientation prevents flex from shrinking collapsed panels.
+     Default `align-items: stretch` already stretches row items to full height. */
+
+  min-height: 0;
+  background-color: var(--tms-surface-color, #101010);
+  transition:
+    flex-grow var(--tms-image-accordion-duration) var(--tms-image-accordion-timing),
+    box-shadow var(--tms-image-accordion-duration) var(--tms-image-accordion-timing);
+}
+
+/* Scaled image + overlay are clipped by the inner media/trigger wrappers, so
+   the item itself can keep its own box-shadow outside the panel bounds. */
+
+.tms-image-accordion .tms-image-accordion__item--active {
+  flex-grow: var(--tms-image-accordion-active-flex);
+}
+
+/* #endregion Panel */
+
+/* ------------------------------------------------------------------------
+ * 03. Media + overlay
+ * ------------------------------------------------------------------------ */
+
+/* #region Media */
+
+.tms-image-accordion .tms-image-accordion__trigger {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: inherit;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.tms-image-accordion .tms-image-accordion__media {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.tms-image-accordion .tms-image-accordion__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transform: scale(1);
+  transition: transform var(--tms-image-accordion-duration) var(--tms-image-accordion-timing);
+}
+
+.tms-image-accordion .tms-image-accordion__item--active .tms-image-accordion__img {
+  transform: scale(1.05);
+}
+
+.tms-image-accordion .tms-image-accordion__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.35);
+  transition:
+    background-color var(--tms-image-accordion-duration) var(--tms-image-accordion-timing),
+    opacity var(--tms-image-accordion-duration) var(--tms-image-accordion-timing);
+}
+
+/* #endregion Media */
+
+/* ------------------------------------------------------------------------
+ * 04. Content (icon, title, description, button)
+ * ------------------------------------------------------------------------ */
+
+/* #region Content */
+
+/* The content clips at the panel edge: what an opening panel holds is laid out
+   at the open width from the first frame (see the reveal below), so the panel
+   uncovers it instead of re-wrapping it on every frame, and it never spills
+   onto the neighbouring panel. */
+
+.tms-image-accordion .tms-image-accordion__content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: var(--tms-image-accordion-content-gap);
+  padding: 1.5rem;
+  overflow: hidden;
+  border-radius: inherit;
+  color: #ffffff;
+  pointer-events: none;
+  transition:
+    opacity var(--tms-image-accordion-duration) var(--tms-image-accordion-timing),
+    transform var(--tms-image-accordion-duration) var(--tms-image-accordion-timing);
+}
+
+/* No shrinking: a panel too short for its content lets the top of the stack
+   overflow (and clip) rather than squash the title to a sliver. */
+
+.tms-image-accordion .tms-image-accordion__content > * {
+  flex-shrink: 0;
+  max-width: 100%;
+  pointer-events: auto;
+}
+
+/* The reveal holds what only an open panel shows (description + button). Its
+   row grows from 0fr to 1fr, so the title above glides up as the panel opens
+   and back down as it closes, where swapping the pieces in and out of the flow
+   made it jump by their whole height. It is as wide as an open panel
+   (--tms-image-accordion-open-width, published by image-accordion.min.js;
+   the content width without JS), so its text never re-wraps mid-transition.
+   Closed, it takes no room: the negative margin cancels the content gap above
+   it, and its first child puts that gap back inside the row. */
+
+.tms-image-accordion .tms-image-accordion__content > .tms-image-accordion__reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  align-items: inherit;
+  width: var(--tms-image-accordion-open-width, 100%);
+  max-width: none;
+  margin-top: calc(var(--tms-image-accordion-content-gap) * -1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  pointer-events: none;
+
+  /* Closing: fade out first, then fold the row once the text is gone, so the
+     title never slides over a description still on screen. */
+
+  transition:
+    opacity calc(var(--tms-image-accordion-duration) * 0.25) var(--tms-image-accordion-timing) 0s,
+    transform calc(var(--tms-image-accordion-duration) * 0.25) var(--tms-image-accordion-timing) 0s,
+    visibility 0s linear calc(var(--tms-image-accordion-duration) * 0.25),
+    grid-template-rows calc(var(--tms-image-accordion-duration) * 0.55) var(--tms-image-accordion-timing)
+      calc(var(--tms-image-accordion-duration) * 0.25);
+}
+
+.tms-image-accordion .tms-image-accordion__item--active .tms-image-accordion__content > .tms-image-accordion__reveal {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+
+  /* Opening: the row unfolds with the panel, the text fades in once the panel
+     is most of the way open. */
+
+  transition:
+    grid-template-rows calc(var(--tms-image-accordion-duration) * 0.75) var(--tms-image-accordion-timing)
+      calc(var(--tms-image-accordion-duration) * 0.1),
+    visibility 0s linear calc(var(--tms-image-accordion-duration) * 0.45),
+    opacity calc(var(--tms-image-accordion-duration) * 0.5) var(--tms-image-accordion-timing)
+      calc(var(--tms-image-accordion-duration) * 0.45),
+    transform calc(var(--tms-image-accordion-duration) * 0.5) var(--tms-image-accordion-timing)
+      calc(var(--tms-image-accordion-duration) * 0.45);
+}
+
+/* align-self keeps the inner stretched in its row (min-height 0 lets the row
+   fold to nothing); align-items reaches it from the content through the reveal,
+   so the Text Alignment control still places the description and the button. */
+
+.tms-image-accordion .tms-image-accordion__reveal-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  align-self: stretch;
+  gap: var(--tms-image-accordion-content-gap);
+  min-height: 0;
+}
+
+.tms-image-accordion .tms-image-accordion__reveal-inner > * {
+  max-width: 100%;
+}
+
+.tms-image-accordion .tms-image-accordion__reveal-inner > :first-child {
+  margin-top: var(--tms-image-accordion-content-gap);
+}
+
+.tms-image-accordion .tms-image-accordion__icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tms-image-accordion .tms-image-accordion__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  width: 1em;
+  height: 1em;
+  font-size: 2rem;
+  color: #ffffff;
+}
+
+.tms-image-accordion .tms-image-accordion__icon svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+/* Stroke (outline) icon sets render with fill="none"; map them to the icon
+   color via currentColor so Feather/outline icons stay visible. */
+
+.tms-image-accordion .tms-image-accordion__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-image-accordion .tms-image-accordion__icon::before {
+  font-size: inherit;
+  line-height: 1;
+}
+
+.tms-image-accordion .tms-image-accordion__title {
+  margin: 0;
+  max-width: 100%;
+  color: #ffffff;
+  line-height: 1.2;
+
+  /* Clip titles instead of wrapping — prevents the visible "text compressing
+     / reflowing" artifact during the flex-grow transition. As the panel
+     widens, more of the title becomes visible through natural overflow. */
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tms-image-accordion .tms-image-accordion__description {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+}
+
+/* #endregion Content */
+
+/* ------------------------------------------------------------------------
+ * 05. Button states
+ * ------------------------------------------------------------------------ */
+
+/* #region Button */
+
+.tms-image-accordion .tms-image-accordion__button {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--tms-radius-sm, 0.25rem);
+  background-color: var(--tms-primary-color);
+  color: #ffffff;
+  text-decoration: none;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  pointer-events: auto;
+}
+
+.tms-image-accordion .tms-image-accordion__button--simple {
+  background: transparent;
+  padding: 0;
+  border: 0;
+  color: #ffffff;
+}
+
+.tms-image-accordion .tms-image-accordion__button--outline {
+  background: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.tms-image-accordion .tms-image-accordion__button--muted-fill {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.tms-image-accordion .tms-image-accordion__button--icon-left {
+  flex-direction: row-reverse;
+}
+
+.tms-image-accordion .tms-image-accordion__button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  width: 1em;
+  height: 1em;
+}
+
+.tms-image-accordion .tms-image-accordion__button-icon svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+/* Stroke (outline) button icons render with fill="none" — drive them by the
+   button text color via currentColor so they remain visible. */
+
+.tms-image-accordion .tms-image-accordion__button-icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-image-accordion .tms-image-accordion__button:hover,
+.tms-image-accordion .tms-image-accordion__button:focus-visible {
+  filter: brightness(1.05);
+}
+
+/* #endregion Button */
+
+/* ------------------------------------------------------------------------
+ * 06. Orientation: vertical
+ * ------------------------------------------------------------------------ */
+
+/* #region Vertical */
+
+/* Elementor applies the responsive prefix_class on the outer widget root for
+   every breakpoint simultaneously (desktop, tablet-, mobile-). Scope each
+   breakpoint class with a matching media query so only the active breakpoint's
+   value takes effect. Uses Elementor's default breakpoints (tablet <= 1024,
+   mobile <= 767). */
+
+.elementor-widget.tms-image-accordion-orientation-vertical .tms-image-accordion {
+  flex-direction: column;
+}
+
+@media (max-width: 1024px) {
+  .elementor-widget.tms-image-accordion-orientation-tablet-vertical .tms-image-accordion {
+    flex-direction: column;
+  }
+
+  .elementor-widget.tms-image-accordion-orientation-tablet-horizontal .tms-image-accordion {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 767px) {
+  .elementor-widget.tms-image-accordion-orientation-mobile-vertical .tms-image-accordion {
+    flex-direction: column;
+  }
+
+  .elementor-widget.tms-image-accordion-orientation-mobile-horizontal .tms-image-accordion {
+    flex-direction: row;
+  }
+}
+
+/* #endregion Vertical */
+
+/* ------------------------------------------------------------------------
+ * 07. Trigger: hover (desktop)
+ * ------------------------------------------------------------------------ */
+
+/* #region Hover trigger */
+
+@media (hover: hover) {
+  .tms-image-accordion.tms-image-accordion--trigger-hover .tms-image-accordion__item:hover {
+    flex-grow: var(--tms-image-accordion-active-flex);
+  }
+
+  /* When any panel is being hovered, collapse any previously active panel.
+     Pure-CSS hover relies on :has() so JS still mirrors the state for older
+     browsers via the --active class. */
+
+  .tms-image-accordion.tms-image-accordion--trigger-hover:has(.tms-image-accordion__item:hover)
+    .tms-image-accordion__item:not(:hover) {
+    flex-grow: var(--tms-image-accordion-collapsed-flex);
+  }
+}
+
+/* #endregion Hover trigger */
+
+/* ------------------------------------------------------------------------
+ * 08. Skin: Classic
+ * ------------------------------------------------------------------------ */
+
+/* #region Skin classic */
+
+.tms-image-accordion.tms-image-accordion--skin-classic .tms-image-accordion__overlay {
+  background-image: linear-gradient(
+    to bottom,
+    transparent 40%,
+    var(--tms-image-accordion-overlay-gradient-stop) 100%
+  );
+}
+
+/* The icon and the title stay on every panel; the reveal (04) brings the
+   description and the button in. A closed panel's reveal takes no room, so its
+   title rests on the foot whatever the length of its hidden description. */
+
+.tms-image-accordion.tms-image-accordion--skin-classic .tms-image-accordion__content {
+  opacity: 1;
+}
+
+/* #endregion Skin classic */
+
+/* ------------------------------------------------------------------------
+ * 09. Skin: Bordered
+ * ------------------------------------------------------------------------ */
+
+/* #region Skin bordered */
+
+.tms-image-accordion.tms-image-accordion--skin-bordered {
+  padding: 2px;
+  background-color: var(--tms-border-color, #e5e5e5);
+}
+
+.tms-image-accordion.tms-image-accordion--skin-bordered .tms-image-accordion__item {
+  border-radius: 0;
+}
+
+.tms-image-accordion.tms-image-accordion--skin-bordered .tms-image-accordion__overlay {
+  background-image: none;
+}
+
+.tms-image-accordion.tms-image-accordion--skin-bordered .tms-image-accordion__content {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* A closed panel shows the photo alone: the icon and the title fade out with
+   the reveal and come back on its beat, once the panel is most of the way
+   open (the reveal, in 04, brings the description and the button). */
+
+.tms-image-accordion.tms-image-accordion--skin-bordered
+  .tms-image-accordion__item .tms-image-accordion__icon-wrap,
+.tms-image-accordion.tms-image-accordion--skin-bordered
+  .tms-image-accordion__item .tms-image-accordion__title {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition:
+    opacity calc(var(--tms-image-accordion-duration) * 0.25) var(--tms-image-accordion-timing) 0s,
+    visibility 0s linear calc(var(--tms-image-accordion-duration) * 0.25),
+    transform calc(var(--tms-image-accordion-duration) * 0.25) var(--tms-image-accordion-timing) 0s;
+  pointer-events: none;
+}
+
+.tms-image-accordion.tms-image-accordion--skin-bordered
+  .tms-image-accordion__item--active .tms-image-accordion__icon-wrap,
+.tms-image-accordion.tms-image-accordion--skin-bordered
+  .tms-image-accordion__item--active .tms-image-accordion__title {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity calc(var(--tms-image-accordion-duration) * 0.5) var(--tms-image-accordion-timing)
+      calc(var(--tms-image-accordion-duration) * 0.45),
+    visibility 0s linear calc(var(--tms-image-accordion-duration) * 0.45),
+    transform calc(var(--tms-image-accordion-duration) * 0.5) var(--tms-image-accordion-timing)
+      calc(var(--tms-image-accordion-duration) * 0.45);
+  pointer-events: auto;
+}
+
+/* #endregion Skin bordered */
+
+/* ------------------------------------------------------------------------
+ * 10. Skin: Stacked Labels
+ * ------------------------------------------------------------------------ */
+
+/* #region Skin stacked labels */
+
+/* The Overlay tab offers "Gradient Stop (Bottom)" on every skin, and only
+   Classic painted it: here the authored stop reached the overlay as a custom
+   property nothing read, so an open panel's title, description and button sat
+   on the photo over a flat tint. This skin paints the same bottom gradient,
+   but only when a stop is authored: the inherited default is reset to
+   transparent on the skin root, and the control (written on the overlay
+   itself) overrides it. A page that never set a stop keeps its flat veil. */
+
+.tms-image-accordion.tms-image-accordion--skin-stacked-labels {
+  --tms-image-accordion-overlay-gradient-stop: transparent;
+}
+
+.tms-image-accordion.tms-image-accordion--skin-stacked-labels .tms-image-accordion__overlay {
+  background-image: linear-gradient(
+    to bottom,
+    transparent 40%,
+    var(--tms-image-accordion-overlay-gradient-stop, transparent) 100%
+  );
+}
+
+.tms-image-accordion.tms-image-accordion--skin-stacked-labels .tms-image-accordion__content {
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+/* Collapsed horizontal panels show the title rotated -90deg so it reads
+   bottom-to-top along the vertical axis, Apple-style. */
+
+.tms-image-accordion.tms-image-accordion--skin-stacked-labels
+  .tms-image-accordion__item:not(.tms-image-accordion__item--active) .tms-image-accordion__content {
+  justify-content: center;
+  align-items: center;
+}
+
+/* No transition on the rotation: the open title has none, so easing it spun
+   the label half a turn every time its panel closed. */
+
+.tms-image-accordion.tms-image-accordion--skin-stacked-labels
+  .tms-image-accordion__item:not(.tms-image-accordion__item--active) .tms-image-accordion__title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+
+/* The description and the button fold with the reveal (04); the icon leaves
+   the flow, so the label stays centred. */
+
+.tms-image-accordion.tms-image-accordion--skin-stacked-labels
+  .tms-image-accordion__item:not(.tms-image-accordion__item--active) .tms-image-accordion__icon-wrap {
+  display: none;
+}
+
+/* An open title wraps: laid out at the open width (like the reveal), it never
+   re-wraps while its panel grows. */
+
+.tms-image-accordion.tms-image-accordion--skin-stacked-labels
+  .tms-image-accordion__item--active .tms-image-accordion__title {
+  width: var(--tms-image-accordion-open-width, auto);
+  max-width: none;
+  writing-mode: horizontal-tb;
+  transform: none;
+  white-space: normal;
+}
+
+/* A label turning into a heading cannot be eased (writing-mode does not
+   animate), so the swap happens unseen: the panel that opens shows its icon
+   and title once it is most of the way open, on the reveal's beat, and the
+   panel that closes brings its label back once it is narrow again. Only on a
+   panel the visitor toggled (image-accordion.min.js marks it), so a page load
+   or an editor re-render plays nothing. */
+
+.tms-image-accordion.tms-image-accordion--skin-stacked-labels
+  .tms-image-accordion__item--toggled.tms-image-accordion__item--active .tms-image-accordion__icon-wrap,
+.tms-image-accordion.tms-image-accordion--skin-stacked-labels
+  .tms-image-accordion__item--toggled.tms-image-accordion__item--active .tms-image-accordion__title {
+  animation: tms-image-accordion-rise calc(var(--tms-image-accordion-duration) * 0.5)
+    var(--tms-image-accordion-timing) calc(var(--tms-image-accordion-duration) * 0.45) both;
+}
+
+.tms-image-accordion.tms-image-accordion--skin-stacked-labels
+  .tms-image-accordion__item--toggled:not(.tms-image-accordion__item--active) .tms-image-accordion__title {
+  animation: tms-image-accordion-fade calc(var(--tms-image-accordion-duration) * 0.4)
+    var(--tms-image-accordion-timing) calc(var(--tms-image-accordion-duration) * 0.55) both;
+}
+
+@keyframes tms-image-accordion-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes tms-image-accordion-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* In vertical orientation the label should not rotate — use uppercase spacing
+   instead to keep the collapsed state compact. Mobile/tablet breakpoints are
+   scoped inside matching media queries (Elementor's defaults). */
+
+.elementor-widget.tms-image-accordion-orientation-vertical
+  .tms-image-accordion.tms-image-accordion--skin-stacked-labels
+  .tms-image-accordion__item:not(.tms-image-accordion__item--active) .tms-image-accordion__title {
+  writing-mode: horizontal-tb;
+  transform: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1024px) {
+  .elementor-widget.tms-image-accordion-orientation-tablet-vertical
+    .tms-image-accordion.tms-image-accordion--skin-stacked-labels
+    .tms-image-accordion__item:not(.tms-image-accordion__item--active) .tms-image-accordion__title {
+    writing-mode: horizontal-tb;
+    transform: none;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+@media (max-width: 767px) {
+  .elementor-widget.tms-image-accordion-orientation-mobile-vertical
+    .tms-image-accordion.tms-image-accordion--skin-stacked-labels
+    .tms-image-accordion__item:not(.tms-image-accordion__item--active) .tms-image-accordion__title {
+    writing-mode: horizontal-tb;
+    transform: none;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+/* #endregion Skin stacked labels */
+
+/* ------------------------------------------------------------------------
+ * 11. Responsive fallback — force vertical stack on narrow screens
+ * ------------------------------------------------------------------------ */
+
+/* #region Responsive */
+
+@media (max-width: 480px) {
+  .tms-image-accordion {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .tms-image-accordion .tms-image-accordion__item {
+    min-height: calc(var(--tms-image-accordion-height) * 0.45);
+  }
+}
+
+/* #endregion Responsive */
+
+/* ------------------------------------------------------------------------
+ * 12. Accessibility (focus, reduced motion)
+ * ------------------------------------------------------------------------ */
+
+/* #region Accessibility */
+
+.tms-image-accordion .tms-image-accordion__trigger:focus-visible {
+  outline: 2px solid var(--tms-primary-color);
+  outline-offset: -4px;
+  border-radius: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-image-accordion,
+  .tms-image-accordion .tms-image-accordion__item,
+  .tms-image-accordion .tms-image-accordion__img,
+  .tms-image-accordion .tms-image-accordion__overlay,
+  .tms-image-accordion .tms-image-accordion__content,
+  .tms-image-accordion .tms-image-accordion__reveal,
+  .tms-image-accordion .tms-image-accordion__icon-wrap,
+  .tms-image-accordion .tms-image-accordion__title,
+  .tms-image-accordion .tms-image-accordion__description,
+  .tms-image-accordion .tms-image-accordion__button {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation: none !important;
+  }
+
+  /* The flourishes only: the Stacked Labels rotation is the label itself. */
+
+  .tms-image-accordion .tms-image-accordion__img,
+  .tms-image-accordion .tms-image-accordion__reveal,
+  .tms-image-accordion .tms-image-accordion__icon-wrap,
+  .tms-image-accordion.tms-image-accordion--skin-bordered .tms-image-accordion__title {
+    transform: none !important;
+  }
+}
+
+/* #endregion Accessibility */

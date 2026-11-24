@@ -298,6 +298,52 @@
   min-width: 0;
 }
 
+/* All / Free / Pro: one segmented control above the tags. */
+.themeasy-library__tiers {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  gap: 2px;
+  margin: 14px 18px 0;
+  padding: 3px;
+  border: var(--e-a-border, 1px solid #d5d8dc);
+  border-radius: 8px;
+}
+
+.themeasy-library__tier {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border: 0;
+  border-radius: 5px;
+  background-color: transparent;
+  color: var(--e-a-color-txt-muted, #818a96);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.themeasy-library__tier:hover {
+  color: var(--e-a-color-txt-accent, #1a1c1f);
+}
+
+.themeasy-library__tier:focus-visible {
+  outline: 2px solid var(--themeasy-primary-color);
+  outline-offset: 1px;
+}
+
+.themeasy-library__tier.is-active {
+  background-color: var(--themeasy-primary-color);
+  color: var(--themeasy-color-contrast);
+}
+
+.themeasy-library__tier-count {
+  opacity: .8;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Tag filter bar. The module prints the most-used tags only; the cap (three
  * rows of pills, then the bar scrolls) is what keeps any tag list from
  * squeezing the grid below it out of the modal (backlog #357). */

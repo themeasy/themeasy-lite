@@ -56,6 +56,9 @@ class Elementor_Loader {
     // Themeasy Library panel: browse the catalog and insert its templates.
     Library_Ajax::instance()->init();
     Library_Panel::instance()->init();
+
+    // Every media value a Themeasy widget renders has a text URL.
+    Media_Guard::instance()->init();
   }
 
   /**
@@ -81,6 +84,7 @@ class Elementor_Loader {
     require_once THEMEASY_PATH . 'includes/elementor/class-library-ajax.php';
     require_once THEMEASY_PATH . 'includes/elementor/class-library-local.php';
     require_once THEMEASY_PATH . 'includes/elementor/class-library-panel.php';
+    require_once THEMEASY_PATH . 'includes/elementor/class-media-guard.php';
     require_once THEMEASY_PATH . 'includes/elementor/enqueue-assets.php';
     require_once THEMEASY_PATH . 'includes/elementor/icon-libraries.php';
     require_once THEMEASY_PATH . 'includes/elementor/fouc-preload.php';
@@ -229,10 +233,10 @@ class Elementor_Loader {
    *
    * Transforms the widget file slug into a class name and registers it with Elementor.
    *
-   * @param string $file_slug The widget file slug (basename without extension), e.g. 'product-grid'.
+   * @param string $file_slug The widget file slug (basename without extension), e.g. 'pricing-table'.
    */
   private function register_widget_class( string $file_slug ): void {
-    // Transform the file slug to a class name, e.g. 'product-grid' becomes 'ProductGrid'.
+    // Transform the file slug to a class name, e.g. 'pricing-table' becomes 'PricingTable'.
     $class_name = '\\Themeasy\\Elementor\\' . str_replace( ' ', '', ucwords( str_replace( '-', ' ', $file_slug ) ) );
 
     // A widget file whose declared class does not match its filename would

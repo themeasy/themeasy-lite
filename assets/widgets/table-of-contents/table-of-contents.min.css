@@ -1,0 +1,430 @@
+/*!
+ * Themeasy — Table of Contents
+ *
+ * Auto-generated contents box: a header (icon + title + optional collapse
+ * chevron + reading-progress hairline) over a rail-guided link list that the
+ * JS module builds from the page headings. The scrollspy indicator is an
+ * accent segment absolutely positioned on the rail track; JS only writes the
+ * --tms-table-of-contents-marker-y/-h and --tms-table-of-contents-progress
+ * custom properties, so all motion is a CSS transition. Collapse rides the
+ * grid-template-rows 1fr→0fr trick (no height measuring). With no JS the
+ * shell renders and the empty list collapses; when fewer headings than the
+ * minimum are found the widget hides itself on the frontend and shows a
+ * placeholder note in the editor (--static). Reduced motion disables every
+ * transition.
+ *
+ * Tokens consumed: --tms-primary-color, --tms-heading-color, --tms-body-color,
+ * --tms-border-color, --tms-radius-md, --tms-radius-sm (public --tms-* design
+ * API).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+.tms-table-of-contents {
+  /* Structural knobs driven by Elementor controls. */
+  --tms-table-of-contents-icon-gap: 0.625em;
+  --tms-table-of-contents-header-spacing: 0.875rem;
+  --tms-table-of-contents-item-gap: 0.125rem;
+  --tms-table-of-contents-indent: 0.875rem;
+  --tms-table-of-contents-item-color: var(--tms-body-color, #4b5563);
+  --tms-table-of-contents-item-hover-color: var(--tms-heading-color, #111827);
+  --tms-table-of-contents-item-active-color: var(--tms-primary-color, #5b6cff);
+  --tms-table-of-contents-marker-color: color-mix(in srgb, var(--tms-body-color, #4b5563) 55%, transparent);
+  --tms-table-of-contents-track-color: color-mix(in srgb, var(--tms-heading-color, #111827) 12%, transparent);
+  --tms-table-of-contents-indicator-color: var(--tms-primary-color, #5b6cff);
+  --tms-table-of-contents-indicator-width: 2px;
+  --tms-table-of-contents-progress-color: var(--tms-primary-color, #5b6cff);
+  --tms-table-of-contents-progress-thickness: 2px;
+  /* State written by JS (scrollspy + reading progress). */
+  --tms-table-of-contents-marker-y: 0px;
+  --tms-table-of-contents-marker-h: 0px;
+  --tms-table-of-contents-progress: 0;
+  position: relative;
+  width: 100%;
+}
+
+/* Below the minimum heading count the widget removes itself from the flow —
+ * but never in the editor, where the placeholder explains the empty state. */
+.tms-table-of-contents--empty:not(.tms-table-of-contents--static) {
+  display: none;
+}
+
+/* Sticky mode is applied by the Elementor control on the widget WRAPPER
+ * (position: sticky + top: var(--tms-table-of-contents-sticky-top)) — the
+ * inner nav's direct parent is exactly its own height, so it could never
+ * travel on its own. */
+
+/* The visual box: border-only card so it sits on any background and dark
+ * mode inherits the token flips for free. */
+.tms-table-of-contents__inner {
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--tms-border-color, rgba(15, 23, 42, 0.1));
+  border-radius: var(--tms-radius-md, 10px);
+}
+
+/* ------------------------------------------------------------------------
+ * Header — icon + title on the start side, collapse chevron pushed to the
+ * end, reading-progress hairline centered in the header/list gap.
+ * ---------------------------------------------------------------------- */
+.tms-table-of-contents__header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5em 1em;
+  margin-block-end: var(--tms-table-of-contents-header-spacing);
+}
+
+.tms-table-of-contents__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--tms-table-of-contents-icon-gap);
+  min-width: 0;
+}
+
+.tms-table-of-contents__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--tms-heading-color, #111827);
+}
+
+.tms-table-of-contents__icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.tms-table-of-contents__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-table-of-contents__icon img {
+  width: 1em;
+  height: 1em;
+}
+
+.tms-table-of-contents__title {
+  min-width: 0;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: normal;
+  overflow-wrap: break-word;
+  color: var(--tms-heading-color, #111827);
+}
+
+/* Collapse chevron — a real button with a generous hit area carved out of
+ * its negative margin so the header rhythm stays tight. */
+.tms-table-of-contents__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin: -0.375rem;
+  margin-inline-start: auto;
+  padding: 0.375rem;
+  line-height: 1;
+  border: 0;
+  border-radius: var(--tms-radius-sm, 6px);
+  background: none;
+  cursor: pointer;
+  color: color-mix(in srgb, var(--tms-heading-color, #111827) 65%, transparent);
+  transition: color 0.2s ease;
+}
+
+/* A theme reset that styles every button (Hello Elementor) paints this one on hover and focus: the rest look stays. */
+.tms-table-of-contents .tms-table-of-contents__toggle {
+  box-shadow: none;
+  color: color-mix(in srgb, var(--tms-heading-color, #111827) 65%, transparent);
+  background: none;
+}
+
+.tms-table-of-contents__toggle:hover {
+  color: var(--tms-heading-color, #111827);
+}
+
+.tms-table-of-contents__toggle:focus-visible {
+  outline: 2px solid var(--tms-table-of-contents-indicator-color);
+  outline-offset: 2px;
+  color: var(--tms-heading-color, #111827);
+}
+
+.tms-table-of-contents__toggle-icon {
+  width: 1.125em;
+  height: 1.125em;
+  fill: none;
+  stroke: currentColor;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tms-table-of-contents--collapsed .tms-table-of-contents__toggle-icon {
+  transform: rotate(-90deg);
+}
+
+[dir="rtl"] .tms-table-of-contents--collapsed .tms-table-of-contents__toggle-icon {
+  transform: rotate(90deg);
+}
+
+/* Reading progress — a hairline centered in the header/list gap; JS writes
+ * the 0–1 fraction and the fill is a compositor-only scaleX. */
+.tms-table-of-contents__progress {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: calc(-0.5 * var(--tms-table-of-contents-header-spacing));
+  height: var(--tms-table-of-contents-progress-thickness);
+  overflow: hidden;
+  border-radius: 999px;
+  background-color: var(--tms-table-of-contents-track-color);
+}
+
+.tms-table-of-contents__progress::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--tms-table-of-contents-progress-color);
+  transform: scaleX(var(--tms-table-of-contents-progress));
+  transform-origin: left center;
+  transition: transform 0.15s linear;
+}
+
+[dir="rtl"] .tms-table-of-contents__progress::before {
+  transform-origin: right center;
+}
+
+/* ------------------------------------------------------------------------
+ * Collapse — grid-template-rows 1fr→0fr on the body wrapper; the panel
+ * clips its overflow so no height measuring is ever needed.
+ * ---------------------------------------------------------------------- */
+.tms-table-of-contents__body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tms-table-of-contents--collapsed .tms-table-of-contents__body {
+  grid-template-rows: 0fr;
+}
+
+/* Collapsed content must leave the tab order: visibility flips after the
+ * height animation finishes (and instantly on expand). */
+.tms-table-of-contents--collapsed .tms-table-of-contents__panel {
+  visibility: hidden;
+  transition: visibility 0s 0.35s;
+}
+
+/* JS applies this for one frame to land the initial collapsed state (Start
+ * Collapsed: Always / On Mobile) without playing the animation on load. */
+.tms-table-of-contents--instant .tms-table-of-contents__body,
+.tms-table-of-contents--instant .tms-table-of-contents__panel {
+  transition: none;
+}
+
+/* ------------------------------------------------------------------------
+ * Panel — hosts the rail track (::before), the sliding indicator and the
+ * generated list. The rail is the widget's signature docs look.
+ * ---------------------------------------------------------------------- */
+.tms-table-of-contents__panel {
+  position: relative;
+  overflow: hidden;
+  padding-inline-start: calc(var(--tms-table-of-contents-indicator-width) + 0.875rem);
+}
+
+.tms-table-of-contents__panel::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block: 0.3em;
+  width: var(--tms-table-of-contents-indicator-width);
+  border-radius: 999px;
+  background-color: var(--tms-table-of-contents-track-color);
+}
+
+/* Scrollspy indicator — JS writes translateY/height custom props; the CSS
+ * transition does the sliding. Hidden until a section is being read. */
+.tms-table-of-contents__marker {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0;
+  width: var(--tms-table-of-contents-indicator-width);
+  height: var(--tms-table-of-contents-marker-h);
+  border-radius: 999px;
+  background-color: var(--tms-table-of-contents-indicator-color);
+  opacity: 0;
+  transform: translateY(var(--tms-table-of-contents-marker-y));
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease;
+  will-change: transform;
+}
+
+.tms-table-of-contents--reading .tms-table-of-contents__marker {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------------
+ * List — generated by JS. Nested sublists indent by the Level Indent knob;
+ * links are real anchors with hover / focus-visible / active states.
+ * ---------------------------------------------------------------------- */
+.tms-table-of-contents__list,
+.tms-table-of-contents__sublist {
+  display: grid;
+  row-gap: var(--tms-table-of-contents-item-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tms-table-of-contents__sublist {
+  margin-block-start: var(--tms-table-of-contents-item-gap);
+  padding-inline-start: var(--tms-table-of-contents-indent);
+}
+
+.tms-table-of-contents__item {
+  min-width: 0;
+}
+
+.tms-table-of-contents__link {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  padding-block: 0.3em;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  border-radius: var(--tms-radius-sm, 6px);
+  color: var(--tms-table-of-contents-item-color);
+  transition: color 0.2s ease;
+}
+
+.tms-table-of-contents__link:hover {
+  color: var(--tms-table-of-contents-item-hover-color);
+}
+
+.tms-table-of-contents__link:focus-visible {
+  outline: 2px solid var(--tms-table-of-contents-indicator-color);
+  outline-offset: 2px;
+  color: var(--tms-table-of-contents-item-hover-color);
+}
+
+.tms-table-of-contents__link--active {
+  color: var(--tms-table-of-contents-item-active-color);
+}
+
+/* ------------------------------------------------------------------------
+ * List markers — nested decimal counters (1, 1.1, 1.2) or dot bullets,
+ * colored independently from the link text.
+ * ---------------------------------------------------------------------- */
+.tms-table-of-contents--numbers .tms-table-of-contents__list,
+.tms-table-of-contents--numbers .tms-table-of-contents__sublist {
+  counter-reset: tms-toc-section;
+}
+
+.tms-table-of-contents--numbers .tms-table-of-contents__item {
+  counter-increment: tms-toc-section;
+}
+
+.tms-table-of-contents--numbers .tms-table-of-contents__link::before {
+  content: counters(tms-toc-section, ".");
+  flex: 0 0 auto;
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+  color: var(--tms-table-of-contents-marker-color);
+}
+
+.tms-table-of-contents--bullets .tms-table-of-contents__link::before {
+  content: "";
+  flex: 0 0 auto;
+  align-self: center;
+  width: 0.3125em;
+  height: 0.3125em;
+  border-radius: 50%;
+  background-color: var(--tms-table-of-contents-marker-color);
+}
+
+/* ------------------------------------------------------------------------
+ * Empty / editor states — the placeholder only ever shows on the editor
+ * canvas (--static) when the scan finds fewer headings than the minimum.
+ * ---------------------------------------------------------------------- */
+.tms-table-of-contents__placeholder {
+  display: none;
+  padding: 0.625rem 0.75rem;
+  border: 1px dashed var(--tms-border-color, rgba(15, 23, 42, 0.18));
+  border-radius: var(--tms-radius-sm, 6px);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--tms-body-color, #4b5563) 70%, transparent);
+}
+
+.tms-table-of-contents--static.tms-table-of-contents--empty .tms-table-of-contents__placeholder {
+  display: block;
+}
+
+.tms-table-of-contents--empty .tms-table-of-contents__panel {
+  padding-inline-start: 0;
+}
+
+.tms-table-of-contents--empty .tms-table-of-contents__panel::before,
+.tms-table-of-contents--empty .tms-table-of-contents__marker {
+  display: none;
+}
+
+/* Editor canvas: scrollspy/progress are inert — pin a partial progress fill
+ * so the hairline stays visible and stylable while designing. */
+.tms-table-of-contents--static .tms-table-of-contents__marker {
+  transition: none;
+}
+
+.tms-table-of-contents--static .tms-table-of-contents__progress::before {
+  transform: scaleX(0.33);
+  transition: none;
+}
+
+/* ------------------------------------------------------------------------
+ * Reduced motion — everything snaps: no sliding indicator, no progress
+ * easing, no collapse animation (JS also drops smooth scrolling).
+ * ---------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .tms-table-of-contents__body,
+  .tms-table-of-contents__marker,
+  .tms-table-of-contents__progress::before,
+  .tms-table-of-contents__toggle,
+  .tms-table-of-contents__toggle-icon,
+  .tms-table-of-contents__link,
+  .tms-table-of-contents--collapsed .tms-table-of-contents__panel {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * Touch — grow the link rows toward the 40px target on coarse pointers.
+ * ---------------------------------------------------------------------- */
+@media (pointer: coarse) {
+  .tms-table-of-contents__link {
+    padding-block: 0.5em;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * Responsive.
+ * ---------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .tms-table-of-contents__inner {
+    padding: 1rem 1.125rem;
+  }
+
+  .tms-table-of-contents__title {
+    font-size: 1rem;
+  }
+
+  .tms-table-of-contents__icon {
+    font-size: 1rem;
+  }
+}

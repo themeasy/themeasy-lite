@@ -37,8 +37,7 @@ add_action( 'elementor/frontend/after_enqueue_styles', 'themeasy_enqueue_element
  * Mark the Elementor preview iframe with the `tms-elementor-preview` body class.
  *
  * The widgets' editor contract: their CSS and JS opt out of frontend-only
- * behavior on this class (the dash icon pre-boot hide, the Coverflow intro,
- * the lightbox module, the Nested Tabs panels…), because the Element Cache can
+ * behavior on this class (the lightbox module, for one), because the Element Cache can
  * serve frontend HTML inside the preview, so a PHP branch alone never reaches
  * it. It belongs to the widget layer: every build emits it, on any theme
  * (backlog #262).

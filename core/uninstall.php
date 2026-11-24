@@ -8,9 +8,8 @@
  * hook. core/licensing.php hooks themeasy_uninstall_cleanup() there.
  *
  * Only the plumbing goes (owner decision, backlog #475): caches, locks, queues,
- * scheduled events and generated files. The settings and the content (Global
- * Sections, Megamenus, Portfolio, the meta of menus, media, products and terms)
- * stay, so a reinstall finds the site as it was.
+ * scheduled events and generated files. The settings and the content stay, so a
+ * reinstall finds the site as it was.
  *
  * Not namespaced, like core/licensing.php: the SDK calls it by name.
  *

@@ -336,7 +336,7 @@
    element's intrinsic width, which collapsed an auto-width widget in a ROW
    Elementor container to 0px (measured); the intrinsic size below replaces that
    zero and is inert wherever the width is already definite (column containers,
-   Swiper slides, an authored widget width). */
+   an authored widget width). */
 .tms-testimonial:has(> .tms-profile-card--split),
 .tms-animation__target:has(> .tms-profile-card--split) {
   container: tms-profile-card / inline-size;

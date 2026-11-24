@@ -141,6 +141,7 @@ class Library_Ajax {
     // the remote catalog — and keep the panel working when the backstage is
     // unreachable (the local library's offline guarantee).
     if ( 'templates' === $resource ) {
+      $result = $this->decode_titles( $result );
       $result = Library_Local::instance()->merge_templates( $result, $query );
     } elseif ( 'categories' === $resource ) {
       $result = Library_Local::instance()->merge_categories( $result );
@@ -284,6 +285,31 @@ class Library_Ajax {
   }
 
   /**
+   * Decode the entities a backstage title may carry.
+   *
+   * The panel writes card titles with textContent, and a backstage up to 1.2.5
+   * sends get_the_title()'s texturized entities (`&#8217;`, `&#8211;`), which
+   * the card then showed literally (backlog #509). Cached listings outlive a
+   * backstage fix, so the proxy decodes as well.
+   *
+   * @param array<string,mixed> $result Internal proxy result envelope.
+   * @return array<string,mixed>
+   */
+  private function decode_titles( array $result ): array {
+    if ( !$result['ok'] || !isset( $result['data']['items'] ) || !is_array( $result['data']['items'] ) ) {
+      return $result;
+    }
+
+    foreach ( $result['data']['items'] as $index => $item ) {
+      if ( is_array( $item ) && isset( $item['title'] ) && is_string( $item['title'] ) ) {
+        $result['data']['items'][$index]['title'] = html_entity_decode( $item['title'], ENT_QUOTES, 'UTF-8' );
+      }
+    }
+
+    return $result;
+  }
+
+  /**
    * Read and sanitize the templates listing query (filters + pagination).
    *
    * Only the frozen contract's parameters are forwarded; everything else is
@@ -308,6 +334,15 @@ class Library_Ajax {
     $search = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
     if ( '' !== $search ) {
       $query['search'] = $search;
+    }
+
+    $tier = isset( $_POST['tier'] ) ? sanitize_key( wp_unslash( $_POST['tier'] ) ) : '';
+    if ( in_array( $tier, ['free', 'pro'], true ) ) {
+      $query['tier'] = $tier;
+    }
+
+    if ( !empty( $_POST['tier_counts'] ) ) {
+      $query['tier_counts'] = 1;
     }
 
     $query['page'] = isset( $_POST['page'] ) ? max( 1, absint( $_POST['page'] ) ) : 1;

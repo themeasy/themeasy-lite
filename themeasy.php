@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name:        Themeasy Lite
+ * Plugin Name:        Themeasy Addons for Elementor – Elementor Widgets, Blocks & Templates Kit
  * Plugin URI:         https://themeasy.co/features/
  * Description:        Free Elementor content widgets and design controls that work with any WordPress theme.
- * Version:            1.1.4
+ * Version:            1.3.0
  * Requires at least:  6.8
  * Requires PHP:       7.4
  * Requires Plugins:   elementor
@@ -123,7 +123,7 @@ if ( function_exists( 'themeasy_fs' ) ) {
 
     /**
      * Loads the admin page behind the Themeasy menu: the Welcome page, a Getting
-     * Started guide that showcases the template library and the paid plans.
+     * Started guide with the free widgets and the template library.
      */
     private function load_admin_page(): void {
       require_once THEMEASY_PATH . 'admin/class-welcome-page.php';

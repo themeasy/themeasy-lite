@@ -1,0 +1,235 @@
+/*!
+ * Themeasy — Slide Button Widget Styles
+ *
+ * Pill CTA button with a dual-label slide swap on hover: the main label
+ * glides up while the hover label slides in from below (both live inside a
+ * clipped container so the swap is pixel-exact). An optional circular icon
+ * chip inverts its colors and nudges the glyph forward. Pure CSS — with no
+ * JS, in the editor, and under reduced motion the button is a fully usable
+ * static pill.
+ *
+ * Public tokens (--tms-*) are consumed — never private (--themeasy-*).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Wrapper & link base
+ * 02. Label slide swap
+ * 03. Icon & chip
+ * 04. Modifiers (icon side, full width)
+ * 05. Accessibility (focus, reduced motion)
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Wrapper & link base
+ * ------------------------------------------------------------------------ */
+
+/* #region Base */
+
+.tms-slide-button {
+  --tms-slide-button-duration: 0.4s;
+  --tms-slide-button-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --tms-slide-button-chip-size: 2.25em;
+
+  display: flex;
+  justify-content: flex-start;
+}
+
+.tms-slide-button .tms-slide-button__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75em;
+  padding: 0.875em 1.75em;
+  color: var(--tms-white-color, #fff);
+  background-color: var(--tms-primary-color, #2563eb);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  border: 0 solid transparent;
+  border-radius: 999px;
+  transition:
+    color var(--tms-slide-button-duration) var(--tms-slide-button-ease),
+    background-color var(--tms-slide-button-duration) var(--tms-slide-button-ease),
+    border-color var(--tms-slide-button-duration) var(--tms-slide-button-ease),
+    box-shadow var(--tms-slide-button-duration) var(--tms-slide-button-ease);
+}
+
+.tms-slide-button .tms-slide-button__link:hover,
+.tms-slide-button .tms-slide-button__link:focus-visible {
+  background-color: var(--tms-heading-color, #11131a);
+}
+
+/* #endregion Base */
+
+/* ------------------------------------------------------------------------
+ * 02. Label slide swap
+ * ------------------------------------------------------------------------ */
+
+/* #region Label */
+
+/* Both labels share ONE grid cell: they stay stacked for the swap, and the
+ * cell measures the WIDER of the two, so a hover label longer than the main
+ * one is no longer clipped by a window sized from the main label alone. */
+
+.tms-slide-button .tms-slide-button__label {
+  position: relative;
+  display: inline-grid;
+  overflow: hidden;
+}
+
+.tms-slide-button .tms-slide-button__text {
+  grid-area: 1 / 1;
+  display: block;
+  white-space: nowrap;
+  text-align: center;
+  transition: transform var(--tms-slide-button-duration) var(--tms-slide-button-ease);
+}
+
+/* The hover label is stacked below the visible line and slides in on hover.
+ * 110% keeps descenders fully clipped during the swap. */
+
+.tms-slide-button .tms-slide-button__text--hover {
+  transform: translateY(110%);
+}
+
+.tms-slide-button .tms-slide-button__link:hover .tms-slide-button__text--main,
+.tms-slide-button .tms-slide-button__link:focus-visible .tms-slide-button__text--main {
+  transform: translateY(-110%);
+}
+
+.tms-slide-button .tms-slide-button__link:hover .tms-slide-button__text--hover,
+.tms-slide-button .tms-slide-button__link:focus-visible .tms-slide-button__text--hover {
+  transform: translateY(0);
+}
+
+/* #endregion Label */
+
+/* ------------------------------------------------------------------------
+ * 03. Icon & chip
+ * ------------------------------------------------------------------------ */
+
+/* #region Icon */
+
+.tms-slide-button .tms-slide-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 1em;
+  line-height: 1;
+  transition:
+    color var(--tms-slide-button-duration) var(--tms-slide-button-ease),
+    background-color var(--tms-slide-button-duration) var(--tms-slide-button-ease);
+}
+
+.tms-slide-button .tms-slide-button__icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  transition: transform var(--tms-slide-button-duration) var(--tms-slide-button-ease);
+}
+
+.tms-slide-button .tms-slide-button__icon svg[fill="none"] {
+  fill: none;
+  stroke: currentColor;
+}
+
+.tms-slide-button .tms-slide-button__icon img {
+  width: 1em;
+  height: 1em;
+}
+
+/* Glyph nudges forward on hover (the chip itself stays put). */
+
+.tms-slide-button .tms-slide-button__link:hover .tms-slide-button__icon svg,
+.tms-slide-button .tms-slide-button__link:hover .tms-slide-button__icon i,
+.tms-slide-button .tms-slide-button__link:focus-visible .tms-slide-button__icon svg,
+.tms-slide-button .tms-slide-button__link:focus-visible .tms-slide-button__icon i {
+  transform: translateX(0.15em);
+}
+
+/* Circular chip variant: a translucent disc around the glyph that inverts
+ * to a solid surface on hover (icon flips to the heading color). */
+
+.tms-slide-button--chip .tms-slide-button__link {
+  padding-block: 0.5em;
+}
+
+.tms-slide-button--chip .tms-slide-button__icon {
+  width: var(--tms-slide-button-chip-size);
+  height: var(--tms-slide-button-chip-size);
+  background-color: color-mix(in srgb, currentColor 14%, transparent);
+  border-radius: 50%;
+}
+
+.tms-slide-button--chip .tms-slide-button__link:hover .tms-slide-button__icon,
+.tms-slide-button--chip .tms-slide-button__link:focus-visible .tms-slide-button__icon {
+  color: var(--tms-heading-color, #11131a);
+  background-color: var(--tms-white-color, #fff);
+}
+
+/* #endregion Icon */
+
+/* ------------------------------------------------------------------------
+ * 04. Modifiers (icon side, full width)
+ * ------------------------------------------------------------------------ */
+
+/* #region Modifiers */
+
+.tms-slide-button--icon-left .tms-slide-button__icon {
+  order: -1;
+}
+
+/* Left-side icon nudges toward the label (rightward is still "forward"). */
+
+.tms-slide-button--chip.tms-slide-button--icon-right .tms-slide-button__link {
+  padding-inline-end: 0.5em;
+}
+
+.tms-slide-button--chip.tms-slide-button--icon-left .tms-slide-button__link {
+  padding-inline-start: 0.5em;
+}
+
+.tms-slide-button--full {
+  display: block;
+}
+
+/* order:-1 on the icon already handles the left side — with space-between
+ * the icon pins to the start edge and the label to the end edge. */
+
+.tms-slide-button--full .tms-slide-button__link {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* #endregion Modifiers */
+
+/* ------------------------------------------------------------------------
+ * 05. Accessibility (focus, reduced motion)
+ * ------------------------------------------------------------------------ */
+
+/* #region Accessibility */
+
+.tms-slide-button .tms-slide-button__link:focus-visible {
+  outline: 2px solid var(--tms-primary-color, #2563eb);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tms-slide-button .tms-slide-button__link,
+  .tms-slide-button .tms-slide-button__text,
+  .tms-slide-button .tms-slide-button__icon,
+  .tms-slide-button .tms-slide-button__icon svg {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* #endregion Accessibility */

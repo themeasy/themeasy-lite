@@ -1,0 +1,368 @@
+/*!
+ * Themeasy — Code Terminal
+ *
+ * Animated terminal window: a title bar (macOS traffic lights, minimal hairline
+ * or no chrome at all) over a dark body where command lines type in behind a
+ * blinking block cursor and output lines reveal in sequence. The terminal is
+ * deliberately dark in BOTH site themes (a terminal is a dark artifact), built
+ * on literals plus --tms-* tokens with fallbacks; every color is overridable
+ * from the widget's style controls.
+ *
+ * Layering / degradation:
+ * - The markup ships the FULL transcript; only the JS-applied --armed class
+ *   hides not-yet-shown lines, so no-JS renders the complete terminal.
+ * - --static (editor) keeps everything visible; the engine never runs there.
+ * - prefers-reduced-motion: the engine never arms, and this sheet force-shows
+ *   every line and stops the cursor blink as a defensive double.
+ *
+ * Tokens consumed: --tms-primary-color (public --tms-* design API).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+.tms-code-terminal {
+  --tms-code-terminal-bg: #0f1319;
+  --tms-code-terminal-bar-bg: #1a2029;
+  --tms-code-terminal-title-color: #8a93a2;
+  --tms-code-terminal-prompt-color: var(--tms-primary-color, #5b6cff);
+  --tms-code-terminal-command-color: #e8edf4;
+  --tms-code-terminal-output-color: #9aa4b2;
+  --tms-code-terminal-success-color: #34d399;
+  --tms-code-terminal-error-color: #f87171;
+  --tms-code-terminal-comment-color: #66738a;
+  --tms-code-terminal-cursor-color: #e8edf4;
+  position: relative;
+  overflow: hidden;
+  font-family: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  background-color: var(--tms-code-terminal-bg);
+  box-shadow: 0 30px 60px -20px rgba(2, 6, 12, 0.55);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Accent-tinted selection keeps copy/paste feeling native to the brand. */
+.tms-code-terminal ::selection {
+  color: var(--tms-white-color, #ffffff);
+  background-color: var(--tms-primary-color, #5b6cff);
+}
+
+/* ------------------------------------------------------------------------
+ * Title bar — dots (mac), centered title, copy button. The minimal chrome
+ * swaps the solid bar for a transparent one with a hairline divider.
+ * ---------------------------------------------------------------------- */
+.tms-code-terminal__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 8px 6px 16px;
+  background-color: var(--tms-code-terminal-bar-bg);
+}
+
+/* Subtle window sheen on the mac chrome only. */
+.tms-code-terminal--mac .tms-code-terminal__bar {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 60%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.tms-code-terminal--minimal .tms-code-terminal__bar {
+  background-color: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Traffic lights keep their authentic literal colors on purpose. */
+.tms-code-terminal__dots {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.tms-code-terminal__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.tms-code-terminal__dot--close {
+  background-color: #ff5f57;
+}
+
+.tms-code-terminal__dot--minimize {
+  background-color: #febc2e;
+}
+
+.tms-code-terminal__dot--zoom {
+  background-color: #28c840;
+}
+
+.tms-code-terminal__title {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--tms-code-terminal-title-color);
+}
+
+/* macOS centers the window title regardless of the sides' contents. */
+.tms-code-terminal--mac .tms-code-terminal__title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: 55%;
+  transform: translate(-50%, -50%);
+}
+
+.tms-code-terminal--minimal .tms-code-terminal__title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------------------
+ * Copy button — 40px touch target, stacked copy/check icons; the JS hides
+ * it entirely (hidden attribute) when the Clipboard API is unavailable.
+ * ---------------------------------------------------------------------- */
+/* An author display rule outranks the UA [hidden] rule, so the JS hiding the
+ * button where the Clipboard API is unavailable needs this to take effect. */
+.tms-code-terminal__copy[hidden] {
+  display: none;
+}
+
+.tms-code-terminal__copy {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-inline-start: auto;
+  padding: 0;
+  color: var(--tms-code-terminal-title-color);
+  border: 0;
+  border-radius: 8px;
+  background-color: transparent;
+  cursor: pointer;
+  transition:
+    color var(--tms-transition-fast, 200ms ease),
+    background-color var(--tms-transition-fast, 200ms ease);
+}
+
+/* A theme reset that styles every button (Hello Elementor) turns this one #c36 on focus: the rest look stays. */
+.tms-code-terminal .tms-code-terminal__copy {
+  box-shadow: none;
+  color: var(--tms-code-terminal-title-color);
+  background-color: transparent;
+}
+
+/* Without dots (minimal chrome) the button still hugs the right edge. */
+.tms-code-terminal--minimal .tms-code-terminal__copy {
+  margin-inline-start: auto;
+}
+
+.tms-code-terminal__copy:hover,
+.tms-code-terminal__copy:focus-visible {
+  color: var(--tms-code-terminal-command-color);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.tms-code-terminal__copy:focus-visible {
+  outline: 2px solid var(--tms-primary-color, #5b6cff);
+  outline-offset: 2px;
+}
+
+.tms-code-terminal__copy:active {
+  transform: translateY(1px);
+}
+
+.tms-code-terminal__copy-icon {
+  grid-area: 1 / 1;
+  width: 16px;
+  height: 16px;
+  transition:
+    opacity var(--tms-transition-fast, 200ms ease),
+    transform var(--tms-transition-fast, 200ms ease);
+}
+
+.tms-code-terminal__copy-icon--check {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.tms-code-terminal__copy--copied .tms-code-terminal__copy-icon--copy {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.tms-code-terminal__copy--copied .tms-code-terminal__copy-icon--check {
+  color: var(--tms-code-terminal-success-color);
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ------------------------------------------------------------------------
+ * Body + lines. pre-wrap + anywhere wrapping: long commands fold, the window
+ * never overflows horizontally. The ol is a plain flex column so the
+ * line_gap control maps to row-gap.
+ * ---------------------------------------------------------------------- */
+.tms-code-terminal__body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 24px 24px;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  tab-size: 2;
+}
+
+.tms-code-terminal__lines {
+  display: flex;
+  flex-direction: column;
+  row-gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tms-code-terminal__line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75ch;
+  margin: 0;
+}
+
+.tms-code-terminal__prompt {
+  flex: none;
+  color: var(--tms-code-terminal-prompt-color);
+  user-select: none;
+}
+
+.tms-code-terminal__text {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Per-type ink. */
+.tms-code-terminal__line--command .tms-code-terminal__text {
+  color: var(--tms-code-terminal-command-color);
+}
+
+.tms-code-terminal__line--output .tms-code-terminal__text {
+  color: var(--tms-code-terminal-output-color);
+}
+
+.tms-code-terminal__line--success .tms-code-terminal__text {
+  color: var(--tms-code-terminal-success-color);
+}
+
+.tms-code-terminal__line--error .tms-code-terminal__text {
+  color: var(--tms-code-terminal-error-color);
+}
+
+.tms-code-terminal__line--comment .tms-code-terminal__text {
+  font-style: italic;
+  color: var(--tms-code-terminal-comment-color);
+}
+
+/* ------------------------------------------------------------------------
+ * Typing engine states. --armed is applied by JS only AFTER it snapshots the
+ * transcript, so content is never hidden without the engine standing by.
+ * ---------------------------------------------------------------------- */
+.tms-code-terminal--armed .tms-code-terminal__line:not(.tms-code-terminal__line--shown) {
+  display: none;
+}
+
+/* Block cursor — JS seats it at the end of the active command. steps() gives
+ * the hard on/off toggle of a real terminal; --typing holds it solid. */
+.tms-code-terminal__cursor {
+  display: inline-block;
+  width: 0.6ch;
+  height: 1.05em;
+  margin-inline-start: 1px;
+  vertical-align: text-bottom;
+  background-color: var(--tms-code-terminal-cursor-color);
+  animation: tms-code-terminal-blink 1.1s steps(1, end) infinite;
+}
+
+.tms-code-terminal__cursor--typing {
+  animation: none;
+  opacity: 1;
+}
+
+@keyframes tms-code-terminal-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * Screen-reader layer — the full transcript, visually hidden; the animated
+ * list is aria-hidden. The copy-status span announces "Copied" politely.
+ * ---------------------------------------------------------------------- */
+.tms-code-terminal__sr,
+.tms-code-terminal__copy-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.tms-code-terminal__sr p {
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------------
+ * Responsive collapses.
+ * ---------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .tms-code-terminal {
+    border-radius: 12px;
+  }
+
+  .tms-code-terminal__bar {
+    min-height: 44px;
+    padding-inline-start: 12px;
+  }
+
+  .tms-code-terminal--mac .tms-code-terminal__title {
+    max-width: 45%;
+  }
+
+  .tms-code-terminal__body {
+    padding: 16px;
+    font-size: 0.875rem;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * Reduced motion — the engine never arms here (JS bails), so these rules are
+ * a defensive double: every line visible, no blink, no icon transitions.
+ * ---------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .tms-code-terminal--armed .tms-code-terminal__line:not(.tms-code-terminal__line--shown) {
+    display: flex;
+  }
+
+  .tms-code-terminal__cursor {
+    animation: none;
+    opacity: 1;
+  }
+
+  .tms-code-terminal__copy-icon {
+    transition: none;
+  }
+}

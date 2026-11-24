@@ -1,0 +1,101 @@
+/*!
+ * Themeasy — Text Editor Widget Styles
+ *
+ * Rich-text block: multi-column flow and the three drop-cap treatments
+ * (plain letter, stacked block, framed box). Pure CSS — the drop cap is a
+ * ::first-letter treatment, so no markup is injected into the inline-editable
+ * content and nothing runs on the frontend.
+ *
+ * Measure (max width), block position, column count and column gap are written
+ * by the Elementor controls; only the defaults live here.
+ *
+ * Public tokens (--tms-*) are consumed — never private (--themeasy-*).
+ *
+ * @author Themeasy
+ * @link https://themeasy.co
+ * @since 1.0.0
+ */
+
+/* ------------------------------------------------------------------------
+ *
+ * [Content Index]
+ *
+ * 01. Columns
+ * 02. Drop cap — base
+ * 03. Drop cap — views (stacked, framed)
+ *
+ * ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------
+ * 01. Columns
+ * ------------------------------------------------------------------------ */
+
+/* #region Columns */
+
+/* Column count, gap and divider style come from the controls. Everything here is
+   inert until the text actually flows in more than one column: orphans/widows
+   only apply inside a fragmented context (multi-column, print), and the rule
+   metrics stay invisible until a column-rule-style other than none is chosen -
+   so picking a style alone already yields a sane hairline. */
+.tms-text-editor {
+  orphans: 2;
+  widows: 2;
+  column-rule-width: 1px;
+  column-rule-color: var(--tms-border-color, #e5e7eb);
+}
+
+/* #endregion Columns */
+
+/* ------------------------------------------------------------------------
+ * 02. Drop cap — base
+ * ------------------------------------------------------------------------ */
+
+/* #region Drop cap — base */
+
+/* ::first-letter reaches the first letter of the first formatted line, so the
+   treatment works on whatever the WYSIWYG produced (a <p>, a heading, a bare
+   text node) without wrapping the letter in a span - a wrapper would be saved
+   back into the editor value by Elementor inline editing. */
+.tms-text-editor--drop-cap::first-letter {
+  float: left;
+  float: inline-start;
+  padding: var(--tms-text-editor-drop-cap-padding, 0);
+  margin-inline-end: var(--tms-text-editor-drop-cap-space, 0.08em);
+  font-family: var(--tms-heading-font, inherit);
+  font-size: 3.5em;
+  font-weight: var(--tms-heading-font-weight, 600);
+  line-height: 1;
+  color: var(--tms-text-editor-drop-cap-color, var(--tms-heading-color, #1d2023));
+  background-color: var(--tms-text-editor-drop-cap-background, transparent);
+  border-style: solid;
+  border-width: 0;
+  border-color: var(--tms-text-editor-drop-cap-border-color, currentColor);
+  border-radius: var(--tms-text-editor-drop-cap-radius, 0);
+}
+
+/* #endregion Drop cap — base */
+
+/* ------------------------------------------------------------------------
+ * 03. Drop cap — views
+ * ------------------------------------------------------------------------ */
+
+/* #region Drop cap — views */
+
+/* Same specificity as the base rule, so source order decides — keep below. */
+.tms-text-editor--drop-cap-stacked::first-letter {
+  padding: var(--tms-text-editor-drop-cap-padding, 0.08em 0.14em);
+  color: var(--tms-text-editor-drop-cap-color, #fff);
+  background-color: var(--tms-text-editor-drop-cap-background, var(--tms-primary-color, #3772ff));
+  border-radius: var(--tms-text-editor-drop-cap-radius, var(--tms-radius-sm, 0.5rem));
+}
+
+.tms-text-editor--drop-cap-framed::first-letter {
+  padding: var(--tms-text-editor-drop-cap-padding, 0.08em 0.14em);
+  color: var(--tms-text-editor-drop-cap-color, var(--tms-primary-color, #3772ff));
+  background-color: var(--tms-text-editor-drop-cap-background, transparent);
+  border-width: var(--tms-text-editor-drop-cap-border-width, 2px);
+  border-color: var(--tms-text-editor-drop-cap-border-color, var(--tms-primary-color, #3772ff));
+  border-radius: var(--tms-text-editor-drop-cap-radius, var(--tms-radius-sm, 0.5rem));
+}
+
+/* #endregion Drop cap — views */

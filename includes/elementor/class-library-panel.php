@@ -145,6 +145,8 @@ class Library_Panel {
       // Where the button of a `pro` card goes: the card shows locked.
       'upgradeUrl' => esc_url_raw( Welcome_Page::checkout_url( 'pro' ) ),
       'catalogUrl' => esc_url_raw( $catalog_url ),
+      // The tier the panel opens on.
+      'defaultTier' => 'free',
       'i18n' => $this->strings(),
     ];
 
@@ -208,6 +210,10 @@ class Library_Panel {
       'upgradeToInsert' => esc_html__( 'Upgrade to insert', 'themeasy-lite' ),
       'loading' => esc_html__( 'Loading templates...', 'themeasy-lite' ),
       'empty' => esc_html__( 'No templates match your filters.', 'themeasy-lite' ),
+      'emptyFree' => esc_html__( 'No Free templates here yet.', 'themeasy-lite' ),
+      'showPro' => esc_html__( 'Show Pro templates', 'themeasy-lite' ),
+      'tierAll' => esc_html__( 'All', 'themeasy-lite' ),
+      'tierLabel' => esc_html__( 'Filter templates', 'themeasy-lite' ),
       'error' => esc_html__( 'Something went wrong. Please try again.', 'themeasy-lite' ),
       'retry' => esc_html__( 'Retry', 'themeasy-lite' ),
       'prev' => esc_html__( 'Previous', 'themeasy-lite' ),
@@ -215,6 +221,7 @@ class Library_Panel {
       /* translators: 1: current page number, 2: total page count. */
       'pageOf' => esc_html__( 'Page %1$s of %2$s', 'themeasy-lite' ),
       'results' => esc_html__( 'templates', 'themeasy-lite' ),
+      'resultsOne' => esc_html__( 'template', 'themeasy-lite' ),
     ];
   }
 }

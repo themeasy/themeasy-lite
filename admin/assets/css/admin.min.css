@@ -22,6 +22,7 @@
  * 07. Library
  * 08. Features
  * 09. Getting Started
+ * 10. Themeasy AI
  *
  * ------------------------------------------------------------------------ */
 
@@ -257,6 +258,7 @@ body #wpfooter {
 /* #region Hero */
 
 .themeasy-admin__hero {
+  position: relative;
   padding: 3rem 2rem 3.5rem;
   border-radius: 1rem;
   border: 1px solid var(--themeasy-border-color);
@@ -293,6 +295,25 @@ body #wpfooter {
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.75rem;
+}
+
+/* The Lite's hero has no visible title: the line sits right under the logo. */
+.themeasy-admin__hero--compact .themeasy-admin__lead {
+  margin-top: 1.5rem;
+}
+
+/* The one Upgrade button: above the logo on a phone, in the corner from 783px. */
+.themeasy-admin .themeasy-admin__upgrade {
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 783px) {
+  .themeasy-admin .themeasy-admin__upgrade {
+    position: absolute;
+    inset-block-start: 1.5rem;
+    inset-inline-end: 1.5rem;
+    margin-bottom: 0;
+  }
 }
 
 /* #endregion Hero */
@@ -457,4 +478,114 @@ body #wpfooter {
   text-underline-offset: 0.2em;
 }
 
+/* "Already purchased?" opens on demand. */
+.themeasy-admin__details {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--themeasy-border-color);
+}
+
+.themeasy-admin__details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 -0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  list-style: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.themeasy-admin__details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* The chevron points down when closed and up when open. */
+.themeasy-admin__details > summary::after {
+  content: '';
+  flex-shrink: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-inline-end: 0.35rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-25%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.themeasy-admin__details[open] > summary {
+  margin-bottom: 1rem;
+}
+
+.themeasy-admin__details[open] > summary::after {
+  transform: translateY(25%) rotate(-135deg);
+}
+
+.themeasy-admin__details > summary:hover {
+  background-color: var(--themeasy-surface-color);
+}
+
+.themeasy-admin__details > summary:focus-visible {
+  outline: 2px solid var(--themeasy-primary-color);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .themeasy-admin__details > summary,
+  .themeasy-admin__details > summary::after {
+    transition: none;
+  }
+}
+
 /* #endregion Getting Started */
+
+/* ------------------------------------------------------------------------
+ * 10. Themeasy AI
+ * ------------------------------------------------------------------------ */
+
+/* #region Themeasy AI */
+
+.themeasy-admin__ai {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-top: 3rem;
+  padding: 1.5rem 2rem;
+  border-radius: 1rem;
+  border: 1px solid var(--themeasy-border-color);
+  background-color: var(--themeasy-surface-color);
+}
+
+.themeasy-admin__ai-text {
+  flex: 1 1 320px;
+}
+
+.themeasy-admin__ai .themeasy-admin__section-title {
+  margin-top: 0;
+  margin-bottom: 0.35rem;
+}
+
+.themeasy-admin__ai .themeasy-admin__section-lead {
+  margin: 0;
+}
+
+/* White on both brand colors passes AA: 5.2:1 on the primary, 5.9:1 on the secondary. */
+.themeasy-admin__new-badge {
+  display: inline-block;
+  margin-inline-start: 0.5rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background-image: linear-gradient(90deg, var(--themeasy-primary-color), var(--themeasy-secondary-color));
+  color: var(--themeasy-white-color);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+/* #endregion Themeasy AI */

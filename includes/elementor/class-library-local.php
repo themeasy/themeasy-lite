@@ -109,11 +109,17 @@ class Library_Local {
    * unreachable, the local set is served alone — the offline guarantee of the
    * theme-bundled library.
    *
+   * Theme cards count as All and Free and never as Pro: the Pro view keeps them
+   * out, and still drops the cloud twin of one, so a template the site already
+   * holds never shows locked.
+   *
    * @param array<string,mixed>      $result Internal proxy result envelope.
    * @param array<string,string|int> $query  Sanitized listing query.
    * @return array<string,mixed>
    */
   public function merge_templates( array $result, array $query ): array {
+    $is_pro_view = 'pro' === ( $query['tier'] ?? '' );
+
     $tag = isset( $query['tag'] ) ? (string) $query['tag'] : '';
 
     // Local templates carry no tags, so an active tag filter matches none.
@@ -155,6 +161,19 @@ class Library_Local {
 
       $data['items'] = $kept;
 
+      // A backstage without the tier filter sends no counts: the panel then
+      // hides its control, so the theme cards are merged as they always were.
+      if ( isset( $data['tier_counts'] ) && is_array( $data['tier_counts'] ) ) {
+        $data['tier_counts']['all'] = (int) ( $data['tier_counts']['all'] ?? 0 ) + count( $local );
+        $data['tier_counts']['free'] = (int) ( $data['tier_counts']['free'] ?? 0 ) + count( $local );
+      }
+
+      if ( $is_pro_view && isset( $data['tier_counts'] ) ) {
+        $result['data'] = $data;
+
+        return $result;
+      }
+
       if ( 1 === $page ) {
         $data['items'] = array_merge( $local, $data['items'] );
       }
@@ -166,16 +185,19 @@ class Library_Local {
     }
 
     // Backstage unreachable: the theme-bundled library still works on its own.
+    $shown = $is_pro_view ? [] : $local;
+
     return [
       'ok' => true,
       'code' => '',
       'message' => '',
       'data' => [
-        'items' => $local,
-        'total' => count( $local ),
+        'items' => $shown,
+        'total' => count( $shown ),
         'page' => 1,
-        'per_page' => count( $local ),
+        'per_page' => max( 1, count( $shown ) ),
         'pages' => 1,
+        'tier_counts' => ['all' => count( $local ), 'free' => count( $local ), 'pro' => 0],
       ],
     ];
   }
@@ -431,8 +453,8 @@ class Library_Local {
   }
 
   /**
-   * The attachment holding a file of uploads/ ("2026/07/mark.svg"), or 0. The
-   * demo importer keeps the year/month of each upload, so the path usually
+   * The attachment holding a file of uploads/ ("2026/07/mark.svg"), or 0. An
+   * import keeps the year/month of each upload, so the path usually
    * matches as it is; when the name was taken it stores "-1", so the same name
    * anywhere in uploads/ is the fallback.
    *
@@ -627,9 +649,10 @@ class Library_Local {
 
     if ( !empty( $decoded['title'] ) && is_string( $decoded['title'] ) ) {
       // Decode entities from pre-fix snapshots (the CMS once exported
-      // kses-encoded titles like "Brass &amp; Blade"); the card renders via
+      // kses-encoded titles like "Brass &amp; Blade", and texturized ones like
+      // "Kids&#8217;" up to its 1.2.5, backlog #509); the card renders via
       // textContent, so a leftover entity would show literally.
-      $title = wp_specialchars_decode( sanitize_text_field( $decoded['title'] ), ENT_QUOTES );
+      $title = html_entity_decode( sanitize_text_field( $decoded['title'] ), ENT_QUOTES, 'UTF-8' );
     }
 
     if ( '' === $title ) {

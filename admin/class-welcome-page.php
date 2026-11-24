@@ -2,11 +2,12 @@
 /**
  * Welcome page: the Themeasy menu of the Free build.
  *
- * Registers the branded `themeasy` top-level menu and its page: a Getting
- * Started guide first (the free widgets, how to reach them in Elementor,
- * help), how a buyer swaps this plugin for the Themeasy plugin (backlog #268),
- * a look at the template library, and what each paid plan adds, with a plain
- * link to its checkout (launch runbook S12, decisions O2-b and C4-b).
+ * Registers the branded `themeasy` top-level menu and its page, in this order:
+ * a Getting Started guide (the free widgets, how to reach them in Elementor,
+ * help), real Free templates of the library, a short card on Themeasy AI, and
+ * how a buyer swaps this plugin for the Themeasy plugin (backlog #268). The
+ * plans live on the Site: the page holds one Upgrade button, in its header and
+ * in the submenu (owner, 2026-11-23).
  *
  * The page reads no license, plan or trial: it is the same for every site
  * (backlog #362).
@@ -29,18 +30,22 @@ class Welcome_Page {
   /** Hook suffix WordPress assigns to the top-level page. */
   protected const SCREEN_ID = 'toplevel_page_themeasy';
 
-  /** External Themeasy template library. */
-  protected const LIBRARY_URL = 'https://library.themeasy.co';
+  /** The Template Library's templates, for the hero button of this page. */
+  protected const TEMPLATES_URL = 'https://library.themeasy.co/templates/';
 
   /**
-   * The Freemius checkout of each plan, as the pricing page sells them: Widgets
-   * is the plugin alone (product 31006), Pro and Agency the bundle (31981, the
-   * plugin plus every Themeasy theme).
+   * The fixed tags of this page's external links: never the site, the user, the
+   * version or anything else about the install.
    */
+  protected const LINK_TAGS = [
+    'utm_source' => 'themeasy-lite',
+    'utm_medium' => 'plugin',
+    'utm_campaign' => 'lite-admin',
+  ];
+
+  /** The checkout a locked template of the library's panel opens. */
   protected const CHECKOUT_URLS = [
-    'widgets' => 'https://checkout.freemius.com/plugin/31006/plan/70021/',
     'pro' => 'https://checkout.freemius.com/bundle/31981/plan/52465/',
-    'agency' => 'https://checkout.freemius.com/bundle/31981/plan/52629/',
   ];
 
   /**
@@ -49,21 +54,14 @@ class Welcome_Page {
    */
   protected const HUB_PRODUCT_URL = 'https://hub.themeasy.co/account/products/themeasy';
 
+  /** Where the plans are, for the one Upgrade button. */
+  protected const PRICING_URL = 'https://themeasy.co/pricing/';
+
+  /** The Themeasy AI page. */
+  protected const AI_URL = 'https://themeasy.co/ai/';
+
   /** The Themeasy Help Center (the widgets' own help links point here too). */
   protected const HELP_URL = 'https://hub.themeasy.co/docs';
-
-  /**
-   * Widgets per paid plan, as the paid Themeasy plugin registers them: the
-   * Widgets plan, and Pro with a Themeasy theme and on any other theme, where the
-   * WooCommerce widgets and the two cart widgets stay out (they need the theme's
-   * WooCommerce runtime). The copy names them as counts, which
-   * tests/widgets-plan-drift.php keeps in step with the widget trees.
-   */
-  protected const WIDGETS_PLAN_COUNT = 87;
-
-  protected const FULL_OFFER_COUNT = 128;
-
-  protected const FULL_OFFER_ANY_THEME_COUNT = 119;
 
   /**
    * Register the menu and the page.
@@ -76,16 +74,24 @@ class Welcome_Page {
   }
 
   /**
-   * Where a plan's buy button goes: the plan's checkout, where the Widgets plan
-   * starts its 3-day trial, as on the pricing page (runbook S17).
+   * The plain checkout of a plan.
    *
-   * @param string $plan One of 'widgets', 'pro', 'agency'.
+   * @param string $plan The plan's slug.
    * @return string
    */
   public static function checkout_url( string $plan ): string {
-    $checkout = self::CHECKOUT_URLS[$plan] ?? self::CHECKOUT_URLS['pro'];
+    return self::CHECKOUT_URLS[$plan] ?? self::CHECKOUT_URLS['pro'];
+  }
 
-    return 'widgets' === $plan ? add_query_arg( 'trial', 'paid', $checkout ) : $checkout;
+  /**
+   * An external link of this page with its fixed tags and the slot it sits in.
+   *
+   * @param string $url  The plain URL.
+   * @param string $slot Where the link sits on the page.
+   * @return string
+   */
+  protected static function tagged_url( string $url, string $slot ): string {
+    return add_query_arg( array_merge( self::LINK_TAGS, ['utm_content' => $slot] ), $url );
   }
 
   /**
@@ -113,6 +119,14 @@ class Welcome_Page {
       self::PAGE_SLUG,
       [__CLASS__, 'render_page']
     );
+
+    add_submenu_page(
+      self::PAGE_SLUG,
+      esc_html__( 'Upgrade', 'themeasy-lite' ),
+      esc_html__( 'Upgrade', 'themeasy-lite' ),
+      'manage_options',
+      static::tagged_url( self::PRICING_URL, 'upgrade-menu' )
+    );
   }
 
   /**
@@ -138,7 +152,7 @@ class Welcome_Page {
   }
 
   /**
-   * Render the page: the Getting Started guide, then what the paid plans add.
+   * Render the page: Getting Started, the library, Themeasy AI, Already purchased.
    *
    * @return void
    */
@@ -152,184 +166,39 @@ class Welcome_Page {
       <div class="themeasy-admin__container container">
         <div class="themeasy-admin__content">
 
-          <div class="themeasy-admin__hero">
+          <div class="themeasy-admin__hero themeasy-admin__hero--compact">
+            <a class="themeasy-admin__button themeasy-admin__upgrade button button-outline" href="<?php echo esc_url( static::tagged_url( self::PRICING_URL, 'upgrade-header' ) ); ?>" target="_blank" rel="noopener">
+              <?php esc_html_e( 'Upgrade', 'themeasy-lite' ); ?>
+            </a>
             <div class="themeasy-admin__brand">
               <?php echo wp_kses( self::logo_svg(), SVG_Sanitizer::get_allowed_tags() ); ?>
             </div>
-            <h1 class="themeasy-admin__title">
+            <h1 class="screen-reader-text">
               <?php esc_html_e( 'Welcome to Themeasy', 'themeasy-lite' ); ?>
             </h1>
             <p class="themeasy-admin__lead">
-              <?php esc_html_e( 'Free Elementor widgets that work in any theme, with no license to activate. Here is how to start building with them.', 'themeasy-lite' ); ?>
+              <?php esc_html_e( 'Free Elementor widgets for any WordPress theme. No license key required.', 'themeasy-lite' ); ?>
             </p>
             <div class="themeasy-admin__actions">
               <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( self::new_page_url() ); ?>">
                 <?php esc_html_e( 'Create a Page', 'themeasy-lite' ); ?>
               </a>
-              <a class="themeasy-admin__button button button-outline button-hero" href="<?php echo esc_url( self::LIBRARY_URL ); ?>" target="_blank" rel="noopener">
+              <a class="themeasy-admin__button button button-outline button-hero" href="<?php echo esc_url( static::tagged_url( self::TEMPLATES_URL, 'library-hero' ) ); ?>" target="_blank" rel="noopener">
                 <?php esc_html_e( 'Browse the Template Library', 'themeasy-lite' ); ?>
               </a>
             </div>
           </div>
 
           <?php self::render_getting_started(); ?>
-          <?php self::render_already_purchased(); ?>
           <?php self::render_library(); ?>
-
-          <div class="themeasy-admin__features">
-            <h2 class="themeasy-admin__section-title">
-              <?php esc_html_e( 'Themeasy Widgets', 'themeasy-lite' ); ?>
-            </h2>
-            <p class="themeasy-admin__section-lead">
-              <?php esc_html_e( 'The Pro widgets and their motion, in the theme you already use.', 'themeasy-lite' ); ?>
-            </p>
-            <?php self::render_feature_list( self::widgets_plan_features() ); ?>
-            <p class="themeasy-admin__section-lead">
-              <?php esc_html_e( 'Card required. Billed yearly after 3 days unless you cancel.', 'themeasy-lite' ); ?>
-            </p>
-            <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( self::checkout_url( 'widgets' ) ); ?>">
-              <?php esc_html_e( 'Start 3-day trial', 'themeasy-lite' ); ?>
-            </a>
-          </div>
-
-          <div class="themeasy-admin__features">
-            <h2 class="themeasy-admin__section-title">
-              <?php esc_html_e( 'Everything in Pro', 'themeasy-lite' ); ?>
-            </h2>
-            <p class="themeasy-admin__section-lead">
-              <?php esc_html_e( 'Everything in Themeasy Widgets, plus the complete site toolkit:', 'themeasy-lite' ); ?>
-            </p>
-            <?php self::render_feature_list( self::pro_features() ); ?>
-            <?php if ( !current_theme_supports( 'themeasy-compatible' ) ) : ?>
-              <p class="themeasy-admin__section-lead">
-                <?php esc_html_e( 'The theme builder, global sections, container controls, settings panel, and WooCommerce features run on a Themeasy theme, and every Themeasy theme comes with Pro. The other widgets work in any theme.', 'themeasy-lite' ); ?>
-              </p>
-            <?php endif; ?>
-            <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( self::checkout_url( 'pro' ) ); ?>">
-              <?php esc_html_e( 'Get Themeasy Pro', 'themeasy-lite' ); ?>
-            </a>
-          </div>
-
-          <div class="themeasy-admin__features">
-            <h2 class="themeasy-admin__section-title">
-              <?php esc_html_e( 'Themeasy Agency', 'themeasy-lite' ); ?>
-            </h2>
-            <p class="themeasy-admin__section-lead">
-              <?php esc_html_e( 'Everything in Pro, plus White Label: your brand in place of Themeasy\'s, for the sites you build for clients.', 'themeasy-lite' ); ?>
-            </p>
-            <?php self::render_feature_list( self::agency_features() ); ?>
-            <a class="themeasy-admin__button button button-primary button-hero" href="<?php echo esc_url( self::checkout_url( 'agency' ) ); ?>">
-              <?php esc_html_e( 'Get Themeasy Agency', 'themeasy-lite' ); ?>
-            </a>
-          </div>
+          <?php self::render_ai_card(); ?>
+          <?php self::render_already_purchased(); ?>
 
         </div><!-- /.themeasy-admin__content -->
       </div><!-- /.themeasy-admin__container -->
     </div><!-- /.themeasy-admin -->
 
     <?php
-  }
-
-  /**
-   * What the Widgets plan adds, for its block of the page.
-   *
-   * @return array<int, array{icon: string, text: string}>
-   */
-  protected static function widgets_plan_features(): array {
-    return [
-      [
-        'icon' => 'feature-widgets.svg',
-        'text' => sprintf(
-          /* translators: %s: number of widgets. */
-          _n(
-            '%s widget — the free ones plus the Pro content widgets: text, media, elements, blocks, sliders, and data',
-            '%s widgets — the free ones plus the Pro content widgets: text, media, elements, blocks, sliders, and data',
-            self::WIDGETS_PLAN_COUNT,
-            'themeasy-lite'
-          ),
-          number_format_i18n( self::WIDGETS_PLAN_COUNT )
-        ),
-      ],
-      [
-        'icon' => 'feature-motion.svg',
-        'text' => __( 'Themeasy Motion — entrance, hover, scroll, and text animations', 'themeasy-lite' ),
-      ],
-      [
-        'icon' => 'feature-any-theme.svg',
-        'text' => __( 'Any theme — Hello Elementor, Astra, Twenty Twenty-Five, and more', 'themeasy-lite' ),
-      ],
-    ];
-  }
-
-  /**
-   * What Pro adds to the Widgets plan, for its block of the page.
-   *
-   * @return array<int, array{icon: string, text: string}>
-   */
-  protected static function pro_features(): array {
-    return [
-      [
-        'icon' => 'feature-themes.svg',
-        'text' => __( 'Every Themeasy theme — the whole collection, and each new one', 'themeasy-lite' ),
-      ],
-      [
-        'icon' => 'feature-theme-builder.svg',
-        'text' => __( 'Theme builder — custom headers, footers, and global sections', 'themeasy-lite' ),
-      ],
-      [
-        'icon' => 'feature-widgets.svg',
-        'text' => sprintf(
-          /* translators: 1: number of widgets with a Themeasy theme, 2: number of widgets in any other theme. */
-          _n(
-            'Every widget category — header, post, site, footer, WooCommerce, mega menu: %1$s widget with a Themeasy theme, %2$s in any other theme',
-            'Every widget category — header, post, site, footer, WooCommerce, mega menu: %1$s widgets with a Themeasy theme, %2$s in any other theme',
-            self::FULL_OFFER_COUNT,
-            'themeasy-lite'
-          ),
-          number_format_i18n( self::FULL_OFFER_COUNT ),
-          number_format_i18n( self::FULL_OFFER_ANY_THEME_COUNT )
-        ),
-      ],
-      [
-        'icon' => 'feature-containers.svg',
-        'text' => __( 'Container controls — sticky columns, scroll and hover animations, and background effects', 'themeasy-lite' ),
-      ],
-      [
-        'icon' => 'feature-settings.svg',
-        'text' => __( 'Full settings panel — colors, typography, performance, custom code', 'themeasy-lite' ),
-      ],
-      [
-        'icon' => 'feature-woocommerce.svg',
-        'text' => __( 'WooCommerce enhancements — variation swatches, custom fields, and more', 'themeasy-lite' ),
-      ],
-      [
-        'icon' => 'feature-library.svg',
-        'text' => __( 'The Pro templates of the Themeasy Library, inserted in one click', 'themeasy-lite' ),
-      ],
-      [
-        'icon' => 'feature-support.svg',
-        'text' => __( 'Support through the Themeasy help desk', 'themeasy-lite' ),
-      ],
-    ];
-  }
-
-  /**
-   * What Agency adds to Pro: exactly where the White Label rebrands (decision
-   * C4-b); the rest of the editor carries no brand at all since backlog #282.
-   *
-   * @return array<int, array{icon: string, text: string}>
-   */
-  protected static function agency_features(): array {
-    return [
-      [
-        'icon' => 'feature-white-label.svg',
-        'text' => __( 'Your brand in the WordPress admin — the plugin\'s menu, page headers, and row on the Plugins screen', 'themeasy-lite' ),
-      ],
-      [
-        'icon' => 'feature-editor.svg',
-        'text' => __( 'Your brand in the Elementor editor — the widget categories, the template library, and the icon library tabs', 'themeasy-lite' ),
-      ],
-    ];
   }
 
   /**
@@ -404,7 +273,7 @@ class Welcome_Page {
         printf(
           /* translators: %s: link to the Themeasy Help Center. */
           esc_html__( 'Need a hand? Every widget has a guide in the %s.', 'themeasy-lite' ),
-          '<a href="' . esc_url( self::HELP_URL ) . '" target="_blank" rel="noopener">' . esc_html__( 'Themeasy Help Center', 'themeasy-lite' ) . '</a>'
+          '<a href="' . esc_url( static::tagged_url( self::HELP_URL, 'help-center' ) ) . '" target="_blank" rel="noopener">' . esc_html__( 'Themeasy Help Center', 'themeasy-lite' ) . '</a>'
         );
         ?>
       </p>
@@ -413,7 +282,7 @@ class Welcome_Page {
   }
 
   /**
-   * Print the "Already purchased?" steps (backlog #268). This plugin takes no
+   * Print the "Already purchased?" steps, collapsed (backlog #268). This plugin takes no
    * license key: a buyer downloads the Themeasy plugin, which deactivates this
    * one when it is activated.
    *
@@ -421,10 +290,10 @@ class Welcome_Page {
    */
   protected static function render_already_purchased(): void {
     ?>
-    <div class="themeasy-admin__start" aria-labelledby="themeasy-admin-purchased-title">
-      <h2 id="themeasy-admin-purchased-title" class="themeasy-admin__section-title">
+    <details class="themeasy-admin__start themeasy-admin__details">
+      <summary class="themeasy-admin__section-title">
         <?php esc_html_e( 'Already purchased?', 'themeasy-lite' ); ?>
-      </h2>
+      </summary>
       <p class="themeasy-admin__section-lead">
         <?php esc_html_e( 'Your plan comes with the Themeasy plugin, a separate download that takes the place of Themeasy Lite.', 'themeasy-lite' ); ?>
       </p>
@@ -438,7 +307,7 @@ class Welcome_Page {
             printf(
               /* translators: %s: link to the Themeasy Hub. */
               esc_html__( 'Download Themeasy from the link in your purchase email, or from the %s (sign up with the email you bought with).', 'themeasy-lite' ),
-              '<a href="' . esc_url( self::HUB_PRODUCT_URL ) . '" target="_blank" rel="noopener">' . esc_html__( 'Themeasy Hub', 'themeasy-lite' ) . '</a>'
+              '<a href="' . esc_url( static::tagged_url( self::HUB_PRODUCT_URL, 'hub-download' ) ) . '" target="_blank" rel="noopener">' . esc_html__( 'Themeasy Hub', 'themeasy-lite' ) . '</a>'
             );
             ?>
           </span>
@@ -462,6 +331,31 @@ class Welcome_Page {
           </span>
         </li>
       </ol>
+    </details>
+    <?php
+  }
+
+  /**
+   * Print the short Themeasy AI card. It is no feature of this plugin: the card
+   * says where it is included and links out.
+   *
+   * @return void
+   */
+  protected static function render_ai_card(): void {
+    ?>
+    <div class="themeasy-admin__ai">
+      <div class="themeasy-admin__ai-text">
+        <h2 class="themeasy-admin__section-title">
+          <?php esc_html_e( 'Themeasy AI', 'themeasy-lite' ); ?>
+          <span class="themeasy-admin__new-badge"><?php esc_html_e( 'New', 'themeasy-lite' ); ?></span>
+        </h2>
+        <p class="themeasy-admin__section-lead">
+          <?php esc_html_e( 'Build complete WordPress websites with your own AI assistant. A separate AI service included with Pro and Agency plans.', 'themeasy-lite' ); ?>
+        </p>
+      </div>
+      <a class="themeasy-admin__button button button-outline" href="<?php echo esc_url( static::tagged_url( self::AI_URL, 'ai-card' ) ); ?>" target="_blank" rel="noopener">
+        <?php esc_html_e( 'Learn more', 'themeasy-lite' ); ?>
+      </a>
     </div>
     <?php
   }
@@ -483,32 +377,39 @@ class Welcome_Page {
 
       <div class="themeasy-admin__grid">
         <?php
-        // Each card pairs a library thumbnail (admin/assets/img/library/) with
-        // its tier badge: real template screenshots, 1080x810 webp
-        // (admin.min.css holds that 4:3 ratio). Swap one by overwriting its
-        // slot file; another format needs the extension updated here.
-        $templates = [
-          ['image' => 'template-1.webp', 'tier' => 'pro'],
-          ['image' => 'template-2.webp', 'tier' => 'pro'],
-          ['image' => 'template-3.webp', 'tier' => 'pro'],
-          ['image' => 'template-4.webp', 'tier' => 'pro'],
-          ['image' => 'template-5.webp', 'tier' => 'pro'],
-          ['image' => 'template-6.webp', 'tier' => 'pro'],
-        ];
-
-        foreach ( $templates as $template ) :
-          $is_free_template = 'free' === $template['tier'];
+        foreach ( static::library_cards() as $template ) :
           ?>
-          <div class="themeasy-admin__card themeasy-admin__card--<?php echo esc_attr( $is_free_template ? 'free' : 'pro' ); ?>" aria-hidden="true">
-            <img class="themeasy-admin__card-image" src="<?php echo esc_url( THEMEASY_URL . 'admin/assets/img/library/' . $template['image'] ); ?>" alt="" loading="lazy" />
+          <div class="themeasy-admin__card themeasy-admin__card--<?php echo esc_attr( $template['tier'] ); ?>" aria-hidden="true">
+            <img class="themeasy-admin__card-image" src="<?php echo esc_url( $template['url'] ); ?>" alt="" loading="lazy" />
             <span class="themeasy-admin__badge">
-              <?php echo esc_html( $is_free_template ? __( 'Free', 'themeasy-lite' ) : __( 'Pro', 'themeasy-lite' ) ); ?>
+              <?php echo esc_html( $template['label'] ); ?>
             </span>
           </div>
         <?php endforeach; ?>
       </div>
     </div>
     <?php
+  }
+
+  /**
+   * The library's cards on this page: real Free templates, captured from this
+   * build, 1080x810 webp (admin.min.css holds that 4:3 ratio). They carry no
+   * photograph, so everything the plugin bundles stays GPL-compatible.
+   *
+   * @return array<int, array{url: string, tier: string, label: string}>
+   */
+  protected static function library_cards(): array {
+    $cards = [];
+
+    for ( $index = 1; $index <= 6; $index++ ) {
+      $cards[] = [
+        'url' => THEMEASY_URL . 'admin/assets/img/library/free-template-' . $index . '.webp',
+        'tier' => 'free',
+        'label' => __( 'Free', 'themeasy-lite' ),
+      ];
+    }
+
+    return $cards;
   }
 
   /**
@@ -548,28 +449,6 @@ class Welcome_Page {
     }
 
     return admin_url( 'post-new.php?post_type=page' );
-  }
-
-  /**
-   * Print a feature list: each entry pairs an admin SVG (admin/assets/svg/)
-   * with its label. Swap an icon by overwriting the slot file.
-   *
-   * @param array<int, array{icon: string, text: string}> $features Icon filename + label.
-   * @return void
-   */
-  protected static function render_feature_list( array $features ): void {
-    ?>
-    <ul class="themeasy-admin__feature-list">
-      <?php foreach ( $features as $feature ) : ?>
-        <li class="themeasy-admin__feature">
-          <span class="themeasy-admin__feature-icon" aria-hidden="true">
-            <?php echo wp_kses( self::read_svg( $feature['icon'] ), SVG_Sanitizer::get_allowed_tags() ); ?>
-          </span>
-          <span class="themeasy-admin__feature-text"><?php echo esc_html( $feature['text'] ); ?></span>
-        </li>
-      <?php endforeach; ?>
-    </ul>
-    <?php
   }
 
   /**

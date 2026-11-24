@@ -10,6 +10,35 @@
       </fields-in-item>
     </widget>
 
+    <!-- Audio Player -->
+    <widget name="themeasy-audio-player">
+      <fields-in-item items_of="tracks">
+        <field type="Audio Player: Title" editor_type="LINE">track_title</field>
+        <field type="Audio Player: Artist" editor_type="LINE">track_artist</field>
+        <field type="Audio Player: File URL" editor_type="LINK" key_of="track_audio_url">url</field>
+        <field type="Audio Player: Duration" editor_type="LINE">track_duration</field>
+      </fields-in-item>
+    </widget>
+
+    <!-- Badge List -->
+    <widget name="themeasy-badge-list">
+      <fields>
+        <field type="Badge List: Cursor Text" editor_type="LINE">cursor_text</field>
+      </fields>
+      <fields-in-item items_of="badge_list">
+        <field type="Badge List: Text" editor_type="LINE">text</field>
+        <field type="Badge List: Link" editor_type="LINK" key_of="link">url</field>
+      </fields-in-item>
+    </widget>
+
+    <!-- Before / After -->
+    <widget name="themeasy-before-after">
+      <fields>
+        <field type="Before / After: Label" editor_type="LINE">before_label</field>
+        <field type="Before / After: Label" editor_type="LINE">after_label</field>
+      </fields>
+    </widget>
+
     <!-- Blockquote -->
     <widget name="themeasy-blockquote">
       <fields>
@@ -63,6 +92,68 @@
       </fields>
     </widget>
 
+    <!-- Card Extended -->
+    <widget name="themeasy-card-extended">
+      <fields>
+        <field type="Card Extended: Vertical Label" editor_type="LINE">label</field>
+        <field type="Card Extended: Title" editor_type="AREA">title</field>
+        <field type="Card Extended: Description" editor_type="AREA">description</field>
+        <field type="Card Extended: Label" editor_type="LINE">button_label</field>
+        <field type="Card Extended: Hidden Label" editor_type="LINE">button_hidden_label</field>
+        <field type="Card Extended: Link" editor_type="LINK">link>url</field>
+        <field type="Card Extended: Video Link" editor_type="LINE">button_gradient_color_video_link</field>
+        <field type="Card Extended: Video Link" editor_type="LINE">button_hover_gradient_color_video_link</field>
+      </fields>
+      <fields-in-item items_of="icon_list">
+        <field type="Card Extended: URL" editor_type="LINK" key_of="link">url</field>
+      </fields-in-item>
+    </widget>
+
+    <!-- Code Terminal -->
+    <widget name="themeasy-code-terminal">
+      <fields>
+        <field type="Code Terminal: Window Title" editor_type="LINE">window_title</field>
+      </fields>
+      <fields-in-item items_of="lines">
+        <field type="Code Terminal: Text" editor_type="LINE">line_text</field>
+        <field type="Code Terminal: Prompt" editor_type="LINE">line_prompt</field>
+      </fields-in-item>
+    </widget>
+
+    <!-- Comparison Table -->
+    <widget name="themeasy-comparison-table">
+      <fields>
+        <field type="Comparison Table: Feature Column Label" editor_type="LINE">first_column_label</field>
+      </fields>
+      <fields-in-item items_of="plans">
+        <field type="Comparison Table: Plan Name" editor_type="LINE">plan_name</field>
+        <field type="Comparison Table: Price" editor_type="LINE">plan_price</field>
+        <field type="Comparison Table: Billing Period" editor_type="LINE">plan_period</field>
+        <field type="Comparison Table: Subtitle" editor_type="LINE">plan_subtitle</field>
+        <field type="Comparison Table: Badge Text" editor_type="LINE">plan_badge</field>
+        <field type="Comparison Table: Button Text" editor_type="LINE">plan_button_text</field>
+        <field type="Comparison Table: Button Link" editor_type="LINK" key_of="plan_button_link">url</field>
+      </fields-in-item>
+      <fields-in-item items_of="features">
+        <field type="Comparison Table: Label" editor_type="LINE">feature_label</field>
+        <field type="Comparison Table: Tooltip" editor_type="LINE">feature_tooltip</field>
+        <field type="Comparison Table: Values" editor_type="AREA">feature_values</field>
+      </fields-in-item>
+    </widget>
+
+    <!-- Countdown Timer -->
+    <widget name="themeasy-countdown-timer">
+      <fields>
+        <field type="Countdown Timer: Days Label" editor_type="LINE">days_label</field>
+        <field type="Countdown Timer: Hours Label" editor_type="LINE">hours_label</field>
+        <field type="Countdown Timer: Minutes Label" editor_type="LINE">minutes_label</field>
+        <field type="Countdown Timer: Seconds Label" editor_type="LINE">seconds_label</field>
+        <field type="Countdown Timer: Message" editor_type="AREA">expire_message</field>
+        <field type="Countdown Timer: Redirect To" editor_type="LINK">expire_redirect>url</field>
+        <field type="Countdown Timer: Video Link" editor_type="LINE">unit_background_video_link</field>
+      </fields>
+    </widget>
+
     <!-- Call to Action -->
     <widget name="themeasy-cta">
       <fields>
@@ -84,6 +175,40 @@
         <field type="Divider: Text" editor_type="LINE">element_text</field>
         <field type="Divider: Video Link" editor_type="LINE">line_gradient_video_link</field>
       </fields>
+    </widget>
+
+    <!-- FAQ Accordion -->
+    <widget name="themeasy-faq-accordion">
+      <fields-in-item items_of="items">
+        <field type="FAQ Accordion: Question" editor_type="LINE">question</field>
+        <field type="FAQ Accordion: Answer" editor_type="VISUAL">answer</field>
+      </fields-in-item>
+    </widget>
+
+    <!-- Headline -->
+    <widget name="themeasy-headline">
+      <fields>
+        <field type="Headline: Pre Title" editor_type="AREA">pre_title</field>
+        <field type="Headline: Text 1" editor_type="AREA">title_text_1</field>
+        <field type="Headline: Text 2" editor_type="AREA">title_text_2</field>
+        <field type="Headline: Text 3" editor_type="AREA">title_text_3</field>
+        <field type="Headline: Description" editor_type="AREA">description</field>
+        <field type="Headline: Video Link" editor_type="LINE">title_text_1_gradient_video_link</field>
+        <field type="Headline: Video Link" editor_type="LINE">title_text_2_gradient_video_link</field>
+        <field type="Headline: Video Link" editor_type="LINE">title_text_3_gradient_video_link</field>
+      </fields>
+    </widget>
+
+    <!-- Hotspot Image -->
+    <widget name="themeasy-hotspot-image">
+      <fields-in-item items_of="hotspots">
+        <field type="Hotspot Image: Admin Label" editor_type="LINE">hotspot_label</field>
+        <field type="Hotspot Image: Number / Label" editor_type="LINE">hotspot_number</field>
+        <field type="Hotspot Image: Tooltip Heading" editor_type="LINE">tooltip_heading</field>
+        <field type="Hotspot Image: Tooltip Description" editor_type="AREA">tooltip_description</field>
+        <field type="Hotspot Image: Link" editor_type="LINK" key_of="tooltip_link">url</field>
+        <field type="Hotspot Image: Link Label" editor_type="LINE">tooltip_link_label</field>
+      </fields-in-item>
     </widget>
 
     <!-- Icon -->
@@ -118,11 +243,33 @@
       </fields>
     </widget>
 
+    <!-- Image Accordion -->
+    <widget name="themeasy-image-accordion">
+      <fields-in-item items_of="items">
+        <field type="Image Accordion: Title" editor_type="LINE">title</field>
+        <field type="Image Accordion: Description" editor_type="AREA">description</field>
+        <field type="Image Accordion: Button Label" editor_type="LINE">button_label</field>
+        <field type="Image Accordion: Link" editor_type="LINK" key_of="link">url</field>
+      </fields-in-item>
+    </widget>
+
     <!-- Logo Wall -->
     <widget name="themeasy-logo-wall">
       <fields-in-item items_of="logos">
         <field type="Logo Wall: Name" editor_type="LINE">logo_name</field>
         <field type="Logo Wall: Link" editor_type="LINK" key_of="logo_link">url</field>
+      </fields-in-item>
+    </widget>
+
+    <!-- Price List -->
+    <widget name="themeasy-price-list">
+      <fields-in-item items_of="items">
+        <field type="Price List: Title" editor_type="LINE">item_title</field>
+        <field type="Price List: Description" editor_type="AREA">item_description</field>
+        <field type="Price List: Price" editor_type="LINE">item_price</field>
+        <field type="Price List: Original Price" editor_type="LINE">item_original_price</field>
+        <field type="Price List: Badge" editor_type="LINE">item_badge</field>
+        <field type="Price List: Link" editor_type="LINK" key_of="item_link">url</field>
       </fields-in-item>
     </widget>
 
@@ -162,6 +309,15 @@
       </fields>
     </widget>
 
+    <!-- Slide Button -->
+    <widget name="themeasy-slide-button">
+      <fields>
+        <field type="Slide Button: Label" editor_type="LINE">text</field>
+        <field type="Slide Button: Hover Label" editor_type="LINE">hover_text</field>
+        <field type="Slide Button: Link" editor_type="LINK">link>url</field>
+      </fields>
+    </widget>
+
     <!-- Social Profiles -->
     <widget name="themeasy-social-profiles">
       <fields-in-item items_of="profiles">
@@ -170,12 +326,41 @@
       </fields-in-item>
     </widget>
 
+    <!-- Social Share Row -->
+    <widget name="themeasy-social-share-row">
+      <fields>
+        <field type="Social Share Row: Custom Share URL" editor_type="LINK">custom_share_url>url</field>
+        <field type="Social Share Row: Custom Share Text" editor_type="AREA">custom_share_text</field>
+        <field type="Social Share Row: Copy Success Message" editor_type="LINE">copy_success_message</field>
+        <field type="Social Share Row: Copy Error Message" editor_type="LINE">copy_error_message</field>
+      </fields>
+      <fields-in-item items_of="networks">
+        <field type="Social Share Row: Label" editor_type="LINE">label</field>
+        <field type="Social Share Row: Custom URL" editor_type="LINK" key_of="custom_url">url</field>
+      </fields-in-item>
+    </widget>
+
+    <!-- Star Rating -->
+    <widget name="themeasy-star-rating">
+      <fields>
+        <field type="Star Rating: Title" editor_type="LINE">title</field>
+        <field type="Star Rating: Caption" editor_type="LINE">count_text</field>
+      </fields>
+    </widget>
+
     <!-- Steps -->
     <widget name="themeasy-steps">
       <fields-in-item items_of="steps_items">
         <field type="Steps: Title" editor_type="AREA">title</field>
         <field type="Steps: Content" editor_type="VISUAL">content</field>
       </fields-in-item>
+    </widget>
+
+    <!-- Table of Contents -->
+    <widget name="themeasy-table-of-contents">
+      <fields>
+        <field type="Table of Contents: Title" editor_type="LINE">title_text</field>
+      </fields>
     </widget>
 
     <!-- Team Member -->
@@ -201,6 +386,13 @@
         <field type="Testimonial: Occupation Info" editor_type="LINE">occupation_info</field>
         <field type="Testimonial: Testimonial Text" editor_type="AREA">testimonial_text</field>
         <field type="Testimonial: Video Link" editor_type="LINE">occupation_info_background_video_link</field>
+      </fields>
+    </widget>
+
+    <!-- Text Editor -->
+    <widget name="themeasy-text-editor">
+      <fields>
+        <field type="Text Editor: Text Editor" editor_type="VISUAL">text</field>
       </fields>
     </widget>
 

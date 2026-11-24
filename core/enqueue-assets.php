@@ -36,8 +36,7 @@ function themeasy_asset_ver( string $relative ) {
  * Whether the plugin's front-end layers load on demand on this request.
  *
  * The layers are the design tokens, the core, components, effects and
- * accessibility CSS and the Bootstrap CSS under them (the premium build adds its
- * core JS runtime). A Themeasy theme is built on them (its style.css depends on
+ * accessibility CSS and the Bootstrap CSS under them. A Themeasy theme is built on them (its style.css depends on
  * the Bootstrap layer), so there they load on every page. On any other theme
  * they serve the Themeasy widgets alone: the FOUC preload enqueues them in
  * <head> when a document of the page holds a Themeasy widget, and a document
@@ -56,6 +55,27 @@ function themeasy_front_layers_on_demand(): bool {
 
   return $on_demand;
 }
+
+/**
+ * Mark the body of a Themeasy theme's page, the scope of the page-wide rules of
+ * core.min.css (font smoothing).
+ *
+ * The theme's own `tbase-body` misses a page on Elementor's Canvas template,
+ * which prints its own <body>, and an older theme cannot learn a new class: the
+ * plugin puts it on every template, from the theme support it already reads.
+ * Off a Themeasy theme those rules reach the Themeasy widgets only.
+ *
+ * @param string[] $classes Body classes.
+ * @return string[]
+ */
+function themeasy_add_theme_body_class( array $classes ): array {
+  if ( current_theme_supports( 'themeasy-compatible' ) ) {
+    $classes[] = 'tms-themeasy-theme';
+  }
+
+  return $classes;
+}
+add_filter( 'body_class', 'themeasy_add_theme_body_class' );
 
 /**
  * The handles of the front-end layers, in cascade order.
@@ -357,62 +377,163 @@ add_action( 'wp_enqueue_scripts', 'themeasy_auto_register_widget_assets', 7 );
  * @return void
  */
 function themeasy_register_widget_assets_in( string $relative ): void {
-  $base_path = trailingslashit( THEMEASY_PATH . ltrim( $relative, '/' ) );
   $base_url = trailingslashit( THEMEASY_URL . ltrim( $relative, '/' ) );
-  $version = themeasy_get_asset_version();
 
-  if ( !is_dir( $base_path ) ) {
-    return;
+  foreach ( themeasy_get_widget_asset_files( $relative ) as [$file, $prefix, $version] ) {
+    $folder = dirname( $file );
+    $url = '.' === $folder ? $base_url : trailingslashit( $base_url . $folder );
+
+    themeasy_register_asset_from_file( basename( $file ), $url, $version, '' === $prefix ? null : $prefix );
+  }
+}
+
+/**
+ * The widget CSS and JS files under one asset root, with their versions.
+ *
+ * The scan (a scandir, two globs per widget folder, a stat per file) cost ~75 ms
+ * of every front request over the two roots, for a list that changes only with
+ * the plugin's files (backlog #474). So it is cached by plugin version, the file
+ * mtimes included, and flushed when the plugin is updated
+ * (themeasy_flush_widget_asset_files_cache_on_upgrade()). A development site
+ * scans live, so editing an asset still changes its ?ver: WP_DEBUG, or the local
+ * and development environment types (every LocalWP site declares 'local').
+ *
+ * @param string $relative Asset root relative to the plugin root (e.g. 'assets/widgets/').
+ * @return array<int, array{0: string, 1: string, 2: string}> Path from the root,
+ *         handle prefix ('' for a file at the root), version.
+ */
+function themeasy_get_widget_asset_files( string $relative ): array {
+  static $roots = null;
+
+  $relative = trailingslashit( ltrim( $relative, '/' ) );
+  $cache_key = 'themeasy_widget_asset_files_' . themeasy_get_asset_version();
+  $is_dev = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) || in_array( wp_get_environment_type(), ['local', 'development'], true );
+
+  /**
+   * Filters whether the widget asset list is cached (default: off on a development site).
+   *
+   * @param bool $cache Whether to cache the list and the file versions.
+   */
+  $cache = (bool) apply_filters( 'themeasy/cache_widget_asset_files', !$is_dev );
+
+  if ( null === $roots ) {
+    $stored = $cache ? get_transient( $cache_key ) : false;
+    $roots = is_array( $stored ) ? $stored : [];
   }
 
-  $items = scandir( $base_path );
+  if ( isset( $roots[$relative] ) ) {
+    return $roots[$relative];
+  }
 
-  foreach ( $items as $item ) {
+  $base_path = THEMEASY_PATH . $relative;
+  $version = themeasy_get_asset_version();
+  $files = [];
+  $items = is_dir( $base_path ) ? scandir( $base_path ) : false;
+
+  foreach ( is_array( $items ) ? $items : [] as $item ) {
     if ( in_array( $item, ['.', '..'], true ) ) {
       continue;
     }
 
     $item_path = $base_path . $item;
-    $item_url = $base_url . $item;
 
     // Direct files in /widgets/ (e.g. bundle.min.css).
     if ( is_file( $item_path ) ) {
-      themeasy_register_asset_from_file( $item, $base_path, $base_url, $version );
+      $paths = in_array( pathinfo( $item, PATHINFO_EXTENSION ), ['css', 'js'], true ) ? [$item_path] : [];
+      $prefix = '';
+    } elseif ( is_dir( $item_path ) ) {
+      // Subdirectories like /video/, /steps/, etc. Two globs, never
+      // GLOB_BRACE: musl builds of PHP (Alpine) do not define it, and an
+      // undefined constant is a fatal on PHP 8.
+      $css_files = glob( $item_path . '/*.css' );
+      $js_files = glob( $item_path . '/*.js' );
+      $paths = array_merge( is_array( $css_files ) ? $css_files : [], is_array( $js_files ) ? $js_files : [] );
+      $prefix = $item;
+    } else {
       continue;
     }
 
-    // Subdirectories like /slider/, /image-distortion/, etc.
-    if ( is_dir( $item_path ) ) {
-      // Two globs, never GLOB_BRACE: musl builds of PHP (Alpine) do not define it,
-      // and an undefined constant is a fatal on PHP 8.
-      $dir = trailingslashit( $item_path );
-      $css_files = glob( $dir . '*.css' );
-      $js_files = glob( $dir . '*.js' );
-      $widget_files = array_merge( is_array( $css_files ) ? $css_files : [], is_array( $js_files ) ? $js_files : [] );
-
-      if ( empty( $widget_files ) ) {
-        continue;
-      }
-
-      foreach ( $widget_files as $file_path ) {
-        $file_name = basename( $file_path );
-        themeasy_register_asset_from_file( $file_name, trailingslashit( $item_path ), trailingslashit( $item_url ), $version, $item );
-      }
+    foreach ( $paths as $path ) {
+      $files[] = [
+        ( '' === $prefix ? '' : $prefix . '/' ) . basename( $path ),
+        $prefix,
+        (string) ( is_readable( $path ) ? filemtime( $path ) : $version ),
+      ];
     }
   }
+
+  $roots[$relative] = $files;
+
+  if ( $cache ) {
+    set_transient( $cache_key, $roots, DAY_IN_SECONDS );
+  }
+
+  return $files;
 }
+
+/**
+ * Flush every transient created by themeasy_get_widget_asset_files().
+ *
+ * The key embeds the plugin version, so a release routes to a fresh key, but the
+ * old row would linger for up to DAY_IN_SECONDS, and files changed outside a
+ * version bump would keep their old list and versions until then.
+ *
+ * @return void
+ */
+function themeasy_flush_widget_asset_files_cache(): void {
+  global $wpdb;
+
+  // The running version's key by name first: it also drops the copy this request
+  // already holds, and the one a persistent object cache keeps out of wp_options.
+  delete_transient( 'themeasy_widget_asset_files_' . themeasy_get_asset_version() );
+
+  // Then the older versions' rows, by prefix: no API lists them.
+  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+  $wpdb->query(
+    $wpdb->prepare(
+      "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+      $wpdb->esc_like( '_transient_themeasy_widget_asset_files_' ) . '%',
+      $wpdb->esc_like( '_transient_timeout_themeasy_widget_asset_files_' ) . '%'
+    )
+  );
+}
+
+/**
+ * Flush the widget asset list when this plugin is installed or updated.
+ *
+ * @param \WP_Upgrader $upgrader   Upgrader instance.
+ * @param array        $hook_extra Context data from the upgrader.
+ * @return void
+ */
+function themeasy_flush_widget_asset_files_cache_on_upgrade( $upgrader, $hook_extra ): void {
+  if ( empty( $hook_extra['type'] ) || 'plugin' !== $hook_extra['type'] ) {
+    return;
+  }
+
+  $plugins = isset( $hook_extra['plugins'] ) ? (array) $hook_extra['plugins'] : [];
+
+  if ( isset( $hook_extra['plugin'] ) ) {
+    $plugins[] = (string) $hook_extra['plugin'];
+  }
+
+  if ( !defined( 'THEMEASY_BASENAME' ) || !in_array( THEMEASY_BASENAME, $plugins, true ) ) {
+    return;
+  }
+
+  themeasy_flush_widget_asset_files_cache();
+}
+add_action( 'upgrader_process_complete', 'themeasy_flush_widget_asset_files_cache_on_upgrade', 10, 2 );
 
 /**
  * Register a single CSS or JS file as a WordPress asset.
  *
- * @param string      $filename File name (e.g. slider.min.css).
- * @param string      $path     Full absolute path to the file directory (used for filemtime cache busting).
+ * @param string      $filename File name (e.g. core.min.css).
  * @param string      $url      Public URL to the file directory.
- * @param string      $version  Version string for cache busting.
+ * @param string      $version  The file's version (its mtime, from themeasy_get_widget_asset_files()).
  * @param string|null $prefix   Optional prefix used as the handle base (usually subfolder name).
  * @return void
  */
-function themeasy_register_asset_from_file( string $filename, string $path, string $url, string $version, ?string $prefix = null ): void {
+function themeasy_register_asset_from_file( string $filename, string $url, string $version, ?string $prefix = null ): void {
   // ------------------------------------------------------------------------
   // Handle and URL generation.
   // ------------------------------------------------------------------------
@@ -440,19 +561,16 @@ function themeasy_register_asset_from_file( string $filename, string $path, stri
   $script_deps = themeasy_with_front_layer_deps( 'script', $script_deps );
 
   // ------------------------------------------------------------------------
-  // Register the asset based on its type. Use the file mtime for cache busting
-  // when readable, so in-place edits to the .min sources invalidate caches.
+  // Register the asset based on its type. The version is the file mtime, so
+  // in-place edits to the .min sources invalidate caches.
   // ------------------------------------------------------------------------
-  $file_path = $path . $filename;
-  $asset_ver = is_readable( $file_path ) ? filemtime( $file_path ) : $version;
-
   if ( 'css' === $ext ) {
-    wp_register_style( $handle, $file_url, $style_deps, $asset_ver );
+    wp_register_style( $handle, $file_url, $style_deps, $version );
     return;
   }
 
   if ( 'js' === $ext ) {
-    wp_register_script( $handle, $file_url, $script_deps, $asset_ver, true );
+    wp_register_script( $handle, $file_url, $script_deps, $version, true );
     return;
   }
 }

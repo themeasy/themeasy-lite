@@ -294,8 +294,8 @@ function themeasy_add_external_link_rel( $element, string $key, array $link ): v
  * preset (backlog #273).
  *
  * The `tms-display-1..8` presets are Kit globals that only the Themeasy
- * settings write, when they are saved on a Themeasy theme. The setup wizard and
- * the demo import save none, so a new Themeasy site has no preset until that
+ * settings write, when they are saved on a Themeasy theme. A new Themeasy site
+ * has no preset until that
  * first save, and a Kit keeps them after a theme switch or a downgrade (a save
  * never deletes them). So the active Kit is asked,
  * once per request. A default that points at a missing global shows in the
@@ -389,7 +389,8 @@ function themeasy_bootstrap_columns( int $columns, array $breakpoints = [] ): st
  * @since 1.0.0
  */
 function themeasy_render_image_tag( string $src, string $alt = '', string $class = '', array $attributes = [] ): void {
-  if ( empty( $src ) ) {
+  // esc_url() empties a blocked scheme (javascript:, data:): that is no image.
+  if ( empty( $src ) || '' === esc_url( $src ) ) {
     return;
   }
 
@@ -440,7 +441,8 @@ function themeasy_render_attachment_image( int $image_id = 0, string $size = 'fu
     $sizes = $custom_sizes ?: wp_get_attachment_image_sizes( $image_id, $size );
   }
 
-  if ( empty( $src ) ) {
+  // esc_url() empties a blocked scheme (javascript:, data:): that is no image.
+  if ( empty( $src ) || '' === esc_url( $src ) ) {
     return;
   }
 
@@ -475,8 +477,7 @@ function themeasy_render_attachment_image( int $image_id = 0, string $size = 'fu
  */
 function themeasy_get_svg_icon( string $library, string $icon, string $class = '', string $subfolder = '' ): string {
   // Per-request static cache of the RAW file contents (class injection varies
-  // per call): icons repeat inside loops (carousel arrows, checklist glyphs,
-  // post grids), and re-reading the same file from disk each item adds up.
+  // per call): icons repeat inside loops, and re-reading the same file from disk each item adds up.
   // Misses are cached as '' too, so a broken reference costs one lookup only.
   static $cache = [];
 
@@ -1061,4 +1062,72 @@ function themeasy_is_elementor_preview(): bool {
   }
 
   return false;
+}
+
+/**
+ * Builds a CSS url() token from an Elementor MEDIA control value.
+ *
+ * Never bind a MEDIA control's {{URL}} into a control's `selectors` array.
+ * Elementor only re-derives the URL safely when the value carries an attachment
+ * id; the built-in "Insert from URL" flow leaves the id empty, and
+ * Control_Base_Multiple::get_style_value() then returns the raw string, which is
+ * spliced into the generated per-post stylesheet unescaped. A crafted value
+ * closes the declaration and injects arbitrary CSS for anyone who can edit the
+ * page (confirmed on 2026-07-19). Resolve it here instead and
+ * emit the result as an inline style.
+ *
+ * The double-quoted token is the safe shape: esc_url_raw() strips `"` (the only
+ * character able to break out of it), while the `(`/`)`/`;` it does preserve are
+ * inert inside a quoted CSS string. An unquoted url() token would NOT be safe.
+ *
+ * @param mixed  $media Elementor MEDIA control value ( ['id' => int, 'url' => string] ).
+ * @param string $size  Registered image size used for the attachment lookup.
+ * @return string A `url("…")` token, or '' when no usable image is set.
+ * @since 1.0.0
+ */
+function themeasy_media_css_url( $media, string $size = 'full' ): string {
+  if ( !is_array( $media ) ) {
+    return '';
+  }
+
+  $attachment_id = absint( $media['id'] ?? 0 );
+
+  $url = $attachment_id
+    ? (string) wp_get_attachment_image_url( $attachment_id, $size )
+    : esc_url_raw( (string) ( $media['url'] ?? '' ) );
+
+  if ( '' === $url ) {
+    return '';
+  }
+
+  return 'url("' . $url . '")';
+}
+
+/**
+ * The wp_kses() tags of rich text after Elementor parsed it: the post tags plus
+ * the iframe an oEmbed prints.
+ *
+ * @return array Allowed tags array compatible with wp_kses().
+ * @since 1.3.0
+ */
+function themeasy_get_parsed_text_kses_tags(): array {
+  $tags = wp_kses_allowed_html( 'post' );
+
+  $tags['iframe'] = [
+    'allow' => true,
+    'allowfullscreen' => true,
+    'class' => true,
+    'frameborder' => true,
+    'height' => true,
+    'loading' => true,
+    'name' => true,
+    'referrerpolicy' => true,
+    'sandbox' => true,
+    'src' => true,
+    'style' => true,
+    'title' => true,
+    'width' => true,
+  ];
+
+  return $tags;
 }
